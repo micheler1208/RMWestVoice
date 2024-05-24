@@ -9,7 +9,8 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "CustomLookAndFeel.h"
+#include "CustomLookAndFeelYellow.h"
+#include "CustomLookAndFeelViolet.h"
 #include "PluginProcessor.h"
 
 //==============================================================================
@@ -32,7 +33,9 @@ private:
     juce::Image backgroundImage;
     
     // SLIDERS
-    CustomLookAndFeel customLookAndFeel;
+    CustomLookAndFeelYellow customLookAndFeelYellow;
+    CustomLookAndFeelViolet customLookAndFeelViolet;
+
     juce::Slider attackSlider, decaySlider, sustainSlider, releaseSlider;
     juce::Slider cutoffSlider;
     juce::Slider volumeSlider;

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="tQmux7" name="RM West Voice" projectType="audioplug" useAppConfig="0"
+<JUCERPROJECT id="tQmux7" name="RMWestVoice" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
               headerPath="C:\D\MIKE-VST\WORKSPACE JUCE\JUCE\modules\asioCommon"
               pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut,pluginWantsMidiIn">
-  <MAINGROUP id="mmZiVZ" name="RM West Voice">
+  <MAINGROUP id="mmZiVZ" name="RMWestVoice">
     <GROUP id="{B67CD096-824F-2D43-6B6F-77CD449E3681}" name="Source">
       <GROUP id="{B042B502-7B09-7C73-483A-E0CD169502E7}" name="font">
         <FILE id="i3IGFz" name="timegoing.ttf" compile="0" resource="1" file="Source/font/timegoing.ttf"/>
@@ -13,8 +13,10 @@
       <GROUP id="{3E29AD65-B326-6B96-DA70-7AC3A825E565}" name="img">
         <FILE id="dv12cg" name="background.jpg" compile="0" resource="1" file="Source/img/background.jpg"/>
       </GROUP>
-      <FILE id="eSsYOx" name="CustomLookAndFeel.h" compile="0" resource="0"
-            file="Source/CustomLookAndFeel.h"/>
+      <FILE id="idk77j" name="CustomLookAndFeelViolet.h" compile="0" resource="0"
+            file="Source/CustomLookAndFeelViolet.h"/>
+      <FILE id="eSsYOx" name="CustomLookAndFeelYellow.h" compile="0" resource="0"
+            file="Source/CustomLookAndFeelYellow.h"/>
       <FILE id="Y82sBe" name="Oscillator.h" compile="0" resource="0" file="Source/Oscillator.h"/>
       <FILE id="nHo8Dw" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>

@@ -28,16 +28,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::c
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 1.0f, 3000.0f, 5.0f)); // Default 5ms
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 0.01f, 2000.0f, 0.02f)); // Default 5ms
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", 0.0f, 100.0f, 10.0f)); // Default 10%
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", 0.0f, 100.0f, 15.0f)); // Default 15%
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 1.0f, 5000.0f, 300.0f)); // Default 300ms
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 1.0f, 3000.0f, 400.0f)); // Default 300ms
     params.push_back(std::make_unique<juce::AudioParameterFloat>("CUTOFF", "Cutoff", 20.0f, 20000.0f, 2000.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("LFO_RATE", "LFO Rate", 0.1f, 20.0f, 1.0f)); // LFO Rate
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUME", "Volume", 0.0f, 1.0f, 0.5f)); // Volume
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUME", "Volume", 0.0f, 1.0f, 0.8f)); // Volume
 
     return {params.begin(), params.end()};
 }
+
 
 // GET NAME OF APPLICATION
 const juce::String RMWestVoiceAudioProcessor::getName() const
@@ -145,10 +146,10 @@ void RMWestVoiceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     oscillator.process(block);
 
     // Aggiorna i parametri dell'ADSR con i valori attuali
-    adsrParams.attack = apvts.getRawParameterValue("ATTACK")->load() / 1000.0f; // Converti ms in secondi
-    adsrParams.decay = apvts.getRawParameterValue("DECAY")->load() / 100.0f; // Converti percentuale
-    adsrParams.sustain = apvts.getRawParameterValue("SUSTAIN")->load() / 100.0f; // Converti percentuale
-    adsrParams.release = apvts.getRawParameterValue("RELEASE")->load() / 1000.0f; // Converti ms in secondi
+    adsrParams.attack = apvts.getRawParameterValue("ATTACK")->load()/ 1000.0f; // Converti ms in secondi
+    adsrParams.decay = apvts.getRawParameterValue("DECAY")->load()/ 100.0f; // Converti percentuale
+    adsrParams.sustain = apvts.getRawParameterValue("SUSTAIN")->load()/ 100.0f; // Converti percentuale
+    adsrParams.release = apvts.getRawParameterValue("RELEASE")->load()/ 1000.0f; // Converti ms in secondi
     adsr.setParameters(adsrParams);
 
     adsr.applyEnvelopeToBuffer(buffer, 0, buffer.getNumSamples());
@@ -225,7 +226,7 @@ void RMWestVoiceAudioProcessor::setStateInformation (const void* data, int sizeI
 {
 }
 
-// START ISTANCE
+// START INSTANCE
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new RMWestVoiceAudioProcessor();

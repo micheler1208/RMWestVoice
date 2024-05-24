@@ -2,11 +2,12 @@
 
 #include <JuceHeader.h>
 
-class CustomLookAndFeel : public juce::LookAndFeel_V4
+class CustomLookAndFeelYellow : public juce::LookAndFeel_V4
 {
 public:
-    CustomLookAndFeel() {}
+    CustomLookAndFeelYellow() {}
 
+    // ROTATORY SLIDER
     void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height,
                           float sliderPosProportional, float rotaryStartAngle, float rotaryEndAngle, juce::Slider& slider) override
     {
@@ -29,7 +30,7 @@ public:
         g.fillPath(filledArc);
 
         // Filled Arc
-        g.setColour(juce::Colour::fromRGB(255, 157, 129));
+        g.setColour(juce::Colour::fromRGB(254, 138, 91));
         filledArc.clear();
         filledArc.addPieSegment(rx, ry, rw, rw, rotaryStartAngle, angle, 0.8f);
         g.fillPath(filledArc);
@@ -38,7 +39,8 @@ public:
         juce::Path thumb;
         const float thumbWidth = 4.0f;
         thumb.addRectangle(-thumbWidth / 2, -radius, thumbWidth, radius * 0.6f);
-        g.setColour(juce::Colour::fromRGB(255, 157, 129));
+        g.setColour(juce::Colour::fromRGB(254, 138, 91));
         g.fillPath(thumb, juce::AffineTransform::rotation(angle).translated(centreX, centreY));
     }
+    
 };
