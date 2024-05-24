@@ -1,0 +1,51 @@
+/*
+  ==============================================================================
+
+    This file contains the basic framework code for a JUCE plugin editor.
+
+  ==============================================================================
+*/
+
+#pragma once
+
+#include <JuceHeader.h>
+#include "CustomLookAndFeel.h"
+#include "PluginProcessor.h"
+
+//==============================================================================
+/**
+*/
+class RMWestVoiceAudioProcessorEditor  : public juce::AudioProcessorEditor
+{
+public:
+    RMWestVoiceAudioProcessorEditor (RMWestVoiceAudioProcessor&);
+    ~RMWestVoiceAudioProcessorEditor() override;
+
+    //==============================================================================
+    void paint (juce::Graphics&) override;
+    void resized() override;
+
+private:
+    RMWestVoiceAudioProcessor& audioProcessor;    
+    
+    // IMAGES
+    juce::Image backgroundImage;
+    
+    // SLIDERS
+    CustomLookAndFeel customLookAndFeel;
+    juce::Slider attackSlider, decaySlider, sustainSlider, releaseSlider;
+    juce::Slider cutoffSlider;
+    juce::Slider volumeSlider;
+    
+    juce::Label attackLabel, decayLabel, sustainLabel, releaseLabel, cutoffLabel;
+    juce::Label volumeLabel;
+    
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> decayAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sustainAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cutoffAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volumeAttachment;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RMWestVoiceAudioProcessorEditor)
+};
