@@ -11,11 +11,12 @@ RMWestVoiceAudioProcessor::RMWestVoiceAudioProcessor()
 #endif
                      .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-                     ), apvts(*this, nullptr, "Parameters", createParameters())
+                     ), apvts(*this, nullptr, "Parameters", createParameters()), currentMidiNoteNumber(-1)
 #endif
 {
     oscillator.setWaveform(Oscillator::Saw); // Start with Sawtooth
-    filter.setType(juce::dsp::StateVariableTPTFilterType::lowpass); // 
+    filter.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
+    oscillator.enableGlide(true); // Enable glide by default
 }
 
 // DESTRUCTOR
@@ -31,14 +32,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::c
     params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 0.01f, 2000.0f, 0.25f)); // Default 0.25ms
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", 0.01f, 2000.0f, 1000.0f)); // Default 1000ms
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", -5.0f, 5.0f, -1.5f)); // Default -1.5dB
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 0.01f, 3000.0f, 0.20f)); // Default 0.20ms
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CUTOFF", "Cutoff", 20.0f, 20000.0f, 4500.0f)); // Default 4500hz
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 0.01f, 3000.0f, 200.0f)); // Default 200ms
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("CUTOFF", "Cutoff", 20.0f, 20000.0f, 4800.0f)); // Default 4800hz
     params.push_back(std::make_unique<juce::AudioParameterFloat>("LFO_RATE", "LFO Rate", 0.1f, 20.0f, 1.0f)); // LFO Rate
     params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUME", "Volume", 0.0f, 1.0f, 0.8f)); // Volume
 
     return {params.begin(), params.end()};
 }
-
 
 // GET NAME OF APPLICATION
 const juce::String RMWestVoiceAudioProcessor::getName() const
@@ -114,10 +114,13 @@ void RMWestVoiceAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     oscillator.prepare(spec);
     adsr.setSampleRate(sampleRate);
     filter.prepare(spec);
+    lfo.prepare(spec);
+
+    lfo.setFrequency(apvts.getRawParameterValue("LFO_RATE")->load(), sampleRate); // Imposta la frequenza dell'LFO
 }
 
 // PROCESS BLOCK
-void RMWestVoiceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
 
@@ -133,12 +136,17 @@ void RMWestVoiceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         const auto msg = metadata.getMessage();
         if (msg.isNoteOn())
         {
+            currentMidiNoteNumber = msg.getNoteNumber();
             adsr.noteOn();
-            oscillator.setFrequency(juce::MidiMessage::getMidiNoteInHertz(msg.getNoteNumber()));
+            oscillator.setFrequency(juce::MidiMessage::getMidiNoteInHertz(currentMidiNoteNumber));
         }
         else if (msg.isNoteOff())
         {
-            adsr.noteOff();
+            if (currentMidiNoteNumber == msg.getNoteNumber())
+            {
+                adsr.noteOff();
+                currentMidiNoteNumber = -1;
+            }
         }
     }
 
@@ -146,38 +154,41 @@ void RMWestVoiceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     oscillator.process(block);
 
     // Aggiorna i parametri dell'ADSR con i valori attuali
-    adsrParams.attack = apvts.getRawParameterValue("ATTACK")->load()/ 1000.0f; // Converti ms in secondi
-    adsrParams.decay = apvts.getRawParameterValue("DECAY")->load()/ 1000.0f; // Converti ms in secondi
+    adsrParams.attack = apvts.getRawParameterValue("ATTACK")->load() / 1000.0f; // Converti ms in secondi
+    adsrParams.decay = apvts.getRawParameterValue("DECAY")->load() / 1000.0f; // Converti ms in secondi
     adsrParams.sustain = juce::Decibels::decibelsToGain(apvts.getRawParameterValue("SUSTAIN")->load()); // Converti dB in guadagno lineare
-    adsrParams.release = apvts.getRawParameterValue("RELEASE")->load()/ 1000.0f; // Converti ms in secondi
+    adsrParams.release = apvts.getRawParameterValue("RELEASE")->load() / 1000.0f; // Converti ms in secondi
     adsr.setParameters(adsrParams);
 
     adsr.applyEnvelopeToBuffer(buffer, 0, buffer.getNumSamples());
 
     // Modula la frequenza di cutoff del filtro con il LFO
     float lfoRate = apvts.getRawParameterValue("LFO_RATE")->load();
-    oscillator.setLfoFrequency(lfoRate); // Imposta la frequenza del LFO
+    lfo.setFrequency(lfoRate, getSampleRate()); // Aggiorna la frequenza dell'LFO
 
-    // Ottieni il valore dell'LFO
-    juce::AudioBuffer<float> lfoBuffer(1, buffer.getNumSamples());
-    lfoBuffer.clear();
-    juce::dsp::AudioBlock<float> lfoBlock(lfoBuffer);
-    oscillator.processLFO(lfoBlock);
-    float lfoValue = lfoBlock.getSample(0, 0) * 1000.0f; // Scala il valore del LFO
+    for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+    {
+        float lfoValue = lfo.getNextSample() * 500.0f; // Scala il valore del LFO
 
-    // Applica il filtro al buffer
-    float cutoff = apvts.getRawParameterValue("CUTOFF")->load() + lfoValue;
+        // Applica il filtro al buffer
+        float cutoff = apvts.getRawParameterValue("CUTOFF")->load() + lfoValue;
 
-    // Clamping della frequenza di cutoff per evitare valori non validi
-    cutoff = std::fmax(20.0f, std::fmin(cutoff, getSampleRate() * 0.5f - 1.0f));
-    filter.setCutoffFrequency(cutoff);
+        // Clamping della frequenza di cutoff per evitare valori non validi
+        cutoff = std::fmax(20.0f, std::fmin(cutoff, getSampleRate() * 0.5f - 1.0f));
+        filter.setCutoffFrequency(cutoff);
+
+        for (int channel = 0; channel < totalNumOutputChannels; ++channel)
+        {
+            buffer.setSample(channel, sample, buffer.getSample(channel, sample));
+        }
+    }
 
     juce::dsp::ProcessContextReplacing<float> context(block);
     filter.process(context);
 
     // Applica il controllo del volume
     float volume = apvts.getRawParameterValue("VOLUME")->load();
-    buffer.applyGain(volume);
+    buffer.applyGain(volume * 0.1f);
 }
 
 // STOP PROPERTIES

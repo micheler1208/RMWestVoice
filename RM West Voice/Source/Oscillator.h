@@ -1,31 +1,37 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <cmath>
+#include <array>
 
 class Oscillator
 {
 public:
-    Oscillator()
+    enum Waveform
     {
-        setWaveform(Saw);
-        lfo.initialise([](float x) { return std::sin(x); });
+        Sine = 0,
+        Saw,
+        Triangle
+    };
+
+    Oscillator() : sampleRate(44100.0), phase(0.0), increment(0.0), currentStep(0), totalSteps(55), previousFrequency(0.0f), targetFrequency(0.0f), glideEnabled(false)
+    {
+        setWaveform(Saw); // Default to Saw wave
     }
 
-    void setWaveform(int waveformType)
+    void setWaveform(Waveform waveformType)
     {
+        currentWaveform = waveformType;
         switch (waveformType)
         {
         case Sine:
-            oscillator.initialise([](float x) { return std::sin(x); });
+            oscillator.initialise([](float x) { return std::sin(x); }, 128);
             break;
         case Saw:
-            oscillator.initialise([](float x) { return x / juce::MathConstants<float>::pi; });
-            break;
-        case Square:
-            oscillator.initialise([](float x) { return x < 0.0f ? -1.0f : 1.0f; });
+            oscillator.initialise([](float x) { return generateSaw(x); }, 128);
             break;
         case Triangle:
-            oscillator.initialise([](float x) { return x < 0.0f ? 1.0f + x / juce::MathConstants<float>::pi : 1.0f - x / juce::MathConstants<float>::pi; });
+            oscillator.initialise([](float x) { return generateTriangle(x); }, 128);
             break;
         default:
             jassertfalse; // waveformType not recognized
@@ -35,45 +41,76 @@ public:
 
     void prepare(const juce::dsp::ProcessSpec& spec)
     {
+        sampleRate = spec.sampleRate;
         oscillator.prepare(spec);
-        lfo.prepare(spec);
-        lfoBuffer.setSize(1, spec.maximumBlockSize);
     }
 
-    void setFrequency(float frequency) { oscillator.setFrequency(frequency); }
-    void setLfoFrequency(float frequency) { lfo.setFrequency(frequency); }
+    void setFrequency(float frequency, bool immediate = false)
+    {
+        if (immediate || !glideEnabled)
+        {
+            oscillator.setFrequency(frequency);
+            currentStep = totalSteps;
+        }
+        else
+        {
+            targetFrequency = frequency;
+            currentStep = 0;
+        }
+        previousFrequency = frequency;
+    }
+
+    void enableGlide(bool enable)
+    {
+        glideEnabled = enable;
+    }
 
     void process(juce::dsp::AudioBlock<float>& block)
     {
+        if (currentStep < totalSteps)
+        {
+            float currentFrequency = juce::jmap(currentStep / (float)totalSteps, previousFrequency, targetFrequency);
+            oscillator.setFrequency(currentFrequency);
+            currentStep++;
+        }
+
         juce::dsp::ProcessContextReplacing<float> context(block);
         oscillator.process(context);
     }
 
-    void processLFO(juce::dsp::AudioBlock<float>& block)
+    float getNextSample()
     {
-        juce::dsp::ProcessContextReplacing<float> context(block);
-        lfo.process(context);
-    }
+        if (currentStep < totalSteps)
+        {
+            float currentFrequency = juce::jmap(currentStep / (float)totalSteps, previousFrequency, targetFrequency);
+            oscillator.setFrequency(currentFrequency);
+            currentStep++;
+        }
 
-    float getLfoValue()
-    {
-        lfoBuffer.clear();
-        juce::dsp::AudioBlock<float> lfoBlock(lfoBuffer);
-        juce::dsp::ProcessContextReplacing<float> context(lfoBlock);
-        lfo.process(context);
-        return lfoBlock.getSample(0, 0);
+        return oscillator.processSample(0.0f);
     }
-
-    enum Waveform
-    {
-        Sine = 0,
-        Saw,
-        Square,
-        Triangle
-    };
 
 private:
+    static float generateSaw(float phase)
+    {
+        return 2.0f * (phase / (2.0f * juce::MathConstants<float>::pi) - std::floor(0.5f + phase / (2.0f * juce::MathConstants<float>::pi)));
+    }
+
+    static float generateTriangle(float phase)
+    {
+        float value = 2.0f * std::abs(2.0f * (phase / (2.0f * juce::MathConstants<float>::pi) - std::floor(0.5f + phase / (2.0f * juce::MathConstants<float>::pi)))) - 1.0f;
+        return value;
+    }
+
     juce::dsp::Oscillator<float> oscillator;
-    juce::dsp::Oscillator<float> lfo; // LFO for modulation
-    juce::AudioBuffer<float> lfoBuffer; // Buffer for LFO processing
+    double sampleRate;
+    double phase;
+    double increment;
+    Waveform currentWaveform;
+
+    float previousFrequency;
+    float targetFrequency;
+    int currentStep;
+    const int totalSteps; // Steps for portamento (e.g., 55ms)
+    bool glideEnabled;
 };

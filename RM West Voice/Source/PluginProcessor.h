@@ -10,7 +10,7 @@
 
 #include <JuceHeader.h>
 #include "Oscillator.h"
-
+#include "LFO.h"
 
 
 class RMWestVoiceAudioProcessor  : public juce::AudioProcessor
@@ -54,6 +54,11 @@ public:
     
     juce::AudioProcessorValueTreeState apvts;
     juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
+    
+    
+    LFO lfo;
+    
+    int currentMidiNoteNumber; // Aggiunta variabile membro
 
 private:
     Oscillator oscillator;
