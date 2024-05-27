@@ -15,7 +15,8 @@ RMWestVoiceAudioProcessor::RMWestVoiceAudioProcessor()
 #endif
 {
     oscillator.setWaveform(Oscillator::Saw); // Start with Sawtooth
-    filter.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
+    filter.setMode(juce::dsp::LadderFilterMode::LPF12); // Set filter to LPF 12
+    filter.setDrive(1.2f); // Set drive to 20% (1.0 is no drive, 1.2 is 20% drive)
     oscillator.enableGlide(true); // Enable glide by default
 }
 
@@ -35,7 +36,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::c
     params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 0.01f, 3000.0f, 200.0f)); // Default 200ms
     params.push_back(std::make_unique<juce::AudioParameterFloat>("CUTOFF", "Cutoff", 20.0f, 20000.0f, 4800.0f)); // Default 4800hz
     params.push_back(std::make_unique<juce::AudioParameterFloat>("LFO_RATE", "LFO Rate", 0.1f, 20.0f, 1.0f)); // LFO Rate
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUME", "Volume", 0.0f, 1.0f, 0.8f)); // Volume
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUME", "Volume", 0.0f, 1.0f, 0.6f)); // Volume
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("DETUNE", "Detune", -0.1f, 0.1f, 0.06f)); // Detune, default 6%
 
     return {params.begin(), params.end()};
 }
@@ -166,6 +168,10 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     float lfoRate = apvts.getRawParameterValue("LFO_RATE")->load();
     lfo.setFrequency(lfoRate, getSampleRate()); // Aggiorna la frequenza dell'LFO
 
+    // Applica il valore di detune
+    float detuneValue = apvts.getRawParameterValue("DETUNE")->load();
+    oscillator.setDetune(detuneValue);
+
     for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
     {
         float lfoValue = lfo.getNextSample() * 500.0f; // Scala il valore del LFO
@@ -175,7 +181,7 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
 
         // Clamping della frequenza di cutoff per evitare valori non validi
         cutoff = std::fmax(20.0f, std::fmin(cutoff, getSampleRate() * 0.5f - 1.0f));
-        filter.setCutoffFrequency(cutoff);
+        filter.setCutoffFrequencyHz(cutoff);
 
         for (int channel = 0; channel < totalNumOutputChannels; ++channel)
         {

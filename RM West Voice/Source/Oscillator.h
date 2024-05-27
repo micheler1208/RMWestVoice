@@ -14,7 +14,7 @@ public:
         Triangle
     };
 
-    Oscillator() : sampleRate(44100.0), phase(0.0), increment(0.0), currentStep(0), totalSteps(55), previousFrequency(0.0f), targetFrequency(0.0f), glideEnabled(false)
+    Oscillator() : sampleRate(44100.0), phase(0.0), increment(0.0), currentStep(0), totalSteps(55), previousFrequency(0.0f), targetFrequency(0.0f), glideEnabled(false), detune(0.0f)
     {
         setWaveform(Saw); // Default to Saw wave
     }
@@ -47,6 +47,7 @@ public:
 
     void setFrequency(float frequency, bool immediate = false)
     {
+        frequency *= (1.0f + detune); // Apply detune
         if (immediate || !glideEnabled)
         {
             oscillator.setFrequency(frequency);
@@ -63,6 +64,11 @@ public:
     void enableGlide(bool enable)
     {
         glideEnabled = enable;
+    }
+
+    void setDetune(float detuneAmount)
+    {
+        detune = detuneAmount;
     }
 
     void process(juce::dsp::AudioBlock<float>& block)
@@ -113,4 +119,5 @@ private:
     int currentStep;
     const int totalSteps; // Steps for portamento (e.g., 55ms)
     bool glideEnabled;
+    float detune; // Detune amount
 };

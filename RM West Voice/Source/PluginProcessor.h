@@ -64,7 +64,11 @@ private:
     Oscillator oscillator;
     juce::ADSR adsr;
     juce::ADSR::Parameters adsrParams;
-    juce::dsp::StateVariableTPTFilter<float> filter;
+    juce::dsp::LadderFilter<float> filter; // Cambiato a LadderFilter
+    
+    
+    float detune; // Detune amount
+
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RMWestVoiceAudioProcessor)
 };
