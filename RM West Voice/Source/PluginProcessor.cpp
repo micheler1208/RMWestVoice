@@ -14,8 +14,8 @@ RMWestVoiceAudioProcessor::RMWestVoiceAudioProcessor()
                      ), apvts(*this, nullptr, "Parameters", createParameters())
 #endif
 {
-    oscillator.setWaveform(Oscillator::Triangle); // Start with Triangle waveform
-    filter.setType(juce::dsp::StateVariableTPTFilterType::lowpass); // Default to lowpass filter
+    oscillator.setWaveform(Oscillator::Saw); // Start with Sawtooth
+    filter.setType(juce::dsp::StateVariableTPTFilterType::lowpass); // 
 }
 
 // DESTRUCTOR
@@ -28,11 +28,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::c
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 0.01f, 2000.0f, 0.02f)); // Default 5ms
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", 0.0f, 100.0f, 10.0f)); // Default 10%
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", 0.0f, 100.0f, 15.0f)); // Default 15%
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 1.0f, 3000.0f, 400.0f)); // Default 300ms
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CUTOFF", "Cutoff", 20.0f, 20000.0f, 2000.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 0.01f, 2000.0f, 0.25f)); // Default 0.25ms
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", 0.01f, 2000.0f, 1000.0f)); // Default 1000ms
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", -5.0f, 5.0f, -1.5f)); // Default -1.5dB
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 0.01f, 3000.0f, 0.20f)); // Default 0.20ms
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("CUTOFF", "Cutoff", 20.0f, 20000.0f, 4500.0f)); // Default 4500hz
     params.push_back(std::make_unique<juce::AudioParameterFloat>("LFO_RATE", "LFO Rate", 0.1f, 20.0f, 1.0f)); // LFO Rate
     params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUME", "Volume", 0.0f, 1.0f, 0.8f)); // Volume
 
@@ -147,8 +147,8 @@ void RMWestVoiceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
 
     // Aggiorna i parametri dell'ADSR con i valori attuali
     adsrParams.attack = apvts.getRawParameterValue("ATTACK")->load()/ 1000.0f; // Converti ms in secondi
-    adsrParams.decay = apvts.getRawParameterValue("DECAY")->load()/ 100.0f; // Converti percentuale
-    adsrParams.sustain = apvts.getRawParameterValue("SUSTAIN")->load()/ 100.0f; // Converti percentuale
+    adsrParams.decay = apvts.getRawParameterValue("DECAY")->load()/ 1000.0f; // Converti ms in secondi
+    adsrParams.sustain = juce::Decibels::decibelsToGain(apvts.getRawParameterValue("SUSTAIN")->load()); // Converti dB in guadagno lineare
     adsrParams.release = apvts.getRawParameterValue("RELEASE")->load()/ 1000.0f; // Converti ms in secondi
     adsr.setParameters(adsrParams);
 

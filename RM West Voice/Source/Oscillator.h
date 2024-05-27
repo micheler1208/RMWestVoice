@@ -7,7 +7,7 @@ class Oscillator
 public:
     Oscillator()
     {
-        setWaveform(Triangle);
+        setWaveform(Saw);
         lfo.initialise([](float x) { return std::sin(x); });
     }
 

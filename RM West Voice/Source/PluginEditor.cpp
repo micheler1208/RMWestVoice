@@ -22,12 +22,12 @@ RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAud
     decaySlider.setLookAndFeel(&customLookAndFeelYellow);
     decaySlider.setName("Decay");
     decaySlider.setSliderStyle(juce::Slider::Rotary);
-    decaySlider.setRange(0.0, 100.0, 1.0); // Intervallo in %
-    decaySlider.setTextValueSuffix(" %");
+    decaySlider.setRange(0.01, 2000.0, 0.01); // Intervallo in ms
+    decaySlider.setTextValueSuffix(" ms");
     decaySlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30); 
     decaySlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     decaySlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
-    decaySlider.setNumDecimalPlacesToDisplay(0); // Imposta il numero di cifre decimali da visualizzare
+    decaySlider.setNumDecimalPlacesToDisplay(2); // Imposta il numero di cifre decimali da visualizzare
     addAndMakeVisible(&decaySlider);
     decayAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "DECAY", decaySlider);
 
@@ -35,12 +35,12 @@ RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAud
     sustainSlider.setLookAndFeel(&customLookAndFeelYellow);
     sustainSlider.setName("Sustain");
     sustainSlider.setSliderStyle(juce::Slider::Rotary);
-    sustainSlider.setRange(0.0, 100.0, 1.0); // Intervallo in %
-    sustainSlider.setTextValueSuffix(" %");
+    sustainSlider.setRange(-5.0, 5.0, 0.1); // Intervallo in dB
+    sustainSlider.setTextValueSuffix(" dB");
     sustainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30); 
     sustainSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     sustainSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
-    sustainSlider.setNumDecimalPlacesToDisplay(0); // Imposta il numero di cifre decimali da visualizzare
+    sustainSlider.setNumDecimalPlacesToDisplay(1); // Imposta il numero di cifre decimali da visualizzare
     addAndMakeVisible(&sustainSlider);
     sustainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "SUSTAIN", sustainSlider);
 
