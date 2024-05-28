@@ -7,16 +7,18 @@ RMWestVoiceAudioProcessor::RMWestVoiceAudioProcessor()
     : AudioProcessor(BusesProperties()
 #if ! JucePlugin_IsMidiEffect
 #if ! JucePlugin_IsSynth
-                     .withInput("Input", juce::AudioChannelSet::stereo(), true)
+        .withInput("Input", juce::AudioChannelSet::stereo(), true)
 #endif
-                     .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-                     ), apvts(*this, nullptr, "Parameters", createParameters()), currentMidiNoteNumber(-1)
+    ), apvts(*this, nullptr, "Parameters", createParameters()), currentMidiNoteNumber(-1)
 #endif
 {
     oscillator.setWaveform(Oscillator::Saw); // Start with Sawtooth
     filter.setMode(juce::dsp::LadderFilterMode::LPF12); // Set filter to LPF 12
     filter.setDrive(1.2f); // Set drive to 20% (1.0 is no drive, 1.2 is 20% drive)
+    highPassFilter.setMode(juce::dsp::LadderFilterMode::HPF12); // Set high-pass filter to HPF 12
+    highPassFilter.setCutoffFrequencyHz(200.0f); // Set cutoff frequency to 150 Hz
     oscillator.enableGlide(true); // Enable glide by default
 }
 
@@ -39,7 +41,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::c
     params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUME", "Volume", 0.0f, 1.0f, 0.6f)); // Volume
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DETUNE", "Detune", -0.1f, 0.1f, 0.06f)); // Detune, default 6%
 
-    return {params.begin(), params.end()};
+    return { params.begin(), params.end() };
 }
 
 // GET NAME OF APPLICATION
@@ -51,29 +53,29 @@ const juce::String RMWestVoiceAudioProcessor::getName() const
 // MIDI PROPERTIES
 bool RMWestVoiceAudioProcessor::acceptsMidi() const
 {
-   #if JucePlugin_WantsMidiInput
+#if JucePlugin_WantsMidiInput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool RMWestVoiceAudioProcessor::producesMidi() const
 {
-   #if JucePlugin_ProducesMidiOutput
+#if JucePlugin_ProducesMidiOutput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool RMWestVoiceAudioProcessor::isMidiEffect() const
 {
-   #if JucePlugin_IsMidiEffect
+#if JucePlugin_IsMidiEffect
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 double RMWestVoiceAudioProcessor::getTailLengthSeconds() const
@@ -84,7 +86,7 @@ double RMWestVoiceAudioProcessor::getTailLengthSeconds() const
 // PROGRAM PROPERTIES
 int RMWestVoiceAudioProcessor::getNumPrograms()
 {
-    return 1;   
+    return 1;
 }
 
 int RMWestVoiceAudioProcessor::getCurrentProgram()
@@ -92,21 +94,21 @@ int RMWestVoiceAudioProcessor::getCurrentProgram()
     return 0;
 }
 
-void RMWestVoiceAudioProcessor::setCurrentProgram (int index)
+void RMWestVoiceAudioProcessor::setCurrentProgram(int index)
 {
 }
 
-const juce::String RMWestVoiceAudioProcessor::getProgramName (int index)
+const juce::String RMWestVoiceAudioProcessor::getProgramName(int index)
 {
     return {};
 }
 
-void RMWestVoiceAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void RMWestVoiceAudioProcessor::changeProgramName(int index, const juce::String& newName)
 {
 }
 
 // INIZIALIZATION PROPERTIES
-void RMWestVoiceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void RMWestVoiceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
@@ -116,6 +118,7 @@ void RMWestVoiceAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     oscillator.prepare(spec);
     adsr.setSampleRate(sampleRate);
     filter.prepare(spec);
+    highPassFilter.prepare(spec); // Prepare high-pass filter
     lfo.prepare(spec);
 
     lfo.setFrequency(apvts.getRawParameterValue("LFO_RATE")->load(), sampleRate); // Imposta la frequenza dell'LFO
@@ -191,6 +194,7 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
 
     juce::dsp::ProcessContextReplacing<float> context(block);
     filter.process(context);
+    highPassFilter.process(context); // Process the high-pass filter
 
     // Applica il controllo del volume
     float volume = apvts.getRawParameterValue("VOLUME")->load();
@@ -204,22 +208,22 @@ void RMWestVoiceAudioProcessor::releaseResources()
 
 // OUTPUT PROPERTIES
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool RMWestVoiceAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool RMWestVoiceAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 {
-  #if JucePlugin_IsMidiEffect
-    juce::ignoreUnused (layouts);
+#if JucePlugin_IsMidiEffect
+    juce::ignoreUnused(layouts);
     return true;
-  #else
+#else
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+        && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
-   #if ! JucePlugin_IsSynth
+#if ! JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
-   #endif
+#endif
 
     return true;
-  #endif
+#endif
 }
 #endif
 
@@ -231,15 +235,15 @@ bool RMWestVoiceAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* RMWestVoiceAudioProcessor::createEditor()
 {
-    return new RMWestVoiceAudioProcessorEditor (*this);
+    return new RMWestVoiceAudioProcessorEditor(*this);
 }
 
 // STATE PROPERTIES
-void RMWestVoiceAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void RMWestVoiceAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
 }
 
-void RMWestVoiceAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void RMWestVoiceAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
 }
 

@@ -64,8 +64,8 @@ private:
     Oscillator oscillator;
     juce::ADSR adsr;
     juce::ADSR::Parameters adsrParams;
-    juce::dsp::LadderFilter<float> filter; // Cambiato a LadderFilter
-    
+    juce::dsp::LadderFilter<float> filter; 
+    juce::dsp::LadderFilter<float> highPassFilter; 
     
     float detune; // Detune amount
 
