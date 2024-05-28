@@ -17,7 +17,6 @@
             file="Source/CustomLookAndFeelViolet.h"/>
       <FILE id="eSsYOx" name="CustomLookAndFeelYellow.h" compile="0" resource="0"
             file="Source/CustomLookAndFeelYellow.h"/>
-      <FILE id="Y82sBe" name="Oscillator.h" compile="0" resource="0" file="Source/Oscillator.h"/>
       <FILE id="nHo8Dw" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="DCVHCF" name="PluginProcessor.h" compile="0" resource="0"
@@ -25,6 +24,8 @@
       <FILE id="ZJL6dC" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="ZCoWsw" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="qjNPbc" name="SynthSound.h" compile="0" resource="0" file="Source/SynthSound.h"/>
+      <FILE id="Pgde3H" name="SynthVoice.h" compile="0" resource="0" file="Source/SynthVoice.h"/>
       <FILE id="Ku4KqB" name="LFO.h" compile="0" resource="0" file="Source/LFO.h"/>
     </GROUP>
   </MAINGROUP>
