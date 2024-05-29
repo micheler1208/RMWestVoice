@@ -11,21 +11,17 @@ RMWestVoiceAudioProcessor::RMWestVoiceAudioProcessor()
 #endif
         .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-    ),
-    apvts(*this, nullptr, "Parameters", createParameters())
+    )
 #endif
 {
-    for (int i = 0; i < 1; ++i)
-        synth.addVoice(new SynthVoice());
-
-    synth.addSound(new SynthSound());
+    
 }
 
 // DESTRUCTOR
 RMWestVoiceAudioProcessor::~RMWestVoiceAudioProcessor() {}
 
 // CREATE PARAMETERS
-juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::createParameters()
+/*juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::createParameters()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
@@ -39,11 +35,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::c
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DETUNE", "Detune", -0.1f, 0.1f, 0.06f)); // Detune, default 6%
 
     return { params.begin(), params.end() };
-}
+}*/
 
 // PREPARE TO PLAY
 void RMWestVoiceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+    
+}
+/*{
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
@@ -58,12 +57,15 @@ void RMWestVoiceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
             voice->prepare(spec);
         }
     }
-}
+}*/
 
 
 // PROCESS BLOCK
 void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    
+}
+/*{
     juce::ScopedNoDenormals noDenormals;
     buffer.clear();
 
@@ -81,7 +83,7 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     // Apply master gain
     float volume = apvts.getRawParameterValue("VOLUME")->load();
     buffer.applyGain(volume * 0.1f);
-}
+}*/
 
 
 

@@ -15,62 +15,23 @@ public:
 
     bool canPlaySound(juce::SynthesiserSound* sound) override
     {
-        return dynamic_cast<SynthSound*>(sound) != nullptr;
     }
 
-    void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound*, int /*currentPitchWheelPosition*/) override
-    {
-        adsr.noteOn();
-        currentMidiNoteNumber = midiNoteNumber;
-        currentFrequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
-        updatePhaseIncrement();
-        DBG("Start Note - MidiNote: " << midiNoteNumber << " Frequency: " << currentFrequency);
-        phase = 0.0; // Reset phase when a new note starts
-    }
 
     void stopNote(float /*velocity*/, bool allowTailOff) override
     {
-        adsr.noteOff();
-        if (!allowTailOff || !adsr.isActive())
-            clearCurrentNote();
+   
     }
-
-    void pitchWheelMoved(int /*newValue*/) override {}
-    void controllerMoved(int /*controllerNumber*/, int /*newValue*/) override {}
 
     void renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override
     {
-        juce::dsp::AudioBlock<float> block(outputBuffer);
-        juce::dsp::ProcessContextReplacing<float> context(block.getSubBlock((size_t)startSample, (size_t)numSamples));
-
-        for (int sample = 0; sample < numSamples; ++sample)
-        {
-            float currentSample = oscillator.processSample(phase);
-            phase += phaseIncrement;
-            if (phase >= juce::MathConstants<double>::twoPi)
-                phase -= juce::MathConstants<double>::twoPi;
-
-            for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
-            {
-                outputBuffer.addSample(channel, startSample + sample, adsr.getNextSample() * currentSample);
-            }
-        }
-
-        // Apply filter
-        filter.process(context);
     }
 
     void prepare(const juce::dsp::ProcessSpec& spec)
     {
-        oscillator.prepare(spec);
-        adsr.setSampleRate(spec.sampleRate);
-        sampleRate = spec.sampleRate;
-
-        // Prepare the filter
-        filter.prepare(spec);
-        filter.setMode(juce::dsp::LadderFilter<float>::Mode::LPF12); // Set filter mode
     }
-
+    
+    /*
     void updateParameters(const juce::AudioProcessorValueTreeState& apvts)
     {
         // Update ADSR parameters
@@ -93,10 +54,16 @@ public:
 
         // Update volume
         volume = apvts.getRawParameterValue("VOLUME")->load();
-    }
+    }*/
 
 private:
-    static float generateSaw(float phase)
+    
+
+
+
+
+
+    /*static float generateSaw(float phase)
     {
         return 2.0f * (phase / (2.0f * juce::MathConstants<float>::pi)) - 1.0f;
     }
@@ -123,5 +90,5 @@ private:
     // Glide properties
     bool glideEnabled = true;
     int currentStep = 0;
-    const int totalSteps = 55; // Steps for portamento (e.g., 55ms)
+    const int totalSteps = 55; // Steps for portamento (e.g., 55ms)*/
 };
