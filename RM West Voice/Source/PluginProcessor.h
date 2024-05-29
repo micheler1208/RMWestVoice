@@ -33,12 +33,13 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    juce::AudioProcessorValueTreeState apvts;
+    //juce::AudioProcessorValueTreeState apvts;
 
 private:
-    juce::AudioProcessorValueTreeState::ParameterLayout createParameters(); // <--- Aggiungi questa linea
-
+    //juce::AudioProcessorValueTreeState::ParameterLayout createParameters(); 
     juce::Synthesiser synth;
+    juce::dsp::Oscillator<float> osc{ [](float x) {return std::sin(x);}};
+    juce::dsp::Gain<float> gain;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RMWestVoiceAudioProcessor)
 };

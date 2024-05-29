@@ -40,7 +40,16 @@ RMWestVoiceAudioProcessor::~RMWestVoiceAudioProcessor() {}
 // PREPARE TO PLAY
 void RMWestVoiceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    
+    juce::dsp::ProcessSpec spec;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.sampleRate = sampleRate;
+    spec.numChannels = getTotalNumOutputChannels();
+
+    osc.prepare(spec);
+    gain.prepare(spec);
+
+    osc.setFrequency(440.0f);
+    gain.setGainLinear(0.01f);
 }
 /*{
     juce::dsp::ProcessSpec spec;
@@ -63,7 +72,17 @@ void RMWestVoiceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
 // PROCESS BLOCK
 void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    
+    juce::ScopedNoDenormals noDenormals;
+    auto totalNumInputChannels = getTotalNumInputChannels();
+    auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; i++) {
+        buffer.clear(i, 0, buffer.getNumSamples());
+    }
+
+    juce::dsp::AudioBlock<float> audioBlock{buffer};
+    osc.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
+    gain.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
 }
 /*{
     juce::ScopedNoDenormals noDenormals;

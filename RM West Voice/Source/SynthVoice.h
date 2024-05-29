@@ -10,7 +10,7 @@ public:
     SynthVoice()
     {
         // Initialize the oscillator with a sawtooth waveform
-        oscillator.initialise([](float x) { return generateSaw(x); }, 512);
+        //oscillator.initialise([](float x) { return generateSaw(x); }, 512);
     }
 
     bool canPlaySound(juce::SynthesiserSound* sound) override
