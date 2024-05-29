@@ -1,4 +1,13 @@
-// PluginEditor.cpp
+/*
+  ==============================================================================
+
+    PluginEditor.cpp
+    Author:  micheler1208
+
+  ==============================================================================
+*/
+
+
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 

@@ -25,6 +25,7 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="ZCoWsw" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
       <FILE id="qjNPbc" name="SynthSound.h" compile="0" resource="0" file="Source/SynthSound.h"/>
+      <FILE id="w93qPm" name="SynthVoice.cpp" compile="1" resource="0" file="Source/SynthVoice.cpp"/>
       <FILE id="Pgde3H" name="SynthVoice.h" compile="0" resource="0" file="Source/SynthVoice.h"/>
       <FILE id="Ku4KqB" name="LFO.h" compile="0" resource="0" file="Source/LFO.h"/>
     </GROUP>

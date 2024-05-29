@@ -1,7 +1,17 @@
+/*
+  ==============================================================================
+
+    PluginProcessor.h
+    Author:  micheler1208
+
+  ==============================================================================
+*/
+
 #pragma once
 
 #include <JuceHeader.h>
 #include "SynthVoice.h"
+#include "SynthSound.h"
 
 class RMWestVoiceAudioProcessor  : public juce::AudioProcessor
 {
@@ -37,9 +47,9 @@ public:
 
 private:
     //juce::AudioProcessorValueTreeState::ParameterLayout createParameters(); 
+
+
     juce::Synthesiser synth;
-    juce::dsp::Oscillator<float> osc{ [](float x) {return std::sin(x);}};
-    juce::dsp::Gain<float> gain;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RMWestVoiceAudioProcessor)
 };

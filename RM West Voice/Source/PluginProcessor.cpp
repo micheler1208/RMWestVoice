@@ -1,3 +1,12 @@
+/*
+  ==============================================================================
+
+    PluginProcessor.cpp
+    Author:  micheler1208
+
+  ==============================================================================
+*/
+
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
@@ -5,69 +14,35 @@
 RMWestVoiceAudioProcessor::RMWestVoiceAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(BusesProperties()
-#if ! JucePlugin_IsMidiEffect
-#if ! JucePlugin_IsSynth
-        .withInput("Input", juce::AudioChannelSet::stereo(), true)
-#endif
-        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-#endif
-    )
+          #if ! JucePlugin_IsMidiEffect
+           #if ! JucePlugin_IsSynth
+            .withInput("Input", juce::AudioChannelSet::stereo(), true)
+           #endif
+            .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+          #endif
+            )
 #endif
 {
-    
+    synth.addSound(new SynthSound());
+    synth.addVoice(new SynthVoice());
 }
 
 // DESTRUCTOR
 RMWestVoiceAudioProcessor::~RMWestVoiceAudioProcessor() {}
 
-// CREATE PARAMETERS
-/*juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::createParameters()
-{
-    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
-
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 0.01f, 2000.0f, 0.25f)); // Default 0.25ms
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", 0.01f, 2000.0f, 1000.0f)); // Default 1000ms
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", -5.0f, 5.0f, -1.5f)); // Default -1.5dB
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 0.01f, 3000.0f, 200.0f)); // Default 200ms
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CUTOFF", "Cutoff", 20.0f, 20000.0f, 4800.0f)); // Default 4800hz
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("LFO_RATE", "LFO Rate", 0.1f, 20.0f, 1.0f)); // LFO Rate
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUME", "Volume", 0.0f, 1.0f, 0.6f)); // Volume
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("DETUNE", "Detune", -0.1f, 0.1f, 0.06f)); // Detune, default 6%
-
-    return { params.begin(), params.end() };
-}*/
-
 // PREPARE TO PLAY
 void RMWestVoiceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    juce::dsp::ProcessSpec spec;
-    spec.maximumBlockSize = samplesPerBlock;
-    spec.sampleRate = sampleRate;
-    spec.numChannels = getTotalNumOutputChannels();
-
-    osc.prepare(spec);
-    gain.prepare(spec);
-
-    osc.setFrequency(440.0f);
-    gain.setGainLinear(0.01f);
-}
-/*{
-    juce::dsp::ProcessSpec spec;
-    spec.sampleRate = sampleRate;
-    spec.maximumBlockSize = samplesPerBlock;
-    spec.numChannels = getTotalNumOutputChannels();
-
     synth.setCurrentPlaybackSampleRate(sampleRate);
 
     for (int i = 0; i < synth.getNumVoices(); ++i)
     {
         if (auto* voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
         {
-            voice->prepare(spec);
+            voice->prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels()) ;
         }
     }
-}*/
-
+}
 
 // PROCESS BLOCK
 void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
@@ -80,9 +55,17 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
         buffer.clear(i, 0, buffer.getNumSamples());
     }
 
-    juce::dsp::AudioBlock<float> audioBlock{buffer};
-    osc.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
-    gain.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
+    for (int i = 0; i < synth.getNumVoices(); i++) {
+        if (auto voice = dynamic_cast<juce::SynthesiserVoice*>(synth.getVoice(i)))
+        {
+            //osc
+            //adsr
+            //lfo
+        }
+    }
+
+    synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+
 }
 /*{
     juce::ScopedNoDenormals noDenormals;
@@ -156,3 +139,20 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new RMWestVoiceAudioProcessor();
 }
+
+// CREATE PARAMETERS
+/*juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::createParameters()
+{
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 0.01f, 2000.0f, 0.25f)); // Default 0.25ms
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", 0.01f, 2000.0f, 1000.0f)); // Default 1000ms
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", -5.0f, 5.0f, -1.5f)); // Default -1.5dB
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 0.01f, 3000.0f, 200.0f)); // Default 200ms
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("CUTOFF", "Cutoff", 20.0f, 20000.0f, 4800.0f)); // Default 4800hz
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("LFO_RATE", "LFO Rate", 0.1f, 20.0f, 1.0f)); // LFO Rate
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUME", "Volume", 0.0f, 1.0f, 0.6f)); // Volume
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("DETUNE", "Detune", -0.1f, 0.1f, 0.06f)); // Detune, default 6%
+
+    return { params.begin(), params.end() };
+}*/

@@ -1,10 +1,12 @@
 /*
   ==============================================================================
 
-    This file contains the basic framework code for a JUCE plugin editor.
+    PluginEditor.h
+    Author:  micheler1208
 
   ==============================================================================
 */
+
 
 #pragma once
 
