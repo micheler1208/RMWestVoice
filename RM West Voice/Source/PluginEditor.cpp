@@ -15,6 +15,9 @@
 RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
+    // Oscillator Selector Box
+    oscSelectorAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts, "OSC", oscSelector);
+
     // Slider di Attack
     attackSlider.setLookAndFeel(&customLookAndFeelYellow);
     attackSlider.setName("Attack");
@@ -26,7 +29,7 @@ RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAud
     attackSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
     attackSlider.setNumDecimalPlacesToDisplay(2);
     addAndMakeVisible(&attackSlider);
-    //attackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ATTACK", attackSlider);
+    attackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ATTACK", attackSlider);
 
     // Slider di Decay
     decaySlider.setLookAndFeel(&customLookAndFeelYellow);
@@ -39,7 +42,7 @@ RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAud
     decaySlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
     decaySlider.setNumDecimalPlacesToDisplay(2); // Imposta il numero di cifre decimali da visualizzare
     addAndMakeVisible(&decaySlider);
-    //decayAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "DECAY", decaySlider);
+    decayAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "DECAY", decaySlider);
 
     // Slider di Sustain
     sustainSlider.setLookAndFeel(&customLookAndFeelYellow);
@@ -52,7 +55,7 @@ RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAud
     sustainSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
     sustainSlider.setNumDecimalPlacesToDisplay(1); // Imposta il numero di cifre decimali da visualizzare
     addAndMakeVisible(&sustainSlider);
-    //sustainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "SUSTAIN", sustainSlider);
+    sustainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "SUSTAIN", sustainSlider);
 
     // Slider di Release
     releaseSlider.setLookAndFeel(&customLookAndFeelYellow);
@@ -65,7 +68,7 @@ RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAud
     releaseSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
     releaseSlider.setNumDecimalPlacesToDisplay(2); // Imposta il numero di cifre decimali da visualizzare
     addAndMakeVisible(&releaseSlider);
-    //releaseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "RELEASE", releaseSlider);
+    releaseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "RELEASE", releaseSlider);
 
     // Slider di Cutoff
     cutoffSlider.setLookAndFeel(&customLookAndFeelViolet);

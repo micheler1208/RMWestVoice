@@ -38,13 +38,22 @@ private:
     CustomLookAndFeelYellow customLookAndFeelYellow;
     CustomLookAndFeelViolet customLookAndFeelViolet;
 
+    // OSCILLATOR SELECTOR
+    juce::ComboBox  oscSelector; 
+
+    // ADSR
     juce::Slider attackSlider, decaySlider, sustainSlider, releaseSlider;
+
+    // LP CUTOFF AND VOLUME
     juce::Slider cutoffSlider;
     juce::Slider volumeSlider;
     
+    // LABELS
     juce::Label attackLabel, decayLabel, sustainLabel, releaseLabel, cutoffLabel;
     juce::Label volumeLabel;
     
+    // SLIDER ATTACHMENT
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> oscSelectorAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> decayAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sustainAttachment;
