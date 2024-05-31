@@ -129,8 +129,7 @@ void RMWestVoiceAudioProcessorEditor::resized()
     const int yPosition = getHeight() - sliderHeight - 12;
     const int labelYPosition = yPosition - labelHeight;
 
-    adsr.setBounds(initialX, yPosition, sliderWidth, sliderHeight);
-
+    adsr.setBounds(initialX, yPosition, getWidth() / 2, getHeight());
     attackLabel.setBounds(initialX, labelYPosition, sliderWidth, labelHeight);
 
     decayLabel.setBounds(initialX + sliderWidth + margin, labelYPosition, sliderWidth, labelHeight);
