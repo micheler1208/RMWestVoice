@@ -1,0 +1,43 @@
+/*
+  ==============================================================================
+
+    AdsrComponent.h
+    Created: 31 May 2024 11:17:31am
+    Author:  ccdev
+
+  ==============================================================================
+*/
+
+#pragma once
+
+#include <JuceHeader.h>
+#include "../CustomLookAndFeelYellow.h"
+
+//==============================================================================
+/*
+*/
+class AdsrComponent  : public juce::Component
+{
+public:
+    AdsrComponent(juce::AudioProcessorValueTreeState& apvts);
+    ~AdsrComponent() override;
+
+    void paint (juce::Graphics&) override;
+    void resized() override;
+
+private:
+
+    // ADSR
+    juce::Slider attackSlider, decaySlider, sustainSlider, releaseSlider;
+
+    // ADSR ATTACHMENTS
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> decayAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sustainAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseAttachment;
+
+    // SLIDERS CUSTOM STYLE
+    CustomLookAndFeelYellow customLookAndFeelYellow;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AdsrComponent)
+};

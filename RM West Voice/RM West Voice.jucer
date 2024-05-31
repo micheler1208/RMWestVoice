@@ -6,6 +6,15 @@
               pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut,pluginWantsMidiIn">
   <MAINGROUP id="mmZiVZ" name="RMWestVoice">
     <GROUP id="{B67CD096-824F-2D43-6B6F-77CD449E3681}" name="Source">
+      <GROUP id="{B2620DE6-A62A-A66E-32DC-030A00DA8306}" name="Data">
+        <FILE id="onAcrW" name="AdsrData.cpp" compile="1" resource="0" file="Source/Data/AdsrData.cpp"/>
+        <FILE id="eZHFl1" name="AdsrData.h" compile="0" resource="0" file="Source/Data/AdsrData.h"/>
+      </GROUP>
+      <GROUP id="{EA1C9CDB-6E0B-4D2B-D1CA-40FC0AF2240E}" name="UI">
+        <FILE id="lPUOWO" name="AdsrComponent.cpp" compile="1" resource="0"
+              file="Source/UI/AdsrComponent.cpp"/>
+        <FILE id="fOcsNM" name="AdsrComponent.h" compile="0" resource="0" file="Source/UI/AdsrComponent.h"/>
+      </GROUP>
       <GROUP id="{B042B502-7B09-7C73-483A-E0CD169502E7}" name="font">
         <FILE id="i3IGFz" name="timegoing.ttf" compile="0" resource="1" file="Source/font/timegoing.ttf"/>
         <FILE id="yIVkmv" name="wholecar.ttf" compile="0" resource="1" file="Source/font/wholecar.ttf"/>

@@ -13,62 +13,13 @@
 
 // CONSTRUCTOR
 RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+    : AudioProcessorEditor (&p), audioProcessor (p), adsr (audioProcessor.apvts)
 {
     // Oscillator Selector Box
     oscSelectorAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts, "OSC", oscSelector);
 
-    // Slider di Attack
-    attackSlider.setLookAndFeel(&customLookAndFeelYellow);
-    attackSlider.setName("Attack");
-    attackSlider.setSliderStyle(juce::Slider::Rotary);
-    attackSlider.setRange(0.01, 2000.0, 0.01); // Intervallo in ms
-    attackSlider.setTextValueSuffix(" ms");
-    attackSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30); 
-    attackSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
-    attackSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
-    attackSlider.setNumDecimalPlacesToDisplay(2);
-    addAndMakeVisible(&attackSlider);
-    attackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ATTACK", attackSlider);
-
-    // Slider di Decay
-    decaySlider.setLookAndFeel(&customLookAndFeelYellow);
-    decaySlider.setName("Decay");
-    decaySlider.setSliderStyle(juce::Slider::Rotary);
-    decaySlider.setRange(0.01, 2000.0, 0.01); // Intervallo in ms
-    decaySlider.setTextValueSuffix(" ms");
-    decaySlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30); 
-    decaySlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
-    decaySlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
-    decaySlider.setNumDecimalPlacesToDisplay(2); // Imposta il numero di cifre decimali da visualizzare
-    addAndMakeVisible(&decaySlider);
-    decayAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "DECAY", decaySlider);
-
-    // Slider di Sustain
-    sustainSlider.setLookAndFeel(&customLookAndFeelYellow);
-    sustainSlider.setName("Sustain");
-    sustainSlider.setSliderStyle(juce::Slider::Rotary);
-    sustainSlider.setRange(-5.0, 5.0, 0.1); // Intervallo in dB
-    sustainSlider.setTextValueSuffix(" dB");
-    sustainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30); 
-    sustainSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
-    sustainSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
-    sustainSlider.setNumDecimalPlacesToDisplay(1); // Imposta il numero di cifre decimali da visualizzare
-    addAndMakeVisible(&sustainSlider);
-    sustainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "SUSTAIN", sustainSlider);
-
-    // Slider di Release
-    releaseSlider.setLookAndFeel(&customLookAndFeelYellow);
-    releaseSlider.setName("Release");
-    releaseSlider.setSliderStyle(juce::Slider::Rotary);
-    releaseSlider.setRange(1.0, 3000.0, 0.01); // Intervallo in ms
-    releaseSlider.setTextValueSuffix(" ms");
-    releaseSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30);
-    releaseSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
-    releaseSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
-    releaseSlider.setNumDecimalPlacesToDisplay(2); // Imposta il numero di cifre decimali da visualizzare
-    addAndMakeVisible(&releaseSlider);
-    releaseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "RELEASE", releaseSlider);
+    // ADSR ENABLE
+    addAndMakeVisible(adsr);
 
     // Slider di Cutoff
     cutoffSlider.setLookAndFeel(&customLookAndFeelViolet);
@@ -91,7 +42,6 @@ RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAud
     volumeSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30); 
     volumeSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     volumeSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(235, 47, 144));
-
     addAndMakeVisible(&volumeSlider);
     //volumeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "VOLUME", volumeSlider);
 
@@ -141,10 +91,6 @@ RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAud
 // DESTRUCTOR
 RMWestVoiceAudioProcessorEditor::~RMWestVoiceAudioProcessorEditor()
 {
-    attackSlider.setLookAndFeel(nullptr);
-    decaySlider.setLookAndFeel(nullptr);
-    sustainSlider.setLookAndFeel(nullptr);
-    releaseSlider.setLookAndFeel(nullptr);
     cutoffSlider.setLookAndFeel(nullptr);
     volumeSlider.setLookAndFeel(nullptr);
 }
@@ -175,24 +121,22 @@ void RMWestVoiceAudioProcessorEditor::paint (juce::Graphics& g)
 // GUI - RESIZE - POSITIONING
 void RMWestVoiceAudioProcessorEditor::resized()
 {
-    const int margin = 25; // Riduce lo spazio tra i rotatory slider
-    const int sliderWidth = 75; // Riduce le dimensioni dei rotatory slider
+    const int margin = 25;
+    const int sliderWidth = 75;
     const int sliderHeight = 75;
-    const int labelHeight = 40; // Aumenta l'altezza delle etichette
+    const int labelHeight = 40; 
     const int initialX = 25;
     const int yPosition = getHeight() - sliderHeight - 12;
     const int labelYPosition = yPosition - labelHeight;
 
-    attackSlider.setBounds(initialX, yPosition, sliderWidth, sliderHeight);
+    adsr.setBounds(initialX, yPosition, sliderWidth, sliderHeight);
+
     attackLabel.setBounds(initialX, labelYPosition, sliderWidth, labelHeight);
 
-    decaySlider.setBounds(initialX + sliderWidth + margin, yPosition, sliderWidth, sliderHeight);
     decayLabel.setBounds(initialX + sliderWidth + margin, labelYPosition, sliderWidth, labelHeight);
 
-    sustainSlider.setBounds(initialX + 2 * (sliderWidth + margin), yPosition, sliderWidth, sliderHeight);
     sustainLabel.setBounds(initialX + 2 * (sliderWidth + margin), labelYPosition, sliderWidth, labelHeight);
 
-    releaseSlider.setBounds(initialX + 3 * (sliderWidth + margin), yPosition, sliderWidth, sliderHeight);
     releaseLabel.setBounds(initialX + 3 * (sliderWidth + margin), labelYPosition, sliderWidth, labelHeight);
 
     cutoffSlider.setBounds(getWidth() - 2 * (sliderWidth + margin), yPosition, sliderWidth, sliderHeight);

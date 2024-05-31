@@ -11,9 +11,9 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "CustomLookAndFeelYellow.h"
 #include "CustomLookAndFeelViolet.h"
 #include "PluginProcessor.h"
+#include "UI/AdsrComponent.h"
 
 //==============================================================================
 /**
@@ -33,34 +33,26 @@ private:
     
     // IMAGES
     juce::Image backgroundImage;
-    
-    // SLIDERS
-    CustomLookAndFeelYellow customLookAndFeelYellow;
+
+    //ADSR
+    AdsrComponent adsr;
+
+    //CUSTOM SLIDE
     CustomLookAndFeelViolet customLookAndFeelViolet;
 
     // OSCILLATOR SELECTOR
     juce::ComboBox  oscSelector; 
-
-    // ADSR
-    juce::Slider attackSlider, decaySlider, sustainSlider, releaseSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> oscSelectorAttachment;
 
     // LP CUTOFF AND VOLUME
     juce::Slider cutoffSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cutoffAttachment;
     juce::Slider volumeSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volumeAttachment;
     
     // LABELS
     juce::Label attackLabel, decayLabel, sustainLabel, releaseLabel, cutoffLabel;
-    juce::Label volumeLabel;
-    
-    // SLIDER ATTACHMENT
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> oscSelectorAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> decayAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sustainAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cutoffAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volumeAttachment;
-    
+    juce::Label volumeLabel;    
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RMWestVoiceAudioProcessorEditor)
 };
