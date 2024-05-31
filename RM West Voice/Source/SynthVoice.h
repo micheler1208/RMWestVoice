@@ -11,6 +11,7 @@
 
 #include <JuceHeader.h>
 #include "SynthSound.h"
+#include "Data/AdsrData.h"
 #include "LFO.h"
 
 class SynthVoice : public juce::SynthesiserVoice
@@ -23,7 +24,7 @@ public:
     void pitchWheelMoved(int newPitchWheelValue) override;
     void prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels);
     void renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
-    void updateADSR(const float attack, const float decay, const float sustain, const float release);
+    void update(const float attack, const float decay, const float sustain, const float release);
 
     /*void prepare(const juce::dsp::ProcessSpec& spec)
     {
@@ -55,11 +56,8 @@ public:
     }*/
 
 private:
-
-    juce::ADSR adsr;
-    juce::ADSR::Parameters adsrParams;
     juce::AudioBuffer<float> synthBuffer;
-
+    AdsrData adsr;
 
     juce::dsp::Oscillator<float> osc{ [](float x) {return x / juce::MathConstants<float>::pi;},4096};
     juce::dsp::Gain<float> gain;
