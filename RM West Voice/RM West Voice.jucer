@@ -9,6 +9,8 @@
       <GROUP id="{B2620DE6-A62A-A66E-32DC-030A00DA8306}" name="Data">
         <FILE id="onAcrW" name="AdsrData.cpp" compile="1" resource="0" file="Source/Data/AdsrData.cpp"/>
         <FILE id="eZHFl1" name="AdsrData.h" compile="0" resource="0" file="Source/Data/AdsrData.h"/>
+        <FILE id="bnI9Km" name="OscData.cpp" compile="1" resource="0" file="Source/Data/OscData.cpp"/>
+        <FILE id="Wktwkx" name="OscData.h" compile="0" resource="0" file="Source/Data/OscData.h"/>
       </GROUP>
       <GROUP id="{EA1C9CDB-6E0B-4D2B-D1CA-40FC0AF2240E}" name="UI">
         <FILE id="lPUOWO" name="AdsrComponent.cpp" compile="1" resource="0"

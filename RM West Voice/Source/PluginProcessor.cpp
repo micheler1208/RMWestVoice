@@ -67,7 +67,10 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
             auto& sustain = *apvts.getRawParameterValue("SUSTAIN");
             auto& release =  *apvts.getRawParameterValue("RELEASE");
 
+            auto& oscWaveChoice = *apvts.getRawParameterValue("OSC1WAVETYPE");
+
             voice->update(attack.load(), decay.load(), sustain.load(), release.load());
+            voice->getOscillator().setWaveType(oscWaveChoice);
         }
     }
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());

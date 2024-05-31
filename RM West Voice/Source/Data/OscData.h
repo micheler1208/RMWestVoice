@@ -10,9 +10,9 @@
 #pragma once
 #include <JuceHeader.h>
 
-class OscData : juce::dsp::Oscillator<float>
+class OscData : public juce::dsp::Oscillator<float>
 {
 public:
-    void setWaveType(const int choice)
+    void setWaveType(const int choice);
 private:
 };

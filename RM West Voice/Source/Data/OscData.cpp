@@ -15,7 +15,7 @@ void OscData::setWaveType(const int choice)
     {
     case 0:
         //TRIANGLE
-        initialise([](float x) { return std::abs(2.0f * (x - std::floor(x + 0.5f))); };);
+        initialise([](float x) { return std::abs(2.0f * (x - std::floor(x + 0.5f))); });
         break;
     case 1:
         //SAW
