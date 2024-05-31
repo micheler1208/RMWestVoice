@@ -13,10 +13,13 @@
 
 // CONSTRUCTOR
 RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), adsr (audioProcessor.apvts)
+    : AudioProcessorEditor (&p), audioProcessor (p), osc(audioProcessor.apvts, "OSC1WAVETYPE"), adsr(audioProcessor.apvts)
 {
-    // Oscillator Selector Box
-    oscSelectorAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts, "OSC", oscSelector);
+    // WINDOWS SIZE
+    setSize(800, 600);
+
+    // OSC ENABLE
+    addAndMakeVisible(osc);
 
     // ADSR ENABLE
     addAndMakeVisible(adsr);
@@ -85,7 +88,6 @@ RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAud
     volumeLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(&volumeLabel);
 
-    setSize(800, 600);
 }
 
 // DESTRUCTOR
@@ -125,17 +127,20 @@ void RMWestVoiceAudioProcessorEditor::resized()
     const int sliderWidth = 75;
     const int sliderHeight = 75;
     const int labelHeight = 40; 
+    const int selectorWidth = 100;
+    const int selectorHeight = 30;
     const int initialX = 25;
     const int yPosition = getHeight() - sliderHeight - 12;
     const int labelYPosition = yPosition - labelHeight;
 
+    osc.setBounds(initialX + 4 * (111), yPosition + 13 , selectorWidth, selectorHeight);
+
     adsr.setBounds(initialX, yPosition, getWidth() / 2, getHeight());
+
+
     attackLabel.setBounds(initialX, labelYPosition, sliderWidth, labelHeight);
-
     decayLabel.setBounds(initialX + sliderWidth + margin, labelYPosition, sliderWidth, labelHeight);
-
     sustainLabel.setBounds(initialX + 2 * (sliderWidth + margin), labelYPosition, sliderWidth, labelHeight);
-
     releaseLabel.setBounds(initialX + 3 * (sliderWidth + margin), labelYPosition, sliderWidth, labelHeight);
 
     cutoffSlider.setBounds(getWidth() - 2 * (sliderWidth + margin), yPosition, sliderWidth, sliderHeight);

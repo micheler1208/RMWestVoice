@@ -14,6 +14,7 @@
 #include "CustomLookAndFeelViolet.h"
 #include "PluginProcessor.h"
 #include "UI/AdsrComponent.h"
+#include "UI/OscComponent.h"
 
 //==============================================================================
 /**
@@ -34,15 +35,14 @@ private:
     // IMAGES
     juce::Image backgroundImage;
 
+    //OSC
+    OscComponent osc;
+
     //ADSR
     AdsrComponent adsr;
 
     //CUSTOM SLIDE
     CustomLookAndFeelViolet customLookAndFeelViolet;
-
-    // OSCILLATOR SELECTOR
-    juce::ComboBox  oscSelector; 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> oscSelectorAttachment;
 
     // LP CUTOFF AND VOLUME
     juce::Slider cutoffSlider;

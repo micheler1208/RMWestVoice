@@ -16,6 +16,9 @@
         <FILE id="lPUOWO" name="AdsrComponent.cpp" compile="1" resource="0"
               file="Source/UI/AdsrComponent.cpp"/>
         <FILE id="fOcsNM" name="AdsrComponent.h" compile="0" resource="0" file="Source/UI/AdsrComponent.h"/>
+        <FILE id="xJbvYe" name="OscComponent.cpp" compile="1" resource="0"
+              file="Source/UI/OscComponent.cpp"/>
+        <FILE id="UxkbEF" name="OscComponent.h" compile="0" resource="0" file="Source/UI/OscComponent.h"/>
       </GROUP>
       <GROUP id="{B042B502-7B09-7C73-483A-E0CD169502E7}" name="font">
         <FILE id="i3IGFz" name="timegoing.ttf" compile="0" resource="1" file="Source/font/timegoing.ttf"/>
