@@ -68,9 +68,12 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
             auto& release =  *apvts.getRawParameterValue("RELEASE");
 
             auto& oscWaveChoice = *apvts.getRawParameterValue("OSC1WAVETYPE");
+            auto& fmFreq = *apvts.getRawParameterValue("FMFREQ");
+            auto& fmDepth = *apvts.getRawParameterValue("FMDEPTH");
 
-            voice->update(attack.load(), decay.load(), sustain.load(), release.load());
             voice->getOscillator().setWaveType(oscWaveChoice);
+            voice->getOscillator().setFmParams(fmDepth,fmFreq);
+            voice->update(attack.load(), decay.load(), sustain.load(), release.load());
         }
     }
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
@@ -116,14 +119,35 @@ bool RMWestVoiceAudioProcessor::hasEditor() const { return true; }
 // GET NAME
 const juce::String RMWestVoiceAudioProcessor::getName() const { return JucePlugin_Name; }
 
-// ACCEPTS MIDI
-bool RMWestVoiceAudioProcessor::acceptsMidi() const { return true; }
+// ACCEPT MIDI
+bool  RMWestVoiceAudioProcessor::acceptsMidi() const
+{
+#if JucePlugin_WantsMidiInput
+    return true;
+#else
+    return false;
+#endif
+}
 
 // PRODUCES MIDI
-bool RMWestVoiceAudioProcessor::producesMidi() const { return false; }
+bool  RMWestVoiceAudioProcessor::producesMidi() const
+{
+#if JucePlugin_ProducesMidiOutput
+    return true;
+#else
+    return false;
+#endif
+}
 
 // IS MIDI EFFECT
-bool RMWestVoiceAudioProcessor::isMidiEffect() const { return false; }
+bool  RMWestVoiceAudioProcessor::isMidiEffect() const
+{
+#if JucePlugin_IsMidiEffect
+    return true;
+#else
+    return false;
+#endif
+}
 
 // GET TAIL LENGTH
 double RMWestVoiceAudioProcessor::getTailLengthSeconds() const { return 0.0; }
@@ -154,9 +178,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::c
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
+    //OSC
     params.push_back(std::make_unique<juce::AudioParameterChoice>("OSC", "Oscillator", juce::StringArray{ "Triangle", "Saw" }, 0));
     params.push_back(std::make_unique<juce::AudioParameterChoice>("OSC1WAVETYPE", "Osc 1 Wave Type", juce::StringArray{ "Triangle", "Saw" }, 0));
 
+    //FM
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("FMFREQ", "FM Frequency", 0.0f, 1000.0f, 5.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("FMDEPTH", "FM Depth", 0.0f, 1000.0f, 500.0f));
+
+    //ASDR
     params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 0.01f, 2000.0f, 0.25f)); // Default 0.25ms
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", 0.01f, 2000.0f, 1000.0f)); // Default 1000ms
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", -5.0f, 5.0f, -1.5f)); // Default -1.5dB
