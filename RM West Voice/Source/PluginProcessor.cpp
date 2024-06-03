@@ -21,7 +21,7 @@ RMWestVoiceAudioProcessor::RMWestVoiceAudioProcessor()
             .withOutput("Output", juce::AudioChannelSet::stereo(), true)
           #endif
             ),
-    apvts(*this, nullptr, "PARAMETERS", createParams())  // Initialize AudioProcessorValueTreeState
+    apvts(*this, nullptr, "PARAMETERS", createParams()) 
 #endif
 {
     synth.addSound(new SynthSound());
@@ -34,13 +34,13 @@ RMWestVoiceAudioProcessor::~RMWestVoiceAudioProcessor() {}
 // PREPARE TO PLAY
 void RMWestVoiceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    synth.setCurrentPlaybackSampleRate(sampleRate);
-
-    for (int i = 0; i < synth.getNumVoices(); ++i)
+    synth.setCurrentPlaybackSampleRate (sampleRate);
+    
+    for (int i = 0; i < synth.getNumVoices(); i++)
     {
-        if (auto* voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
+        if (auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
         {
-            voice->prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels()) ;
+            voice->prepareToPlay (sampleRate, samplesPerBlock, getTotalNumOutputChannels());
         }
     }
 }
@@ -49,60 +49,64 @@ void RMWestVoiceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
 void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels = getTotalNumInputChannels();
+    auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; i++) {
-        buffer.clear(i, 0, buffer.getNumSamples());
-    }
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+        buffer.clear (i, 0, buffer.getNumSamples());
 
-    for (int i = 0; i < synth.getNumVoices(); i++) {
-        if (auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
-        {
-            //osc
-            //adsr
-            //lfo
-            auto& attack = *apvts.getRawParameterValue("ATTACK");
-            auto& decay = *apvts.getRawParameterValue("DECAY");
-            auto& sustain = *apvts.getRawParameterValue("SUSTAIN");
-            auto& release =  *apvts.getRawParameterValue("RELEASE");
-
-            auto& oscWaveChoice = *apvts.getRawParameterValue("OSC1WAVETYPE");
-            auto& fmFreq = *apvts.getRawParameterValue("FMFREQ");
-            auto& fmDepth = *apvts.getRawParameterValue("FMDEPTH");
-
-            voice->getOscillator().setWaveType(oscWaveChoice);
-            voice->getOscillator().setFmParams(fmDepth,fmFreq);
-            voice->update(attack.load(), decay.load(), sustain.load(), release.load());
-        }
-    }
-    synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-}
-
-/*{
-    juce::ScopedNoDenormals noDenormals;
-    buffer.clear();
-
-    // Update parameters for each voice
     for (int i = 0; i < synth.getNumVoices(); ++i)
     {
-        if (auto* voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
+        if (auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
         {
-            voice->updateParameters(apvts);
+            auto& oscWaveChoice = *apvts.getRawParameterValue ("OSC1WAVETYPE");
+            
+            auto& fmFreq = *apvts.getRawParameterValue ("OSC1FMFREQ");
+            auto& fmDepth = *apvts.getRawParameterValue ("OSC1FMDEPTH");
+            
+            auto& attack = *apvts.getRawParameterValue ("ATTACK");
+            auto& decay = *apvts.getRawParameterValue ("DECAY");
+            auto& sustain = *apvts.getRawParameterValue ("SUSTAIN");
+            auto& release = *apvts.getRawParameterValue ("RELEASE");
+            
+            voice->getOscillator().setWaveType (oscWaveChoice);
+            voice->getOscillator().updateFm (fmFreq, fmDepth);
+            voice->update (attack.load(), decay.load(), sustain.load(), release.load());
         }
     }
-
-    synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-
-    // Apply master gain
-    float volume = apvts.getRawParameterValue("VOLUME")->load();
-    buffer.applyGain(volume * 0.1f);
-}*/
-
+    
+    synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
+}
 
 
 // RELEASE RESOURCES
 void RMWestVoiceAudioProcessor::releaseResources() {}
+
+// ISBUSESLAYOUTSUPPORTED
+#ifndef JucePlugin_PreferredChannelConfigurations
+bool RMWestVoiceAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+{
+  #if JucePlugin_IsMidiEffect
+    juce::ignoreUnused (layouts);
+    return true;
+  #else
+    // This is the place where you check if the layout is supported.
+    // In this template code we only support mono or stereo.
+    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
+     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+        return false;
+
+    // This checks if the input layout matches the output layout
+   #if ! JucePlugin_IsSynth
+    if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
+        return false;
+   #endif
+
+    return true;
+  #endif
+}
+#endif
+
 
 // GET STATE INFORMATION
 void RMWestVoiceAudioProcessor::getStateInformation(juce::MemoryBlock& destData) {}
@@ -177,21 +181,21 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::createParams()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+    
+    // OSC select
+    params.push_back (std::make_unique<juce::AudioParameterChoice>("OSC1WAVETYPE", "Osc 1 Wave Type", juce::StringArray { "Triangle", "Saw"}, 0));
+    
+    // FM
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("OSC1FMFREQ", "Osc 1 FM Frequency", juce::NormalisableRange<float> { 0.0f, 1000.0f, }, 5.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("OSC1FMDEPTH", "Osc 1 FM Depth", juce::NormalisableRange<float> { 0.0f, 1000.0f, }, 200.0f));
+    
+    // ADSR
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", juce::NormalisableRange<float> { 0.1f, 1.0f, }, 0.1f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", juce::NormalisableRange<float> { 0.1f, 1.0f, }, 1.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float> { 0.1f, 1.0f, }, 0.8f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float> { 0.1f, 3.0f, }, 0.2f));
+    
 
-    //OSC
-    params.push_back(std::make_unique<juce::AudioParameterChoice>("OSC", "Oscillator", juce::StringArray{ "Triangle", "Saw" }, 0));
-    params.push_back(std::make_unique<juce::AudioParameterChoice>("OSC1WAVETYPE", "Osc 1 Wave Type", juce::StringArray{ "Triangle", "Saw" }, 0));
-
-    //FM
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("FMFREQ", "FM Frequency", 0.0f, 1000.0f, 5.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("FMDEPTH", "FM Depth", 0.0f, 1000.0f, 500.0f));
-
-    //ASDR
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 0.01f, 2000.0f, 0.25f)); // Default 0.25ms
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", 0.01f, 2000.0f, 1000.0f)); // Default 1000ms
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", -5.0f, 5.0f, -1.5f)); // Default -1.5dB
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 0.01f, 3000.0f, 200.0f)); // Default 200ms
-   
     //params.push_back(std::make_unique<juce::AudioParameterFloat>("CUTOFF", "Cutoff", 20.0f, 20000.0f, 4800.0f)); // Default 4800hz
     //params.push_back(std::make_unique<juce::AudioParameterFloat>("LFO_RATE", "LFO Rate", 0.1f, 20.0f, 1.0f)); // LFO Rate
   

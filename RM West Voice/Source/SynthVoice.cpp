@@ -45,6 +45,7 @@ void SynthVoice::pitchWheelMoved(int newPitchWheelValue)
 void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels)
 {
     adsr.setSampleRate(sampleRate);
+    
     juce::dsp::ProcessSpec spec;
     spec.maximumBlockSize = samplesPerBlock;
     spec.sampleRate = sampleRate;
@@ -67,27 +68,25 @@ void SynthVoice::update(const float attack, const float decay, const float susta
 
 void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
-    jassert(isPrepared);
-
-    if (isVoiceActive())
+    jassert (isPrepared);
+    
+    if (! isVoiceActive())
         return;
-
-    synthBuffer.setSize(outputBuffer.getNumChannels(), numSamples, false, false, true);
+    
+    synthBuffer.setSize (outputBuffer.getNumChannels(), numSamples, false, false, true);
     synthBuffer.clear();
-
-    juce::dsp::AudioBlock<float> audioBlock{ synthBuffer };
-    osc.getNextAudioBlock(audioBlock);
-    gain.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
-
-    adsr.applyEnvelopeToBuffer(synthBuffer, 0, synthBuffer.getNumSamples());
-
+    
+    juce::dsp::AudioBlock<float> audioBlock { synthBuffer };
+    osc.getNextAudioBlock (audioBlock);
+    gain.process (juce::dsp::ProcessContextReplacing<float> (audioBlock));
+    
+    adsr.applyEnvelopeToBuffer (synthBuffer, 0, synthBuffer.getNumSamples());
+    
     for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
     {
-        outputBuffer.addFrom(channel, startSample, synthBuffer, channel, 0, numSamples);
-
-        if (!adsr.isActive())
-        {
+        outputBuffer.addFrom (channel, startSample, synthBuffer, channel, 0, numSamples);
+        
+        if (! adsr.isActive())
             clearCurrentNote();
-        }
     }
 }
