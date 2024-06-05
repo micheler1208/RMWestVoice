@@ -19,6 +19,7 @@ public:
     void setWaveFrequency (const int midiNoteNumber);
     void getNextAudioBlock (juce::dsp::AudioBlock<float>& block);
     void updateFm (const float freq, const float depth);
+    void setDetune(float detuneAmount);
     
 private:
     void processFmOsc (juce::dsp::AudioBlock<float>& block);
@@ -27,4 +28,5 @@ private:
     float fmMod { 0.0f };
     float fmDepth { 0.0f };
     int lastMidiNote { 0 };
+    float detune = 0.06f;
 };

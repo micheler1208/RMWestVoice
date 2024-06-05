@@ -75,6 +75,7 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
             
             voice->getOscillator().setWaveType (oscWaveChoice);
             //voice->getOscillator().updateFm (fmFreq, fmDepth);
+            voice->getOscillator().setDetune(0.06f);
             voice->update (attack.load(), decay.load(), sustain.load(), release.load());
         }
     }
@@ -227,7 +228,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::c
     params.push_back(std::make_unique<juce::AudioParameterFloat>("HP_FILTERRES", "High Pass Filter Resonance", juce::NormalisableRange<float> { 1.0f, 10.0f, 0.1f }, 1.0f));
 
     //params.push_back(std::make_unique<juce::AudioParameterFloat>("LFO_RATE", "LFO Rate", 0.1f, 20.0f, 1.0f)); // LFO Rate
-    //params.push_back(std::make_unique<juce::AudioParameterFloat>("DETUNE", "Detune", -0.1f, 0.1f, 0.06f)); // Detune, default 6%
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUME", "Volume", 0.0f, 1.0f, 0.6f)); // Volume
  

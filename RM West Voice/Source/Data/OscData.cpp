@@ -36,11 +36,20 @@ void OscData::setWaveType(const int choice)
 }
 
 // SET WAVE FREQUENCY
-void OscData::setWaveFrequency (const int midiNoteNumber)
+void OscData::setWaveFrequency(const int midiNoteNumber)
 {
-    setFrequency (juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber) + fmMod);
+    auto frequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
+    frequency *= (1.0f + detune);
+    setFrequency(frequency + fmMod);
     lastMidiNote = midiNoteNumber;
 }
+
+// SET DETUNE
+void OscData::setDetune(float detuneAmount)
+{
+    detune = detuneAmount;
+}
+
 
 // GET NEXT AUDIO BLOCK
 void OscData::getNextAudioBlock (juce::dsp::AudioBlock<float>& block)
