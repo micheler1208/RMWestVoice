@@ -44,7 +44,9 @@ void RMWestVoiceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
         }
     }
 
-    filter.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
+    highPassFilter.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
+    lowPassFilter.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
+
 }
 
 // PROCESS BLOCK
@@ -79,14 +81,25 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 
-    // Filter
-    auto& filterType = *apvts.getRawParameterValue("FILTERTYPE");
-    auto& cutoff = *apvts.getRawParameterValue("FILTERFREQ");
-    auto& resonance = *apvts.getRawParameterValue("FILTERRES");
+    // LP Filter
+    auto& lowPassFilterType = *apvts.getRawParameterValue("LP_FILTERTYPE");
+    auto& lowPassCutoff = *apvts.getRawParameterValue("LP_FILTERFREQ");
+    auto& lowPassResonance = *apvts.getRawParameterValue("LP_FILTERRES");
+    lowPassFilter.updateParameters(lowPassFilterType, lowPassCutoff, lowPassResonance);
 
-    filter.updateParameters(filterType, cutoff, resonance);
+    lowPassFilter.process(buffer);
 
-    filter.process(buffer);
+    //HP Filter
+    auto& highPassFilterType = *apvts.getRawParameterValue("HP_FILTERTYPE");
+    auto& highPassCutoff = *apvts.getRawParameterValue("HP_FILTERFREQ");
+    auto& highPassResonance = *apvts.getRawParameterValue("HP_FILTERRES");
+    highPassFilter.updateParameters(highPassFilterType, highPassCutoff, highPassResonance);
+
+    highPassFilter.process(buffer);
+
+    // Master Volume
+    float volume = apvts.getRawParameterValue("VOLUME")->load();
+    buffer.applyGain(volume);
 }
 
 
@@ -101,13 +114,10 @@ bool RMWestVoiceAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
     juce::ignoreUnused (layouts);
     return true;
   #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
      && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
-    // This checks if the input layout matches the output layout
    #if ! JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
@@ -206,11 +216,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::c
     params.push_back (std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float> { 0.1f, 1.0f, }, 0.8f));
     params.push_back (std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float> { 0.1f, 3.0f, }, 0.2f));
 
-    // Filter
-    params.push_back (std::make_unique<juce::AudioParameterChoice>("FILTERTYPE", "Filter Type", juce::StringArray { "Low-Pass", "Band-Pass", "High-Pass" }, 0));
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("FILTERFREQ", "Filter Freq", juce::NormalisableRange<float> { 20.0f, 20000.0f, 0.1f, 0.6f }, 4800.0f));
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("FILTERRES", "Filter Resonance", juce::NormalisableRange<float> { 1.0f, 10.0f, 0.1f }, 1.0f));
-    
+    // Filter LP
+    params.push_back (std::make_unique<juce::AudioParameterChoice>("LP_FILTERTYPE", "Low Pass Filter Type", juce::StringArray { "Low-Pass", "Band-Pass", "High-Pass" }, 0));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("LP_FILTERFREQ", "Low Pass Filter Freq", juce::NormalisableRange<float> { 20.0f, 20000.0f, 0.1f, 0.6f }, 4800.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("LP_FILTERRES", "Low PassFilter Resonance", juce::NormalisableRange<float> { 1.0f, 10.0f, 0.1f }, 1.0f));
+
+    // FILTER HP
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("HP_FILTERTYPE", "High Pass Filter Type", juce::StringArray{ "Low-Pass", "Band-Pass", "High-Pass" }, 2));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("HP_FILTERFREQ", "High Pass Filter Freq", juce::NormalisableRange<float> { 20.0f, 20000.0f, 0.1f, 0.6f }, 250.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("HP_FILTERRES", "High Pass Filter Resonance", juce::NormalisableRange<float> { 1.0f, 10.0f, 0.1f }, 1.0f));
+
     //params.push_back(std::make_unique<juce::AudioParameterFloat>("LFO_RATE", "LFO Rate", 0.1f, 20.0f, 1.0f)); // LFO Rate
     //params.push_back(std::make_unique<juce::AudioParameterFloat>("DETUNE", "Detune", -0.1f, 0.1f, 0.06f)); // Detune, default 6%
 

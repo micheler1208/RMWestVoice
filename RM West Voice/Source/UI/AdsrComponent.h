@@ -10,7 +10,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "../CustomLookAndFeelYellow.h"
+#include "CustomLookAndFeelYellow.h"
 
 //==============================================================================
 /*

@@ -53,7 +53,8 @@ public:
 private:
     juce::AudioProcessorValueTreeState::ParameterLayout createParams(); 
     juce::Synthesiser synth;
-    FilterData filter;
+    FilterData lowPassFilter;
+    FilterData highPassFilter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RMWestVoiceAudioProcessor)
 };

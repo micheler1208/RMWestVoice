@@ -11,6 +11,7 @@
         <FILE id="eZHFl1" name="AdsrData.h" compile="0" resource="0" file="Source/Data/AdsrData.h"/>
         <FILE id="QI0kTO" name="FilterData.cpp" compile="1" resource="0" file="Source/Data/FilterData.cpp"/>
         <FILE id="omDf7I" name="FilterData.h" compile="0" resource="0" file="Source/Data/FilterData.h"/>
+        <FILE id="deR3cC" name="LFO.h" compile="0" resource="0" file="Source/Data/LFO.h"/>
         <FILE id="bnI9Km" name="OscData.cpp" compile="1" resource="0" file="Source/Data/OscData.cpp"/>
         <FILE id="Wktwkx" name="OscData.h" compile="0" resource="0" file="Source/Data/OscData.h"/>
       </GROUP>
@@ -18,6 +19,10 @@
         <FILE id="lPUOWO" name="AdsrComponent.cpp" compile="1" resource="0"
               file="Source/UI/AdsrComponent.cpp"/>
         <FILE id="fOcsNM" name="AdsrComponent.h" compile="0" resource="0" file="Source/UI/AdsrComponent.h"/>
+        <FILE id="rlhK9f" name="CustomLookAndFeelViolet.h" compile="0" resource="0"
+              file="Source/UI/CustomLookAndFeelViolet.h"/>
+        <FILE id="FQDM7T" name="CustomLookAndFeelYellow.h" compile="0" resource="0"
+              file="Source/UI/CustomLookAndFeelYellow.h"/>
         <FILE id="e771zG" name="FilterComponent.cpp" compile="1" resource="0"
               file="Source/UI/FilterComponent.cpp"/>
         <FILE id="IOiVAd" name="FilterComponent.h" compile="0" resource="0"
@@ -33,10 +38,6 @@
       <GROUP id="{3E29AD65-B326-6B96-DA70-7AC3A825E565}" name="img">
         <FILE id="dv12cg" name="background.jpg" compile="0" resource="1" file="Source/img/background.jpg"/>
       </GROUP>
-      <FILE id="idk77j" name="CustomLookAndFeelViolet.h" compile="0" resource="0"
-            file="Source/CustomLookAndFeelViolet.h"/>
-      <FILE id="eSsYOx" name="CustomLookAndFeelYellow.h" compile="0" resource="0"
-            file="Source/CustomLookAndFeelYellow.h"/>
       <FILE id="nHo8Dw" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="DCVHCF" name="PluginProcessor.h" compile="0" resource="0"
@@ -47,7 +48,6 @@
       <FILE id="qjNPbc" name="SynthSound.h" compile="0" resource="0" file="Source/SynthSound.h"/>
       <FILE id="w93qPm" name="SynthVoice.cpp" compile="1" resource="0" file="Source/SynthVoice.cpp"/>
       <FILE id="Pgde3H" name="SynthVoice.h" compile="0" resource="0" file="Source/SynthVoice.h"/>
-      <FILE id="Ku4KqB" name="LFO.h" compile="0" resource="0" file="Source/LFO.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>
