@@ -13,7 +13,11 @@
 
 // CONSTRUCTOR
 RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), osc(audioProcessor.apvts, "OSC1WAVETYPE"), adsr(audioProcessor.apvts), filters(audioProcessor.apvts)
+    : AudioProcessorEditor (&p), 
+    audioProcessor (p), 
+    osc(audioProcessor.apvts, "OSC1WAVETYPE"), 
+    adsr(audioProcessor.apvts), 
+    filters(audioProcessor.apvts)
 {
     // WINDOWS SIZE
     setSize(800, 600);

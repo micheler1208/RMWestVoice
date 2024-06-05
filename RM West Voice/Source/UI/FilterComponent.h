@@ -29,7 +29,6 @@ private:
     // SLIDERS CUSTOM STYLE
     CustomLookAndFeelViolet customLookAndFeelViolet;
 
-
     // LP CUTOFF AND VOLUME
     juce::Slider cutoffSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cutoffAttachment;
