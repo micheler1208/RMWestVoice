@@ -84,13 +84,13 @@ void FilterComponent::resized()
     const int labelHeight = 40;
     const int selectorWidth = 100;
     const int selectorHeight = 30;
-    const int initialX = 25;
+    const int initialX = 0;
     const int yPosition = getHeight() - sliderHeight - 12;
     const int labelYPosition = yPosition - labelHeight;
 
-    cutoffSlider.setBounds(getWidth() - 2 * (sliderWidth + margin), yPosition, sliderWidth, sliderHeight);
-    cutoffLabel.setBounds(getWidth() - 2 * (sliderWidth + margin), labelYPosition, sliderWidth, labelHeight);
+    cutoffSlider.setBounds(0, yPosition, sliderWidth, sliderHeight);
+    cutoffLabel.setBounds(0, labelYPosition, sliderWidth, labelHeight);
 
-    volumeSlider.setBounds(getWidth() - (sliderWidth + margin), yPosition, sliderWidth, sliderHeight);
-    volumeLabel.setBounds(getWidth() - (sliderWidth + margin), labelYPosition, sliderWidth, labelHeight);
+    volumeSlider.setBounds(initialX + sliderWidth + margin, yPosition, sliderWidth, sliderHeight);
+    volumeLabel.setBounds(initialX + sliderWidth + margin, labelYPosition, sliderWidth, labelHeight);
 }

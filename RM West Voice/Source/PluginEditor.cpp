@@ -74,9 +74,9 @@ void RMWestVoiceAudioProcessorEditor::resized()
     const int yPosition = getHeight() - sliderHeight - 12;
     const int labelYPosition = yPosition - labelHeight;
 
-    osc.setBounds(initialX + 4 * (110), yPosition + 13 , selectorWidth, selectorHeight);
+    adsr.setBounds(initialX, yPosition - 40, getWidth() / 2, getHeight());
 
-    adsr.setBounds(initialX, yPosition -40, getWidth() / 2, getHeight());
-    
-    filters.setBounds(getWidth() / 2 - 5, 0, getWidth() / 2, getHeight());
+    osc.setBounds(getWidth() / 2 + 55, yPosition + 13 , selectorWidth, selectorHeight);
+
+    filters.setBounds(getWidth()/2 +185, 0, getWidth() / 2, getHeight());
 }
