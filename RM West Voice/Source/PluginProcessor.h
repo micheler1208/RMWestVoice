@@ -12,6 +12,7 @@
 #include <JuceHeader.h>
 #include "SynthVoice.h"
 #include "SynthSound.h"
+#include "Data/FilterData.h"
 
 class RMWestVoiceAudioProcessor  : public juce::AudioProcessor
 {
@@ -52,6 +53,7 @@ public:
 private:
     juce::AudioProcessorValueTreeState::ParameterLayout createParams(); 
     juce::Synthesiser synth;
+    FilterData filter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RMWestVoiceAudioProcessor)
 };

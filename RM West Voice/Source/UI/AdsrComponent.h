@@ -29,6 +29,9 @@ private:
     // ADSR
     juce::Slider attackSlider, decaySlider, sustainSlider, releaseSlider;
 
+    // LABELS
+    juce::Label attackLabel, decayLabel, sustainLabel, releaseLabel;
+
     // ADSR ATTACHMENTS
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> decayAttachment;

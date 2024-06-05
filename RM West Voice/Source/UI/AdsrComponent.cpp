@@ -66,6 +66,34 @@ AdsrComponent::AdsrComponent(juce::AudioProcessorValueTreeState& apvts)
     releaseSlider.setNumDecimalPlacesToDisplay(2); // Imposta il numero di cifre decimali da visualizzare
     addAndMakeVisible(&releaseSlider);
     releaseAttachment = std::make_unique<SliderAttachment>(apvts, "RELEASE", releaseSlider);
+
+    // Etichette
+    juce::Font labelFont = juce::Font(juce::Typeface::createSystemTypefaceFor(BinaryData::timegoing_ttf, BinaryData::timegoing_ttfSize));
+    labelFont.setHeight(48.0f); // Aumenta la dimensione del font
+
+    attackLabel.setText("Attack", juce::dontSendNotification);
+    attackLabel.setFont(labelFont);
+    attackLabel.setColour(juce::Label::textColourId, juce::Colour::fromRGB(255, 228, 163));
+    attackLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(&attackLabel);
+
+    decayLabel.setText("Decay", juce::dontSendNotification);
+    decayLabel.setFont(labelFont);
+    decayLabel.setColour(juce::Label::textColourId, juce::Colour::fromRGB(255, 228, 163));
+    decayLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(&decayLabel);
+
+    sustainLabel.setText("Sustain", juce::dontSendNotification);
+    sustainLabel.setFont(labelFont);
+    sustainLabel.setColour(juce::Label::textColourId, juce::Colour::fromRGB(255, 228, 163));
+    sustainLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(&sustainLabel);
+
+    releaseLabel.setText("Release", juce::dontSendNotification);
+    releaseLabel.setFont(labelFont);
+    releaseLabel.setColour(juce::Label::textColourId, juce::Colour::fromRGB(255, 228, 163));
+    releaseLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(&releaseLabel);
 }
 
 AdsrComponent::~AdsrComponent()
@@ -87,10 +115,18 @@ void AdsrComponent::resized()
     const int sliderWidth = 75;
     const int sliderHeight = 75;
     const int initialX = 0;
-    const int yPosition = 0;
+    const int yPosition = 40;
+    const int labelHeight = 40;
+    const int labelYPosition = yPosition -40;
 
     attackSlider.setBounds(initialX, yPosition, sliderWidth, sliderHeight);
     decaySlider.setBounds(initialX + sliderWidth + margin, yPosition, sliderWidth, sliderHeight);
     sustainSlider.setBounds(initialX + 2 * (sliderWidth + margin), yPosition, sliderWidth, sliderHeight);
     releaseSlider.setBounds(initialX + 3 * (sliderWidth + margin), yPosition, sliderWidth, sliderHeight);
+
+    attackLabel.setBounds(initialX, labelYPosition, sliderWidth, labelHeight);
+    decayLabel.setBounds(initialX + sliderWidth + margin, labelYPosition, sliderWidth, labelHeight);
+    sustainLabel.setBounds(initialX + 2 * (sliderWidth + margin), labelYPosition, sliderWidth, labelHeight);
+    releaseLabel.setBounds(initialX + 3 * (sliderWidth + margin), labelYPosition, sliderWidth, labelHeight);
+
 }
