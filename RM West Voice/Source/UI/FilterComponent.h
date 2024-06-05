@@ -29,14 +29,16 @@ private:
     // SLIDERS CUSTOM STYLE
     CustomLookAndFeelViolet customLookAndFeelViolet;
 
-    // LP CUTOFF AND VOLUME
+    // CUTOFF
     juce::Slider cutoffSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cutoffAttachment;
+    
+    // VOLUME
     juce::Slider volumeSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volumeAttachment;
 
     // LABELS
-    juce::Label  cutoffLabel, volumeLabel;
+    juce::Label cutoffLabel, volumeLabel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterComponent)
 };

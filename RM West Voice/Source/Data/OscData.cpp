@@ -9,12 +9,14 @@
 
 #include "OscData.h"
 
+// PREPARE TO PLAY
 void OscData::prepareToPlay(juce::dsp::ProcessSpec& spec)
 {
     prepare(spec);
     fmOsc.prepare (spec);
 }
 
+// SET WAVE TYPE
 void OscData::setWaveType(const int choice)
 {
     switch (choice)
@@ -33,18 +35,21 @@ void OscData::setWaveType(const int choice)
     }    
 }
 
+// SET WAVE FREQUENCY
 void OscData::setWaveFrequency (const int midiNoteNumber)
 {
     setFrequency (juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber) + fmMod);
     lastMidiNote = midiNoteNumber;
 }
 
+// GET NEXT AUDIO BLOCK
 void OscData::getNextAudioBlock (juce::dsp::AudioBlock<float>& block)
 {
     processFmOsc (block);
     process (juce::dsp::ProcessContextReplacing<float> (block));
 }
 
+// PROCESS FM OSC
 void OscData::processFmOsc (juce::dsp::AudioBlock<float>& block)
 {
     for (int ch = 0; ch < block.getNumChannels(); ++ch)
@@ -56,6 +61,7 @@ void OscData::processFmOsc (juce::dsp::AudioBlock<float>& block)
     }
 }
 
+// UPDATE FM
 void OscData::updateFm (const float freq, const float depth)
 {
     fmOsc.setFrequency (freq);

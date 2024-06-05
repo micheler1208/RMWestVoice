@@ -78,9 +78,5 @@ void RMWestVoiceAudioProcessorEditor::resized()
 
     adsr.setBounds(initialX, yPosition -40, getWidth() / 2, getHeight());
     
-    // Imposta i bounds di 'filters' in modo che sia visibile
     filters.setBounds(getWidth() / 2 - 5, 0, getWidth() / 2, getHeight());
-
-    //filters.setBounds(getWidth() - 2 * (sliderWidth + margin), yPosition, sliderWidth, sliderHeight);
-
 }

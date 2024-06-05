@@ -11,6 +11,8 @@
 #include "OscComponent.h"
 
 //==============================================================================
+
+// COSTRUCTOR
 OscComponent::OscComponent(juce::AudioProcessorValueTreeState& apvts, juce::String waveSelectorId)
 {
     juce::StringArray choices{ "Triangle","Saw" };
@@ -19,15 +21,19 @@ OscComponent::OscComponent(juce::AudioProcessorValueTreeState& apvts, juce::Stri
 
     oscWaveSelectorAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(apvts, waveSelectorId, oscWaveSelector);
 }
+
+// DESTRUCTOR
 OscComponent::~OscComponent()
 {
 }
 
+// PAINT
 void OscComponent::paint (juce::Graphics& g)
 {
 }
 
+// RESIZED
 void OscComponent::resized()
 {
-    oscWaveSelector.setBounds(0, 0, 90, 20);//TO BE CHANGED
+    oscWaveSelector.setBounds(0, 0, 90, 20);
 }

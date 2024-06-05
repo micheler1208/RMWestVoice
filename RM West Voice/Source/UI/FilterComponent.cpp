@@ -11,11 +11,14 @@
 #include "FilterComponent.h"
 
 //==============================================================================
+
+// CONSTRUCTOR
 FilterComponent::FilterComponent(juce::AudioProcessorValueTreeState& apvts)
 {
+    // SLIDERS RIGHT
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 
-    // Slider di Cutoff
+    // CUTOFF SLIDER
     cutoffSlider.setLookAndFeel(&customLookAndFeelViolet);
     cutoffSlider.setName("Cutoff");
     cutoffSlider.setSliderStyle(juce::Slider::Rotary);
@@ -28,7 +31,7 @@ FilterComponent::FilterComponent(juce::AudioProcessorValueTreeState& apvts)
     addAndMakeVisible(&cutoffSlider);
     cutoffAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, "FILTERFREQ", cutoffSlider);
 
-    // Slider di Volume
+    // VOLUME SLIDER
     volumeSlider.setLookAndFeel(&customLookAndFeelViolet);
     volumeSlider.setName("Volume");
     volumeSlider.setSliderStyle(juce::Slider::Rotary);
@@ -39,16 +42,18 @@ FilterComponent::FilterComponent(juce::AudioProcessorValueTreeState& apvts)
     addAndMakeVisible(&volumeSlider);
     volumeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, "VOLUME", volumeSlider);
 
-    // Etichette
+    // LABELS
     juce::Font labelFont = juce::Font(juce::Typeface::createSystemTypefaceFor(BinaryData::timegoing_ttf, BinaryData::timegoing_ttfSize));
     labelFont.setHeight(48.0f);
 
+    // CUTOFF SLIDER
     cutoffLabel.setText("Cutoff", juce::dontSendNotification);
     cutoffLabel.setFont(labelFont);
     cutoffLabel.setColour(juce::Label::textColourId, juce::Colour::fromRGB(235, 47, 144));
     cutoffLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(&cutoffLabel);
 
+    // VOLUME SLIDER
     volumeLabel.setText("Volume", juce::dontSendNotification);
     volumeLabel.setFont(labelFont);
     volumeLabel.setColour(juce::Label::textColourId, juce::Colour::fromRGB(235, 47, 144));
@@ -56,16 +61,21 @@ FilterComponent::FilterComponent(juce::AudioProcessorValueTreeState& apvts)
     addAndMakeVisible(&volumeLabel);
 }
 
+// DESTRUCTOR
 FilterComponent::~FilterComponent()
 {
     cutoffSlider.setLookAndFeel(nullptr);
     volumeSlider.setLookAndFeel(nullptr);
 }
 
+
+// PAINT
 void FilterComponent::paint (juce::Graphics& g)
 {
 }
 
+
+// RESIZED
 void FilterComponent::resized()
 {
     const int margin = 25;

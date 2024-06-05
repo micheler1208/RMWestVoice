@@ -9,6 +9,7 @@
 
 #include "FilterData.h"
 
+// PREPARE TO PLAY
 void FilterData::prepareToPlay (double sampleRate, int samplesPerBlock, int numChannels)
 {
     filter.reset();
@@ -23,6 +24,7 @@ void FilterData::prepareToPlay (double sampleRate, int samplesPerBlock, int numC
     isPrepared = true;
 }
 
+// PROCESS FILTER
 void FilterData::process (juce::AudioBuffer<float>& buffer)
 {
     jassert (isPrepared);
@@ -31,6 +33,7 @@ void FilterData::process (juce::AudioBuffer<float>& buffer)
     filter.process (juce::dsp::ProcessContextReplacing<float> { block });
 }
 
+// UPDATE PARAMETERS
 void FilterData::updateParameters (const int filterType, const float frequency, const float resonance)
 {
     switch (filterType)
@@ -52,6 +55,7 @@ void FilterData::updateParameters (const int filterType, const float frequency, 
     filter.setResonance (resonance);
 }
 
+// RESET
 void FilterData::reset()
 {
     filter.reset();

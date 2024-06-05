@@ -9,6 +9,7 @@
 
 #include "SynthVoice.h"
 
+// CAN PLAY SOUND
 bool SynthVoice::canPlaySound(juce::SynthesiserSound* sound)
 {
     return dynamic_cast<juce::SynthesiserSound*>(sound) != nullptr;
@@ -20,7 +21,7 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     adsr.noteOn();
 }
 
-
+// STOP NOTE
 void SynthVoice::stopNote(float velocity, bool allowTailOff)
 {
     adsr.noteOff();
@@ -31,17 +32,17 @@ void SynthVoice::stopNote(float velocity, bool allowTailOff)
     }
 }
 
+// CONTROLLER MOVED
 void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
 {
-
 }
 
-
+// PITCH WHEEL MOVED
 void SynthVoice::pitchWheelMoved(int newPitchWheelValue) 
 {
-
 }
 
+// PREPARE TO PLAY
 void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels)
 {
     adsr.setSampleRate(sampleRate);
@@ -60,12 +61,7 @@ void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outpu
 
 }
 
-
-void SynthVoice::update(const float attack, const float decay, const float sustain, const float release)
-{
-    adsr.updateADSR(attack, decay, sustain, release);
-}
-
+// RENDER NEXT BLOCK
 void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
     jassert (isPrepared);
@@ -89,4 +85,10 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
         if (! adsr.isActive())
             clearCurrentNote();
     }
+}
+
+// UPDATE ADSR VALUES
+void SynthVoice::update(const float attack, const float decay, const float sustain, const float release)
+{
+    adsr.updateADSR(attack, decay, sustain, release);
 }

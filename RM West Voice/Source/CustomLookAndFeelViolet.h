@@ -19,7 +19,7 @@ public:
         const float rw = radius * 2.0f;
         const float angle = rotaryStartAngle + sliderPosProportional * (rotaryEndAngle - rotaryStartAngle);
 
-        // background of the circle
+        // Background of the circle
         g.setColour(juce::Colour::fromRGB(1, 0, 57));
         g.fillEllipse(rx, ry, rw, rw);
 
@@ -35,7 +35,7 @@ public:
         filledArc.addPieSegment(rx, ry, rw, rw, rotaryStartAngle, angle, 0.8f);
         g.fillPath(filledArc);
 
-        // thumb - Pointer
+        // Yhumb - Pointer
         juce::Path thumb;
         const float thumbWidth = 4.0f;
         thumb.addRectangle(-thumbWidth / 2, -radius, thumbWidth, radius * 0.6f);

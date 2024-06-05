@@ -11,15 +11,18 @@
 #include "AdsrComponent.h"
 
 //==============================================================================
+
+// CONSTRUCTOR
 AdsrComponent::AdsrComponent(juce::AudioProcessorValueTreeState& apvts)
 {
+    // SLIDERS LEFT
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 
-    // Slider di Attack
+    // ATTACK SLIDER
     attackSlider.setLookAndFeel(&customLookAndFeelYellow);
     attackSlider.setName("Attack");
     attackSlider.setSliderStyle(juce::Slider::Rotary);
-    attackSlider.setRange(0.01, 2000.0, 0.01); // Intervallo in ms
+    attackSlider.setRange(0.01, 2000.0, 0.01);
     attackSlider.setTextValueSuffix(" ms");
     attackSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30);
     attackSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
@@ -28,67 +31,71 @@ AdsrComponent::AdsrComponent(juce::AudioProcessorValueTreeState& apvts)
     addAndMakeVisible(&attackSlider);
     attackAttachment = std::make_unique<SliderAttachment>(apvts, "ATTACK", attackSlider);
 
-    // Slider di Decay
+    // DECAY SLIDER
     decaySlider.setLookAndFeel(&customLookAndFeelYellow);
     decaySlider.setName("Decay");
     decaySlider.setSliderStyle(juce::Slider::Rotary);
-    decaySlider.setRange(0.01, 2000.0, 0.01); // Intervallo in ms
+    decaySlider.setRange(0.01, 2000.0, 0.01);
     decaySlider.setTextValueSuffix(" ms");
     decaySlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30);
     decaySlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     decaySlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
-    decaySlider.setNumDecimalPlacesToDisplay(2); // Imposta il numero di cifre decimali da visualizzare
+    decaySlider.setNumDecimalPlacesToDisplay(2);
     addAndMakeVisible(&decaySlider);
     decayAttachment = std::make_unique<SliderAttachment>(apvts, "DECAY", decaySlider);
 
-    // Slider di Sustain
+    // SUSTAIN SLIDER
     sustainSlider.setLookAndFeel(&customLookAndFeelYellow);
     sustainSlider.setName("Sustain");
     sustainSlider.setSliderStyle(juce::Slider::Rotary);
-    sustainSlider.setRange(-5.0, 5.0, 0.1); // Intervallo in dB
+    sustainSlider.setRange(-5.0, 5.0, 0.1);
     sustainSlider.setTextValueSuffix(" dB");
     sustainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30);
     sustainSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     sustainSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
-    sustainSlider.setNumDecimalPlacesToDisplay(1); // Imposta il numero di cifre decimali da visualizzare
+    sustainSlider.setNumDecimalPlacesToDisplay(1);
     addAndMakeVisible(&sustainSlider);
     sustainAttachment = std::make_unique<SliderAttachment>(apvts, "SUSTAIN", sustainSlider);
 
-    // Slider di Release
+    // RELEASE SLIDER
     releaseSlider.setLookAndFeel(&customLookAndFeelYellow);
     releaseSlider.setName("Release");
     releaseSlider.setSliderStyle(juce::Slider::Rotary);
-    releaseSlider.setRange(1.0, 3000.0, 0.01); // Intervallo in ms
+    releaseSlider.setRange(1.0, 3000.0, 0.01);
     releaseSlider.setTextValueSuffix(" ms");
     releaseSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30);
     releaseSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     releaseSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
-    releaseSlider.setNumDecimalPlacesToDisplay(2); // Imposta il numero di cifre decimali da visualizzare
+    releaseSlider.setNumDecimalPlacesToDisplay(2);
     addAndMakeVisible(&releaseSlider);
     releaseAttachment = std::make_unique<SliderAttachment>(apvts, "RELEASE", releaseSlider);
 
-    // Etichette
+    // LABELS
     juce::Font labelFont = juce::Font(juce::Typeface::createSystemTypefaceFor(BinaryData::timegoing_ttf, BinaryData::timegoing_ttfSize));
-    labelFont.setHeight(48.0f); // Aumenta la dimensione del font
+    labelFont.setHeight(48.0f);
 
+    // ATTACK LABEL
     attackLabel.setText("Attack", juce::dontSendNotification);
     attackLabel.setFont(labelFont);
     attackLabel.setColour(juce::Label::textColourId, juce::Colour::fromRGB(255, 228, 163));
     attackLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(&attackLabel);
 
+    // DECAY LABEL
     decayLabel.setText("Decay", juce::dontSendNotification);
     decayLabel.setFont(labelFont);
     decayLabel.setColour(juce::Label::textColourId, juce::Colour::fromRGB(255, 228, 163));
     decayLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(&decayLabel);
 
+    // SUSTAIN LABEL
     sustainLabel.setText("Sustain", juce::dontSendNotification);
     sustainLabel.setFont(labelFont);
     sustainLabel.setColour(juce::Label::textColourId, juce::Colour::fromRGB(255, 228, 163));
     sustainLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(&sustainLabel);
 
+    // RELEASE LABEL
     releaseLabel.setText("Release", juce::dontSendNotification);
     releaseLabel.setFont(labelFont);
     releaseLabel.setColour(juce::Label::textColourId, juce::Colour::fromRGB(255, 228, 163));
@@ -96,6 +103,7 @@ AdsrComponent::AdsrComponent(juce::AudioProcessorValueTreeState& apvts)
     addAndMakeVisible(&releaseLabel);
 }
 
+// DESTRUCTOR
 AdsrComponent::~AdsrComponent()
 {
     attackSlider.setLookAndFeel(nullptr);
@@ -104,11 +112,12 @@ AdsrComponent::~AdsrComponent()
     releaseSlider.setLookAndFeel(nullptr);
 }
 
+// PAINT
 void AdsrComponent::paint (juce::Graphics& g)
 {
-    //g.fillAll (juce::Colours::black);
 }
 
+// RESIZED
 void AdsrComponent::resized()
 {
     const int margin = 25;
