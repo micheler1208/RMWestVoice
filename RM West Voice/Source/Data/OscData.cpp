@@ -28,22 +28,12 @@ void OscData::prepareLFO(double sampleRate, int samplesPerBlock, int numChannels
 }
 
 // SET WAVE TYPE
-void OscData::setWaveType(const int choice)
+void OscData::setWaveType(const bool dayValue)
 {
-    switch (choice)
-    {
-    case 0:
-        //TRIANGLE
+    if(dayValue)
         initialise([](float x) { return std::abs(2.0f * (x - std::floor(x + 0.5f))); });
-        break;
-    case 1:
-        //SAW
+    else
         initialise([](float x) {return x / juce::MathConstants<float>::pi; });
-        break;
-    default:
-        jassertfalse;
-        break;
-    }    
 }
 
 // SET WAVE FREQUENCY
@@ -56,9 +46,9 @@ void OscData::setWaveFrequency(const int midiNoteNumber)
 }
 
 // SET DETUNE
-void OscData::setDetune(float detuneAmount)
+void OscData::setDetune(bool isDetuned)
 {
-    detune = detuneAmount;
+    detuneActive = isDetuned;
 }
 
 
@@ -73,7 +63,8 @@ void OscData::getNextAudioBlock(juce::dsp::AudioBlock<float>& block)
         lfoMod = lfo.processSample(0.0f) * 5.0f;
 
         auto currentFreq = juce::MidiMessage::getMidiNoteInHertz(lastMidiNote);
-        currentFreq *= (1.0f + detune);
+        if (detuneActive)
+            currentFreq *= (1.0f + detune);
         setFrequency(currentFreq + fmMod + lfoMod);
 
         for (int ch = 0; ch < block.getNumChannels(); ++ch)

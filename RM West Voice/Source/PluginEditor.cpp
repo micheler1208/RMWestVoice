@@ -15,7 +15,7 @@
 RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAudioProcessor& p)
     : AudioProcessorEditor (&p), 
     audioProcessor (p), 
-    osc(audioProcessor.apvts, "OSC1WAVETYPE"), 
+    osc(audioProcessor.apvts), 
     adsr(audioProcessor.apvts), 
     filters(audioProcessor.apvts)
 {
@@ -76,7 +76,7 @@ void RMWestVoiceAudioProcessorEditor::resized()
 
     adsr.setBounds(initialX, yPosition - 40, getWidth() / 2, getHeight());
 
-    osc.setBounds(getWidth() / 2 + 55, yPosition + 13 , selectorWidth, selectorHeight);
+    osc.setBounds(getWidth() / 2 +33, getHeight() -100, 130, getHeight());
 
     filters.setBounds(getWidth()/2 +185, 0, getWidth() / 2, getHeight());
 }

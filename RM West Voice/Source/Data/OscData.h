@@ -15,11 +15,11 @@ class OscData : public juce::dsp::Oscillator<float>
 {
 public:
     void prepareToPlay (juce::dsp::ProcessSpec& spec);
-    void setWaveType (const int choice);
+    void setWaveType (const bool day);
     void setWaveFrequency (const int midiNoteNumber);
     void getNextAudioBlock (juce::dsp::AudioBlock<float>& block);
     void updateFm (const float freq, const float depth);
-    void setDetune(float detuneAmount);
+    void setDetune(bool isDetuned);
     void OscData::prepareLFO(double sampleRate, int samplesPerBlock, int numChannels);
     
 private:
@@ -29,7 +29,9 @@ private:
     float fmMod { 0.0f };
     float fmDepth { 0.0f };
     int lastMidiNote { 0 };
+
     float detune = 0.06f;
+    bool detuneActive = false;
     
     juce::dsp::Oscillator<float> lfo { [](float x) { return std::sin(x); } };   
     float lfoMod = 0.0f;

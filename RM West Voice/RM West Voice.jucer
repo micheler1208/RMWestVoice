@@ -19,6 +19,8 @@
         <FILE id="lPUOWO" name="AdsrComponent.cpp" compile="1" resource="0"
               file="Source/UI/AdsrComponent.cpp"/>
         <FILE id="fOcsNM" name="AdsrComponent.h" compile="0" resource="0" file="Source/UI/AdsrComponent.h"/>
+        <FILE id="lDYbSG" name="CustomLookAndFeelCyan.h" compile="0" resource="0"
+              file="Source/UI/CustomLookAndFeelCyan.h"/>
         <FILE id="rlhK9f" name="CustomLookAndFeelViolet.h" compile="0" resource="0"
               file="Source/UI/CustomLookAndFeelViolet.h"/>
         <FILE id="FQDM7T" name="CustomLookAndFeelYellow.h" compile="0" resource="0"
