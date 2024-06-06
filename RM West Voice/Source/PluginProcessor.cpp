@@ -41,6 +41,7 @@ void RMWestVoiceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
         if (auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
         {
             voice->prepareToPlay (sampleRate, samplesPerBlock, getTotalNumOutputChannels());
+            voice->getOscillator().prepareLFO(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
         }
     }
 

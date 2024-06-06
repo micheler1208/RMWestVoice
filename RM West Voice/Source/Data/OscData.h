@@ -20,6 +20,7 @@ public:
     void getNextAudioBlock (juce::dsp::AudioBlock<float>& block);
     void updateFm (const float freq, const float depth);
     void setDetune(float detuneAmount);
+    void OscData::prepareLFO(double sampleRate, int samplesPerBlock, int numChannels);
     
 private:
     void processFmOsc (juce::dsp::AudioBlock<float>& block);
@@ -29,4 +30,8 @@ private:
     float fmDepth { 0.0f };
     int lastMidiNote { 0 };
     float detune = 0.06f;
+    
+    juce::dsp::Oscillator<float> lfo { [](float x) { return std::sin(x); } };   
+    float lfoMod = 0.0f;
+    
 };
