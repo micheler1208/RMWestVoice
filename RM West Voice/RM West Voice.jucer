@@ -19,12 +19,15 @@
         <FILE id="lPUOWO" name="AdsrComponent.cpp" compile="1" resource="0"
               file="Source/UI/AdsrComponent.cpp"/>
         <FILE id="fOcsNM" name="AdsrComponent.h" compile="0" resource="0" file="Source/UI/AdsrComponent.h"/>
-        <FILE id="lDYbSG" name="CustomLookAndFeelCyan.h" compile="0" resource="0"
-              file="Source/UI/CustomLookAndFeelCyan.h"/>
+        <FILE id="lDYbSG" name="CustomLookAndFeelDetune.h" compile="0" resource="0"
+              file="Source/UI/CustomLookAndFeelDetune.h"/>
+        <FILE id="gYTH4H" name="CustomLookAndFeelOsc.h" compile="0" resource="0"
+              file="Source/UI/CustomLookAndFeelOsc.h"/>
         <FILE id="rlhK9f" name="CustomLookAndFeelViolet.h" compile="0" resource="0"
               file="Source/UI/CustomLookAndFeelViolet.h"/>
         <FILE id="FQDM7T" name="CustomLookAndFeelYellow.h" compile="0" resource="0"
               file="Source/UI/CustomLookAndFeelYellow.h"/>
+        <FILE id="k4rJ85" name="CustomSlider.h" compile="0" resource="0" file="Source/UI/CustomSlider.h"/>
         <FILE id="e771zG" name="FilterComponent.cpp" compile="1" resource="0"
               file="Source/UI/FilterComponent.cpp"/>
         <FILE id="IOiVAd" name="FilterComponent.h" compile="0" resource="0"
@@ -34,6 +37,10 @@
         <FILE id="UxkbEF" name="OscComponent.h" compile="0" resource="0" file="Source/UI/OscComponent.h"/>
       </GROUP>
       <GROUP id="{B042B502-7B09-7C73-483A-E0CD169502E7}" name="font">
+        <FILE id="mFZ6PH" name="caviar.ttf" compile="0" resource="1" file="Source/font/caviar.ttf"/>
+        <FILE id="oFrFeF" name="gameboy.ttf" compile="0" resource="1" file="Source/font/gameboy.ttf"/>
+        <FILE id="OFc5MB" name="graffiti.ttf" compile="0" resource="1" file="Source/font/graffiti.ttf"/>
+        <FILE id="nUG1JB" name="heaters.ttf" compile="0" resource="1" file="Source/font/heaters.ttf"/>
         <FILE id="i3IGFz" name="timegoing.ttf" compile="0" resource="1" file="Source/font/timegoing.ttf"/>
         <FILE id="yIVkmv" name="wholecar.ttf" compile="0" resource="1" file="Source/font/wholecar.ttf"/>
       </GROUP>

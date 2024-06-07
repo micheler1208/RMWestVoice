@@ -11,6 +11,7 @@
 
 #include <JuceHeader.h>
 #include "CustomLookAndFeelYellow.h"
+#include "CustomSlider.h"
 
 //==============================================================================
 /*
@@ -27,7 +28,7 @@ public:
 private:
 
     // ADSR
-    juce::Slider attackSlider, decaySlider, sustainSlider, releaseSlider;
+    CustomSlider attackSlider, decaySlider, sustainSlider, releaseSlider;
 
     // LABELS
     juce::Label attackLabel, decayLabel, sustainLabel, releaseLabel;

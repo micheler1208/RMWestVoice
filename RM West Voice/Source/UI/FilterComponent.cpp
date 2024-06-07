@@ -27,7 +27,6 @@ FilterComponent::FilterComponent(juce::AudioProcessorValueTreeState& apvts)
     cutoffSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30);
     cutoffSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     cutoffSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(235, 47, 144));
-    cutoffSlider.setNumDecimalPlacesToDisplay(0); // Imposta il numero di cifre decimali da visualizzare
     addAndMakeVisible(&cutoffSlider);
     cutoffAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, "LP_FILTERFREQ", cutoffSlider);
 

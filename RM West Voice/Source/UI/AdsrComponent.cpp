@@ -23,11 +23,9 @@ AdsrComponent::AdsrComponent(juce::AudioProcessorValueTreeState& apvts)
     attackSlider.setName("Attack");
     attackSlider.setSliderStyle(juce::Slider::Rotary);
     attackSlider.setRange(0.01, 2000.0, 0.01);
-    attackSlider.setTextValueSuffix(" ms");
     attackSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30);
     attackSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     attackSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
-    attackSlider.setNumDecimalPlacesToDisplay(2);
     addAndMakeVisible(&attackSlider);
     attackAttachment = std::make_unique<SliderAttachment>(apvts, "ATTACK", attackSlider);
 
@@ -36,11 +34,9 @@ AdsrComponent::AdsrComponent(juce::AudioProcessorValueTreeState& apvts)
     decaySlider.setName("Decay");
     decaySlider.setSliderStyle(juce::Slider::Rotary);
     decaySlider.setRange(0.01, 2000.0, 0.01);
-    decaySlider.setTextValueSuffix(" ms");
     decaySlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30);
     decaySlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     decaySlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
-    decaySlider.setNumDecimalPlacesToDisplay(2);
     addAndMakeVisible(&decaySlider);
     decayAttachment = std::make_unique<SliderAttachment>(apvts, "DECAY", decaySlider);
 
@@ -48,12 +44,10 @@ AdsrComponent::AdsrComponent(juce::AudioProcessorValueTreeState& apvts)
     sustainSlider.setLookAndFeel(&customLookAndFeelYellow);
     sustainSlider.setName("Sustain");
     sustainSlider.setSliderStyle(juce::Slider::Rotary);
-    sustainSlider.setRange(-5.0, 5.0, 0.1);
-    sustainSlider.setTextValueSuffix(" dB");
+    sustainSlider.setRange(-5.0, 5.0, 0.01);
     sustainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30);
     sustainSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     sustainSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
-    sustainSlider.setNumDecimalPlacesToDisplay(1);
     addAndMakeVisible(&sustainSlider);
     sustainAttachment = std::make_unique<SliderAttachment>(apvts, "SUSTAIN", sustainSlider);
 
@@ -62,11 +56,9 @@ AdsrComponent::AdsrComponent(juce::AudioProcessorValueTreeState& apvts)
     releaseSlider.setName("Release");
     releaseSlider.setSliderStyle(juce::Slider::Rotary);
     releaseSlider.setRange(1.0, 3000.0, 0.01);
-    releaseSlider.setTextValueSuffix(" ms");
     releaseSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 30);
     releaseSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     releaseSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
-    releaseSlider.setNumDecimalPlacesToDisplay(2);
     addAndMakeVisible(&releaseSlider);
     releaseAttachment = std::make_unique<SliderAttachment>(apvts, "RELEASE", releaseSlider);
 
@@ -90,6 +82,7 @@ AdsrComponent::AdsrComponent(juce::AudioProcessorValueTreeState& apvts)
 
     // SUSTAIN LABEL
     sustainLabel.setText("Sustain", juce::dontSendNotification);
+    sustainLabel.setName("Sustain"); // Imposta il nome qui
     sustainLabel.setFont(labelFont);
     sustainLabel.setColour(juce::Label::textColourId, juce::Colour::fromRGB(255, 228, 163));
     sustainLabel.setJustificationType(juce::Justification::centred);

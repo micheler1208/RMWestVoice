@@ -5,9 +5,12 @@
 class CustomLookAndFeelYellow : public juce::LookAndFeel_V4
 {
 public:
-    CustomLookAndFeelYellow() {}
+    CustomLookAndFeelYellow()
+    {
+        customFont = juce::Font(juce::Typeface::createSystemTypefaceFor(BinaryData::caviar_ttf, BinaryData::caviar_ttfSize));
+    }
 
-    // ROTATORY SLIDER
+    // ROTARY SLIDER
     void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height,
                           float sliderPosProportional, float rotaryStartAngle, float rotaryEndAngle, juce::Slider& slider) override
     {
@@ -42,5 +45,32 @@ public:
         g.setColour(juce::Colour::fromRGB(254, 138, 91));
         g.fillPath(thumb, juce::AffineTransform::rotation(angle).translated(centreX, centreY));
     }
-    
+
+
+    void drawLabel(juce::Graphics& g, juce::Label& label) override
+    {
+        g.setColour(label.findColour(juce::Label::textColourId));
+        g.setFont(customFont);
+        g.drawFittedText(label.getText(), label.getLocalBounds(), label.getJustificationType(), 2);
+    }
+
+    void drawTextEditorOutline (juce::Graphics& g, int width, int height, juce::TextEditor& textEditor) override
+    {
+        if (textEditor.isEnabled())
+        {
+            if (textEditor.hasKeyboardFocus (true) && ! textEditor.isReadOnly())
+            {
+                g.setColour (textEditor.findColour (juce::TextEditor::focusedOutlineColourId));
+                g.drawRect (0, 0, width, height, 2);
+            }
+            else
+            {
+                g.setColour (textEditor.findColour (juce::TextEditor::outlineColourId));
+                g.drawRect (0, 0, width, height);
+            }
+        }
+    }
+
+private:
+    juce::Font customFont;
 };

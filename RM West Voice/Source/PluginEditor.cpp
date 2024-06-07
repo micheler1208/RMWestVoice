@@ -76,7 +76,7 @@ void RMWestVoiceAudioProcessorEditor::resized()
 
     adsr.setBounds(initialX, yPosition - 40, getWidth() / 2, getHeight());
 
-    osc.setBounds(getWidth() / 2 +33, getHeight() -100, 130, getHeight());
+    osc.setBounds(getWidth() / 2 +26, getHeight() -105, 150, getHeight());
 
     filters.setBounds(getWidth()/2 +185, 0, getWidth() / 2, getHeight());
 }

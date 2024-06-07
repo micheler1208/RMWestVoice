@@ -64,7 +64,7 @@ void OscData::getNextAudioBlock(juce::dsp::AudioBlock<float>& block)
 
         auto currentFreq = juce::MidiMessage::getMidiNoteInHertz(lastMidiNote);
         if (detuneActive)
-            currentFreq *= (1.0f + detune);
+            currentFreq *= (1.0f - detune);
         setFrequency(currentFreq + fmMod + lfoMod);
 
         for (int ch = 0; ch < block.getNumChannels(); ++ch)

@@ -10,7 +10,8 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "CustomLookAndFeelCyan.h"
+#include "CustomLookAndFeelDetune.h"
+#include "CustomLookAndFeelOsc.h"
 
 //==============================================================================
 /*
@@ -34,7 +35,8 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> nightButtonAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> detuneButtonAttachment;
 
-    CustomLookAndFeelCyan customLookAndFeelCyan; // New look and feel for detune button
+    CustomLookAndFeelDetune customLookAndFeelDetune;
+    CustomLookAndFeelOsc customLookAndFeelOsc;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OscComponent)
 };

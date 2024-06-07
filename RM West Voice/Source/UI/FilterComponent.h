@@ -11,6 +11,7 @@
 
 #include <JuceHeader.h>
 #include "CustomLookAndFeelViolet.h"
+#include "CustomSlider.h"
 
 //==============================================================================
 /*
@@ -30,11 +31,11 @@ private:
     CustomLookAndFeelViolet customLookAndFeelViolet;
 
     // CUTOFF
-    juce::Slider cutoffSlider;
+    CustomSlider cutoffSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cutoffAttachment;
     
     // VOLUME
-    juce::Slider volumeSlider;
+    CustomSlider volumeSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volumeAttachment;
 
     // LABELS

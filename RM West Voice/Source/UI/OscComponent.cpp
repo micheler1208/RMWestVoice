@@ -32,10 +32,12 @@ OscComponent::OscComponent(juce::AudioProcessorValueTreeState& apvts)
     nightButtonAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(apvts,"NIGHT", nightButton);
     detuneButtonAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(apvts, "DETUNE", detuneButton);
 
-    detuneButton.setLookAndFeel(&customLookAndFeelCyan);
-    detuneButton.setClickingTogglesState(true);
+    detuneButton.setLookAndFeel(&customLookAndFeelDetune);
+    dayButton.setLookAndFeel(&customLookAndFeelOsc);
+    nightButton.setLookAndFeel(&customLookAndFeelOsc);
 
-    // Listener per aggiornare il testo del pulsante e i colori
+    detuneButton.setClickingTogglesState(true);
+    
     detuneButton.onClick = [this]()
         {
             if (detuneButton.getToggleState())
@@ -64,6 +66,9 @@ OscComponent::OscComponent(juce::AudioProcessorValueTreeState& apvts)
 OscComponent::~OscComponent()
 {
     detuneButton.setLookAndFeel(nullptr);
+    dayButton.setLookAndFeel(nullptr);
+    nightButton.setLookAndFeel(nullptr);
+
 }
 
 // PAINT
@@ -74,7 +79,7 @@ void OscComponent::paint (juce::Graphics& g)
 // RESIZED
 void OscComponent::resized()
 {
-    dayButton.setBounds(0, 33, 90, 30);
-    nightButton.setBounds(66, 33, 90, 30);
-    detuneButton.setBounds(18, 0, 90, 30);
+    dayButton.setBounds(-3, 40, 100, 30);
+    nightButton.setBounds(66, 40, 100, 30);
+    detuneButton.setBounds(24, 0, 80, 40);
 }

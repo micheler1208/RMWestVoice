@@ -5,9 +5,12 @@
 class CustomLookAndFeelViolet : public juce::LookAndFeel_V4
 {
 public:
-    CustomLookAndFeelViolet() {}
+    CustomLookAndFeelViolet()
+    {
+        customFont = juce::Font(juce::Typeface::createSystemTypefaceFor(BinaryData::caviar_ttf, BinaryData::caviar_ttfSize));
+    }
 
-    // ROTATORY SLIDER
+    // ROTARY SLIDER
     void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height,
                           float sliderPosProportional, float rotaryStartAngle, float rotaryEndAngle, juce::Slider& slider) override
     {
@@ -35,12 +38,38 @@ public:
         filledArc.addPieSegment(rx, ry, rw, rw, rotaryStartAngle, angle, 0.8f);
         g.fillPath(filledArc);
 
-        // Yhumb - Pointer
+        // Thumb - Pointer
         juce::Path thumb;
         const float thumbWidth = 4.0f;
         thumb.addRectangle(-thumbWidth / 2, -radius, thumbWidth, radius * 0.6f);
         g.setColour(juce::Colour::fromRGB(69, 3, 111));
         g.fillPath(thumb, juce::AffineTransform::rotation(angle).translated(centreX, centreY));
     }
-    
+
+    void drawLabel(juce::Graphics& g, juce::Label& label) override
+    {
+        g.setColour(label.findColour(juce::Label::textColourId));
+        g.setFont(customFont);
+        g.drawFittedText(label.getText(), label.getLocalBounds(), label.getJustificationType(), 2);
+    }
+
+    void drawTextEditorOutline(juce::Graphics& g, int width, int height, juce::TextEditor& textEditor) override
+    {
+        if (textEditor.isEnabled())
+        {
+            if (textEditor.hasKeyboardFocus(true) && !textEditor.isReadOnly())
+            {
+                g.setColour(textEditor.findColour(juce::TextEditor::focusedOutlineColourId));
+                g.drawRect(0, 0, width, height, 2);
+            }
+            else
+            {
+                g.setColour(textEditor.findColour(juce::TextEditor::outlineColourId));
+                g.drawRect(0, 0, width, height);
+            }
+        }
+    }
+
+private:
+    juce::Font customFont;
 };
