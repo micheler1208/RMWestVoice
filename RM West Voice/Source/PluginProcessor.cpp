@@ -71,6 +71,7 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
 
     RMWestVoice::MonoLeadEngine::Parameters monoParameters;
     monoParameters.waveType = static_cast<int>(apvts.getRawParameterValue(RMWestVoiceParameters::ID::wave)->load());
+    monoParameters.oscMix = apvts.getRawParameterValue(RMWestVoiceParameters::ID::oscMix)->load();
     monoParameters.detuneCents = apvts.getRawParameterValue(RMWestVoiceParameters::ID::detuneCents)->load();
     monoParameters.glideMode = getGlideModeFromParameterValue(apvts.getRawParameterValue(RMWestVoiceParameters::ID::glideMode)->load());
     monoParameters.glideTimeSecondsPerOctave = apvts.getRawParameterValue(RMWestVoiceParameters::ID::glideTime)->load();

@@ -13,7 +13,7 @@ It does not produce MIDI output and it is not an audio effect. Audio is generate
 
 This repository has been stabilized around JUCE8 and a Visual Studio 2022 build flow. The project can be generated and built through CMake, while the original `.jucer` file is kept aligned as project metadata.
 
-The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine with basic rate-based glide, while larger musical changes such as pitch bend, controllable vibrato, saturation, effects, oscillator redesign, or historically informed G-funk lead modeling remain staged as separate tasks.
+The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine with basic rate-based glide and a two-oscillator core with curated Saw, Tri, Saw+Tri, and Saw+Pulse colors. Larger musical changes such as pitch bend, controllable vibrato, saturation, effects, or historically informed G-funk lead modeling remain staged as separate tasks.
 
 The post-research implementation sequence is tracked in [POST_RESEARCH_ROADMAP.md](POST_RESEARCH_ROADMAP.md).
 
@@ -179,8 +179,9 @@ The current APVTS parameter surface exposes a small number of parameters. These 
 
 | Parameter ID | Label | Current purpose |
 | --- | --- | --- |
-| `WAVE` | Wave | Selects the current Tri/Saw oscillator branch. |
-| `DETUNE_CENTS` | Detune | Applies oscillator detune in cents. |
+| `WAVE` | Wave | Selects Saw, Tri, Saw+Tri, or Saw+Pulse oscillator color. |
+| `OSC_MIX` | Osc Mix | Blends the secondary oscillator into the primary oscillator. |
+| `DETUNE_CENTS` | Detune | Applies secondary oscillator detune in cents. |
 | `GLIDE_MODE` | Glide Mode | Selects Off, Always, or Auto-Legato glide behavior. |
 | `GLIDE_TIME` | Glide Time | Sets rate-based glide time in seconds per octave. |
 | `AMP_ATTACK` | Amp Attack | ADSR attack time, shown in seconds. |
@@ -235,7 +236,7 @@ When changing the project:
 
 The following items are intentionally not solved in this stabilization pass:
 
-- Historically informed oscillator and lead architecture.
+- Further oscillator modeling, band-limiting, and lead voicing.
 - Advanced legato/retrigger behavior beyond the current glide support.
 - Pitch bend behavior.
 - Controllable vibrato behavior.

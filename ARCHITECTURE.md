@@ -1,6 +1,6 @@
 # RMWestVoice Architecture
 
-This document describes the current technical architecture of RMWestVoice. It reflects the stabilized pre-research codebase and intentionally avoids proposing final sound-design decisions.
+This document describes the current technical architecture of RMWestVoice. It reflects the active post-research implementation state and intentionally avoids proposing final sound-design decisions beyond the tasks already implemented.
 
 For build and usage instructions, see [README.md](README.md).
 
@@ -185,30 +185,31 @@ RM West Voice/Source/Data/OscData.cpp
 `OscData` inherits from `juce::dsp::Oscillator<float>`. It currently owns:
 
 - The primary oscillator function.
-- A secondary FM oscillator object.
-- A simple LFO oscillator object.
+- A secondary oscillator function.
+- Secondary oscillator mix state.
 - Detune state.
 - Glide state.
 - Last played MIDI note.
-- Internal FM and LFO modulation values.
 
 Current oscillator mode behavior:
 
 | Input | Behavior |
 | --- | --- |
-| `WAVE == Tri` | Uses the current triangle-like waveform branch. |
-| `WAVE == Saw` | Uses the current ramp-like waveform branch. |
+| `WAVE == Saw` | Uses saw for both oscillator slots. |
+| `WAVE == Tri` | Uses triangle for both oscillator slots. |
+| `WAVE == Saw+Tri` | Uses saw as the primary oscillator and triangle as the secondary oscillator. |
+| `WAVE == Saw+Pulse` | Uses saw as the primary oscillator and pulse as the secondary oscillator. |
 
 The processor currently calls `setWaveType` from the `WAVE` choice parameter.
 
 Current modulation notes:
 
-- LFO is prepared through `prepareLFO`.
-- LFO frequency is fixed at 5 Hz.
-- LFO modulation is applied continuously during `getNextAudioBlock`.
-- FM helper code still exists inside `OscData`, but it is no longer exposed as dormant public APVTS parameters.
+- `OSC_MIX` blends the secondary oscillator into the primary oscillator.
+- `DETUNE_CENTS` detunes only the secondary oscillator.
+- The previous always-on fixed LFO behavior has been removed.
+- Dormant FM helper code has been removed from the current audio path.
 
-This design is intentionally documented as transitional. The FM and LFO model should be revisited after the research phase rather than expanded casually.
+This design is intentionally documented as transitional. Pitch bend, performer-controlled vibrato, and richer oscillator character should be added through the later roadmap tasks rather than casual one-off modulation.
 
 ### `AdsrData`
 
@@ -270,9 +271,10 @@ RM West Voice/Source/UI
 Owns oscillator-related controls:
 
 - `WAVE`
+- `OSC_MIX`
 - `DETUNE_CENTS`
 
-`WAVE` is attached through a combo box. `DETUNE_CENTS` is attached through a compact slider.
+`WAVE` is attached through a combo box. `OSC_MIX` and `DETUNE_CENTS` are attached through compact sliders.
 
 ### `AdsrComponent`
 
@@ -326,8 +328,9 @@ The current parameter set is:
 
 | ID | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `WAVE` | Choice | `Tri` | Main oscillator branch used by DSP. |
-| `DETUNE_CENTS` | Float | `0.0` | Oscillator detune in cents. |
+| `WAVE` | Choice | `Saw+Tri` | Curated oscillator color: Saw, Tri, Saw+Tri, or Saw+Pulse. |
+| `OSC_MIX` | Float | `0.35` | Secondary oscillator blend amount. |
+| `DETUNE_CENTS` | Float | `0.0` | Secondary oscillator detune in cents. |
 | `GLIDE_MODE` | Choice | `Auto-Legato` | Off, Always, or Auto-Legato glide behavior. |
 | `GLIDE_TIME` | Float | `0.08` | Rate-based glide time in seconds per octave. |
 | `AMP_ATTACK` | Float | `0.1` | ADSR attack time in seconds. |
@@ -349,7 +352,7 @@ Parameter IDs should be treated as stable once public presets or DAW projects de
 During `prepareToPlay`:
 
 1. The mono lead engine is prepared.
-2. The engine prepares its oscillator, LFO, gain, ADSR, and render buffer.
+2. The engine prepares its oscillator core, gain, ADSR, and render buffer.
 3. The high-pass and low-pass filter objects are prepared.
 
 ### Per Block
@@ -438,11 +441,9 @@ Before public distribution, each bundled asset should be reviewed for license co
 
 Task 02 replaces the old `DAY`/`NIGHT`, `DETUNE`, dormant `OSC1FM*`, `LP_FILTER*`, `HP_FILTER*`, and `VOLUME` public IDs with a cleaner v2 parameter surface. No migration is included because this project is still pre-release and the roadmap explicitly allows this cleanup.
 
-### Fixed LFO Behavior
+### Vibrato Not Yet Implemented
 
-The current LFO is internal to `OscData` and fixed at 5 Hz. It is not exposed as a user parameter.
-
-The final vibrato/LFO behavior should be designed after source-backed research into the target lead style.
+The previous internal fixed 5 Hz LFO has been removed from `OscData`. The final vibrato behavior should be added as a performer-controlled feature, using mod wheel and smoothing rules from the roadmap rather than a hidden always-on modulation source.
 
 ### Legacy JUCE Voice Classes
 
@@ -463,7 +464,7 @@ The following decisions are intentionally out of scope for this cleanup stage:
 - Advanced legato/retrigger behavior beyond the current glide support.
 - Pitch bend range and response.
 - Controllable vibrato.
-- Oscillator selection and historically grounded waveform choices.
+- Further oscillator modeling, band-limiting, and character shaping.
 - Saturation/nonlinear color.
 - Effects such as chorus, delay, or reverb.
 - Preset vocabulary and default patch design.

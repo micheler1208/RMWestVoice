@@ -23,6 +23,7 @@ public:
     struct Parameters
     {
         int waveType { 0 };
+        float oscMix { 0.35f };
         float detuneCents { 0.0f };
         GlideState::Mode glideMode { GlideState::Mode::autoLegato };
         float glideTimeSecondsPerOctave { 0.08f };

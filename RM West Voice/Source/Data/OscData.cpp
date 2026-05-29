@@ -9,43 +9,65 @@
 
 #include "OscData.h"
 
+namespace
+{
+constexpr auto pi = juce::MathConstants<float>::pi;
+constexpr auto defaultWaveType = 2;
+}
+
 // PREPARE TO PLAY
 void OscData::prepareToPlay(juce::dsp::ProcessSpec& spec)
 {
     prepare(spec);
-    fmOsc.prepare (spec);
+    secondaryOsc.prepare(spec);
     glideState.prepare(spec.sampleRate);
-}
-
-// PREPARE LFO
-void OscData::prepareLFO(double playbackSampleRate, int samplesPerBlock, int numChannels)
-{
-    juce::dsp::ProcessSpec spec;
-    spec.maximumBlockSize = static_cast<juce::uint32> (samplesPerBlock);
-    spec.sampleRate = playbackSampleRate;
-    spec.numChannels = static_cast<juce::uint32> (numChannels);
-    lfo.prepare(spec);
-    lfo.setFrequency(5.0f); // 5Hz
+    setWaveType(defaultWaveType);
 }
 
 void OscData::reset()
 {
     juce::dsp::Oscillator<float>::reset();
-    fmOsc.reset();
-    lfo.reset();
+    secondaryOsc.reset();
     glideState.reset();
-    fmMod = 0.0f;
-    lfoMod = 0.0f;
     lastMidiNote = 0;
 }
 
 // SET WAVE TYPE
 void OscData::setWaveType(const int waveType)
 {
-    if (waveType == 0)
-        initialise([](float x) { return std::abs(2.0f * (x - std::floor(x + 0.5f))); });
-    else
-        initialise([](float x) {return x / juce::MathConstants<float>::pi; });
+    if (waveType == currentWaveType)
+        return;
+
+    currentWaveType = waveType;
+
+    switch (waveType)
+    {
+        case 1:
+            initialise(triangleWave);
+            secondaryOsc.initialise(triangleWave);
+            break;
+
+        case 2:
+            initialise(sawWave);
+            secondaryOsc.initialise(triangleWave);
+            break;
+
+        case 3:
+            initialise(sawWave);
+            secondaryOsc.initialise(pulseWave);
+            break;
+
+        case 0:
+        default:
+            initialise(sawWave);
+            secondaryOsc.initialise(sawWave);
+            break;
+    }
+}
+
+void OscData::setOscMix(float mix)
+{
+    oscMix = juce::jlimit(0.0f, 1.0f, mix);
 }
 
 // SET WAVE FREQUENCY
@@ -77,55 +99,45 @@ void OscData::setGlideTimeSecondsPerOctave(float secondsPerOctave)
     glideState.setTimeSecondsPerOctave(secondsPerOctave);
 }
 
-
 // GET NEXT AUDIO BLOCK
 void OscData::getNextAudioBlock(juce::dsp::AudioBlock<float>& block)
 {
-    processFmOsc(block);
-
-    // Applica la modulazione dell'LFO in modo continuo
     const auto numSamples = static_cast<int> (block.getNumSamples());
     const auto numChannels = static_cast<int> (block.getNumChannels());
 
     for (int s = 0; s < numSamples; ++s)
     {
-        lfoMod = lfo.processSample(0.0f) * 5.0f;
+        const auto currentFreq = glideState.getNextFrequency();
+        setFrequency(currentFreq);
+        secondaryOsc.setFrequency(applyDetune(currentFreq, detuneCents));
 
-        auto currentFreq = applyDetune(glideState.getNextFrequency());
-        setFrequency(static_cast<float> (currentFreq) + fmMod + lfoMod);
+        const auto primarySample = processSample(0.0f);
+        const auto secondarySample = secondaryOsc.processSample(0.0f);
+        const auto outputSample = primarySample * (1.0f - oscMix) + secondarySample * oscMix;
 
         for (int ch = 0; ch < numChannels; ++ch)
         {
-            block.setSample(ch, s, processSample(block.getSample(ch, s)));
+            block.setSample(ch, s, outputSample);
         }
     }
 }
 
-// PROCESS FM OSC
-void OscData::processFmOsc (juce::dsp::AudioBlock<float>& block)
+float OscData::sawWave(float phase) noexcept
 {
-    const auto numChannels = static_cast<int> (block.getNumChannels());
-    const auto numSamples = static_cast<int> (block.getNumSamples());
-
-    for (int ch = 0; ch < numChannels; ++ch)
-    {
-        for (int s = 0; s < numSamples; ++s)
-        {
-            fmMod = fmOsc.processSample (block.getSample (ch, s)) * fmDepth;
-        }
-    }
+    return phase / pi;
 }
 
-// UPDATE FM
-void OscData::updateFm (const float freq, const float depth)
+float OscData::triangleWave(float phase) noexcept
 {
-    fmOsc.setFrequency (freq);
-    fmDepth = depth;
-    auto currentFreq = static_cast<float> (juce::MidiMessage::getMidiNoteInHertz(lastMidiNote)) + fmMod;
-    setFrequency (currentFreq >= 0 ? currentFreq : currentFreq * -1.0f);
+    return (2.0f / pi) * std::asin(std::sin(phase));
 }
 
-float OscData::applyDetune(float sourceFrequency) const
+float OscData::pulseWave(float phase) noexcept
 {
-    return sourceFrequency * std::pow(2.0f, detuneCents / 1200.0f);
+    return std::sin(phase) >= 0.0f ? 1.0f : -1.0f;
+}
+
+float OscData::applyDetune(float sourceFrequency, float cents) noexcept
+{
+    return sourceFrequency * std::pow(2.0f, cents / 1200.0f);
 }

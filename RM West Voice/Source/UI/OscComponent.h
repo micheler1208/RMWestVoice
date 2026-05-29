@@ -27,10 +27,13 @@ public:
 
 private:
     juce::ComboBox waveSelector;
+    CustomSlider mixSlider;
     CustomSlider detuneSlider;
+    juce::Label mixLabel;
     juce::Label detuneLabel;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> waveAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mixAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> detuneAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OscComponent)

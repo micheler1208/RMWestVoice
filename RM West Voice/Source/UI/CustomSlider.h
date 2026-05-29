@@ -35,7 +35,7 @@ protected:
             suffix = " s";
             textValue = juce::String(value, numDecimalPlaces);
         }
-        else if (getName() == "Sustain" || getName() == "Volume")
+        else if (getName() == "Sustain" || getName() == "Volume" || getName() == "Mix")
         {
             suffix = " %";
             textValue = juce::String(value * 100.0, 0);
@@ -59,7 +59,7 @@ protected:
         auto valueStr = text.upToFirstOccurrenceOf(" ", false, false);
         auto value = valueStr.getDoubleValue();
 
-        if (getName() == "Sustain" || getName() == "Volume")
+        if (getName() == "Sustain" || getName() == "Volume" || getName() == "Mix")
         {
             value /= 100.0;
         }

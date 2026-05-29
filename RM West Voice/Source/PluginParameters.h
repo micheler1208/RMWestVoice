@@ -16,6 +16,7 @@ namespace RMWestVoiceParameters
 namespace ID
 {
     inline constexpr auto wave = "WAVE";
+    inline constexpr auto oscMix = "OSC_MIX";
     inline constexpr auto detuneCents = "DETUNE_CENTS";
     inline constexpr auto glideMode = "GLIDE_MODE";
     inline constexpr auto glideTime = "GLIDE_TIME";
@@ -35,8 +36,10 @@ namespace ID
 
 namespace Wave
 {
-    inline constexpr int tri = 0;
-    inline constexpr int saw = 1;
+    inline constexpr int saw = 0;
+    inline constexpr int tri = 1;
+    inline constexpr int sawTri = 2;
+    inline constexpr int sawPulse = 3;
 }
 
 namespace GlideMode
@@ -60,8 +63,14 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     params.push_back(std::make_unique<juce::AudioParameterChoice>(
         ID::wave,
         "Wave",
-        juce::StringArray { "Tri", "Saw" },
-        Wave::tri));
+        juce::StringArray { "Saw", "Tri", "Saw+Tri", "Saw+Pulse" },
+        Wave::sawTri));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::oscMix,
+        "Osc Mix",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f },
+        0.35f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         ID::detuneCents,

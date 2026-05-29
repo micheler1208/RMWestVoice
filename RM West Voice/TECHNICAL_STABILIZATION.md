@@ -19,10 +19,10 @@ This note tracks the pre-research cleanup phase. It intentionally avoids changin
 - MIDI output is disabled; the plugin remains a MIDI-controlled synth instrument.
 - Plugin state is serialized through `AudioProcessorValueTreeState`.
 - The Visual Studio build uses JUCE8 modules and the bundled JUCE8 VST3 SDK.
-- Unused LFO headers were removed from the project; current LFO behavior remains inside `OscData`.
+- Unused LFO headers were removed from the project; the later oscillator-core task also removed the hidden fixed LFO from `OscData`.
 
 ## Deferred Until Deep Research
 
-- Lead architecture changes such as glide, legato, pitch bend, controllable vibrato, saturation, effects, and oscillator redesign.
-- FM parameters and `DAY`/`NIGHT` parameter model cleanup.
+- Lead architecture changes such as pitch bend, controllable vibrato, saturation, effects, and final voicing.
+- Any future FM or hybrid color behavior, if the post-research design intentionally reintroduces it.
 - Final licensing audit for bundled fonts and background image before distribution.

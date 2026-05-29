@@ -21,7 +21,6 @@ void MonoLeadEngine::prepareToPlay(double sampleRate, int samplesPerBlock, int o
     spec.numChannels = static_cast<juce::uint32>(outputChannels);
 
     osc.prepareToPlay(spec);
-    osc.prepareLFO(sampleRate, samplesPerBlock, outputChannels);
 
     gain.prepare(spec);
     gain.setGainLinear(0.3f);
@@ -46,6 +45,7 @@ void MonoLeadEngine::updateParameters(const Parameters& newParameters)
     parameters = newParameters;
 
     osc.setWaveType(parameters.waveType);
+    osc.setOscMix(parameters.oscMix);
     osc.setDetuneCents(parameters.detuneCents);
     osc.setGlideMode(parameters.glideMode);
     osc.setGlideTimeSecondsPerOctave(parameters.glideTimeSecondsPerOctave);
