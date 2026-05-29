@@ -44,6 +44,7 @@ void MonoLeadEngine::prepareToPlay(double sampleRate, int samplesPerBlock, int o
     spec.numChannels = static_cast<juce::uint32>(outputChannels);
 
     osc.prepareToPlay(spec);
+    leadFilter.prepareToPlay(sampleRate, samplesPerBlock, outputChannels);
 
     gain.prepare(spec);
     gain.setGainLinear(0.3f);
@@ -59,6 +60,7 @@ void MonoLeadEngine::reset()
     noteStack.clear();
     adsr.reset();
     osc.reset();
+    leadFilter.reset();
     gain.reset();
     synthBuffer.clear();
 }
@@ -77,6 +79,19 @@ void MonoLeadEngine::updateParameters(const Parameters& newParameters)
     osc.setVibratoRateHz(parameters.vibratoRateHz);
     osc.setVibratoFadeSeconds(parameters.vibratoFadeSeconds);
     osc.setVibratoAftertouchAmount(parameters.vibratoAftertouchAmount);
+
+    LeadFilterData::Parameters filterParameters;
+    filterParameters.cutoffHz = parameters.filterCutoffHz;
+    filterParameters.resonance = parameters.filterResonance;
+    filterParameters.drive = parameters.filterDrive;
+    filterParameters.keyTracking = parameters.filterKeyTracking;
+    filterParameters.envelopeAmountOctaves = parameters.filterEnvelopeAmountOctaves;
+    filterParameters.envelopeAttack = parameters.ampAttack;
+    filterParameters.envelopeDecay = parameters.ampDecay;
+    filterParameters.envelopeSustain = parameters.ampSustain;
+    filterParameters.envelopeRelease = parameters.ampRelease;
+    leadFilter.updateParameters(filterParameters);
+
     adsr.updateADSR(
         parameters.ampAttack,
         parameters.ampDecay,
@@ -124,6 +139,7 @@ void MonoLeadEngine::renderAudioRange(juce::AudioBuffer<float>& outputBuffer, in
 
     juce::dsp::AudioBlock<float> audioBlock { synthBuffer };
     osc.getNextAudioBlock(audioBlock);
+    leadFilter.process(synthBuffer);
     gain.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
 
     adsr.applyEnvelopeToBuffer(synthBuffer, 0, synthBuffer.getNumSamples());
@@ -169,6 +185,7 @@ void MonoLeadEngine::handleMidiMessage(const juce::MidiMessage& message)
         noteStack.clear();
         adsr.noteOff();
         osc.noteStopped();
+        leadFilter.noteStopped();
     }
 }
 
@@ -201,6 +218,7 @@ void MonoLeadEngine::startActiveNote(const MonoNoteStack::UpdateResult& noteUpda
 
     osc.setWaveFrequency(noteUpdate.activeNote, noteUpdate.isLegatoNoteOn);
     osc.noteStarted(noteUpdate.isLegatoNoteOn);
+    leadFilter.noteStarted(noteUpdate.activeNote, noteUpdate.isLegatoNoteOn);
 
     if (! noteUpdate.isLegatoNoteOn || ! adsr.isActive())
         adsr.noteOn();
@@ -211,7 +229,10 @@ void MonoLeadEngine::stopOrFallbackFromActiveNote(const MonoNoteStack::UpdateRes
     if (noteUpdate.hasActiveNote)
     {
         if (noteUpdate.activeNoteChanged)
+        {
             osc.setWaveFrequency(noteUpdate.activeNote, noteUpdate.hadActiveNote);
+            leadFilter.noteStarted(noteUpdate.activeNote, true);
+        }
 
         return;
     }
@@ -220,6 +241,7 @@ void MonoLeadEngine::stopOrFallbackFromActiveNote(const MonoNoteStack::UpdateRes
     {
         adsr.noteOff();
         osc.noteStopped();
+        leadFilter.noteStopped();
     }
 }
 } // namespace RMWestVoice

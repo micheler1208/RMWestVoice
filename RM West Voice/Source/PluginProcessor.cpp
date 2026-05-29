@@ -55,7 +55,6 @@ void RMWestVoiceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     monoLeadEngine.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
 
     highPassFilter.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
-    lowPassFilter.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
 
 }
 
@@ -84,19 +83,14 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     monoParameters.ampDecay = apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampDecay)->load();
     monoParameters.ampSustain = apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampSustain)->load();
     monoParameters.ampRelease = apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampRelease)->load();
+    monoParameters.filterCutoffHz = apvts.getRawParameterValue(RMWestVoiceParameters::ID::filterCutoff)->load();
+    monoParameters.filterResonance = apvts.getRawParameterValue(RMWestVoiceParameters::ID::filterResonance)->load();
+    monoParameters.filterDrive = apvts.getRawParameterValue(RMWestVoiceParameters::ID::filterDrive)->load();
+    monoParameters.filterKeyTracking = apvts.getRawParameterValue(RMWestVoiceParameters::ID::filterKeyTracking)->load();
+    monoParameters.filterEnvelopeAmountOctaves = apvts.getRawParameterValue(RMWestVoiceParameters::ID::filterEnvelopeAmount)->load();
 
     monoLeadEngine.updateParameters(monoParameters);
     monoLeadEngine.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-
-    // LP Filter
-    auto& lowPassCutoff = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::filterCutoff);
-    auto& lowPassResonance = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::filterResonance);
-    lowPassFilter.updateParameters(
-        RMWestVoiceParameters::FilterType::lowPass,
-        lowPassCutoff.load(),
-        lowPassResonance.load());
-
-    lowPassFilter.process(buffer);
 
     //HP Filter
     auto& highPassCutoff = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::outputHighpassCutoff);
@@ -119,7 +113,6 @@ void RMWestVoiceAudioProcessor::releaseResources()
 {
     monoLeadEngine.reset();
     highPassFilter.reset();
-    lowPassFilter.reset();
 }
 
 // ISBUSESLAYOUTSUPPORTED

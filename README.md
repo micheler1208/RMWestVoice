@@ -13,7 +13,7 @@ It does not produce MIDI output and it is not an audio effect. Audio is generate
 
 This repository has been stabilized around JUCE8 and a Visual Studio 2022 build flow. The project can be generated and built through CMake, while the original `.jucer` file is kept aligned as project metadata.
 
-The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine with basic rate-based glide, a two-oscillator core with curated Saw, Tri, Saw+Tri, and Saw+Pulse colors, smoothed pitch bend, and performer-controlled vibrato. Larger musical changes such as saturation, effects, or historically informed G-funk lead modeling remain staged as separate tasks.
+The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine with basic rate-based glide, a two-oscillator core with curated Saw, Tri, Saw+Tri, and Saw+Pulse colors, smoothed pitch bend, performer-controlled vibrato, and an LP24 lead filter with drive. Larger musical changes such as extra character layers, effects, or historically informed G-funk lead modeling remain staged as separate tasks.
 
 The post-research implementation sequence is tracked in [POST_RESEARCH_ROADMAP.md](POST_RESEARCH_ROADMAP.md).
 
@@ -53,12 +53,14 @@ RMWestVoice is not currently:
     |   |-- SynthVoice.*
     |   |-- SynthSound.h
     |   |-- Engine
+    |   |   |-- FilterModulationState.*
     |   |   |-- GlideState.*
     |   |   |-- MonoLeadEngine.*
     |   |   `-- MonoNoteStack.*
     |   |-- Data
     |   |   |-- AdsrData.*
     |   |   |-- FilterData.*
+    |   |   |-- LeadFilterData.*
     |   |   `-- OscData.*
     |   |-- UI
     |   |   |-- AdsrComponent.*
@@ -193,8 +195,11 @@ The current APVTS parameter surface exposes a small number of parameters. These 
 | `AMP_DECAY` | Amp Decay | ADSR decay time, shown in seconds. |
 | `AMP_SUSTAIN` | Amp Sustain | ADSR sustain level. |
 | `AMP_RELEASE` | Amp Release | ADSR release time, shown in seconds. |
-| `FILTER_CUTOFF` | Filter Cutoff | Main low-pass filter cutoff. |
-| `FILTER_RESONANCE` | Filter Resonance | Main low-pass filter resonance. |
+| `FILTER_CUTOFF` | Filter Cutoff | LP24 ladder-style filter cutoff. |
+| `FILTER_RESONANCE` | Filter Resonance | LP24 ladder-style filter resonance. |
+| `DRIVE` | Drive | LP24 ladder-style filter saturation amount. |
+| `FILTER_KEYTRACK` | Filter Keytrack | Raises cutoff by note pitch. |
+| `FILTER_ENV_AMOUNT` | Filter Env Amount | Adds note-envelope cutoff movement in octaves. |
 | `OUTPUT_HIGHPASS_CUTOFF` | Output Highpass Cutoff | Fixed output high-pass cleanup cutoff. |
 | `OUTPUT_HIGHPASS_RESONANCE` | Output Highpass Resonance | Fixed output high-pass cleanup resonance. |
 | `OUTPUT_GAIN` | Output Gain | Final output gain. |
@@ -244,7 +249,7 @@ The following items are intentionally not solved in this stabilization pass:
 - Further oscillator modeling, band-limiting, and lead voicing.
 - Advanced legato/retrigger behavior beyond the current glide support.
 - Advanced pitch/modulation curves beyond the current pitch wheel, mod wheel, and optional aftertouch behavior.
-- Saturation, chorus, delay, reverb, or other effects.
+- Additional nonlinear character beyond the current filter drive, plus chorus, delay, reverb, or other effects.
 - Preset management beyond DAW state recall.
 - Full UI redesign.
 - Licensing audit for bundled fonts and image assets.

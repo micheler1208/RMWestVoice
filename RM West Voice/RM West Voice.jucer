@@ -10,6 +10,10 @@
   <MAINGROUP id="mmZiVZ" name="RMWestVoice">
     <GROUP id="{B67CD096-824F-2D43-6B6F-77CD449E3681}" name="Source">
       <GROUP id="{2F0B15D3-58D4-4A43-A8FA-2C3622B03F0D}" name="Engine">
+        <FILE id="fmsC01" name="FilterModulationState.cpp" compile="1" resource="0"
+              file="Source/Engine/FilterModulationState.cpp"/>
+        <FILE id="fmsH01" name="FilterModulationState.h" compile="0" resource="0"
+              file="Source/Engine/FilterModulationState.h"/>
         <FILE id="gldC01" name="GlideState.cpp" compile="1" resource="0"
               file="Source/Engine/GlideState.cpp"/>
         <FILE id="gldH01" name="GlideState.h" compile="0" resource="0"
@@ -32,6 +36,10 @@
         <FILE id="eZHFl1" name="AdsrData.h" compile="0" resource="0" file="Source/Data/AdsrData.h"/>
         <FILE id="QI0kTO" name="FilterData.cpp" compile="1" resource="0" file="Source/Data/FilterData.cpp"/>
         <FILE id="omDf7I" name="FilterData.h" compile="0" resource="0" file="Source/Data/FilterData.h"/>
+        <FILE id="lfdC01" name="LeadFilterData.cpp" compile="1" resource="0"
+              file="Source/Data/LeadFilterData.cpp"/>
+        <FILE id="lfdH01" name="LeadFilterData.h" compile="0" resource="0"
+              file="Source/Data/LeadFilterData.h"/>
         <FILE id="bnI9Km" name="OscData.cpp" compile="1" resource="0" file="Source/Data/OscData.cpp"/>
         <FILE id="Wktwkx" name="OscData.h" compile="0" resource="0" file="Source/Data/OscData.h"/>
       </GROUP>

@@ -23,6 +23,6 @@ This note tracks the pre-research cleanup phase. It intentionally avoids changin
 
 ## Deferred Until Deep Research
 
-- Lead architecture changes such as saturation, effects, and final voicing.
+- Lead architecture changes such as additional character layers, effects, and final voicing.
 - Any future FM or hybrid color behavior, if the post-research design intentionally reintroduces it.
 - Final licensing audit for bundled fonts and background image before distribution.

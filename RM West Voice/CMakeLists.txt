@@ -46,6 +46,8 @@ target_sources(RMWestVoice
         Source/PluginEditor.cpp
         Source/Engine/MonoLeadEngine.cpp
         Source/Engine/MonoLeadEngine.h
+        Source/Engine/FilterModulationState.cpp
+        Source/Engine/FilterModulationState.h
         Source/Engine/PitchModulationState.cpp
         Source/Engine/PitchModulationState.h
         Source/Engine/GlideState.cpp
@@ -54,6 +56,8 @@ target_sources(RMWestVoice
         Source/Engine/MonoNoteStack.h
         Source/Data/AdsrData.cpp
         Source/Data/FilterData.cpp
+        Source/Data/LeadFilterData.cpp
+        Source/Data/LeadFilterData.h
         Source/Data/OscData.cpp
         Source/UI/AdsrComponent.cpp
         Source/UI/FilterComponent.cpp
@@ -81,6 +85,8 @@ add_executable(RMWestVoiceTests
     Tests/MonoNoteStackTests.cpp
     Source/Engine/GlideState.cpp
     Source/Engine/GlideState.h
+    Source/Engine/FilterModulationState.cpp
+    Source/Engine/FilterModulationState.h
     Source/Engine/MonoNoteStack.cpp
     Source/Engine/MonoNoteStack.h
     Source/Engine/PitchModulationState.cpp

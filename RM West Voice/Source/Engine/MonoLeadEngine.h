@@ -12,6 +12,7 @@
 #include <JuceHeader.h>
 
 #include "../Data/AdsrData.h"
+#include "../Data/LeadFilterData.h"
 #include "../Data/OscData.h"
 #include "MonoNoteStack.h"
 
@@ -37,6 +38,12 @@ public:
         float ampDecay { 1.0f };
         float ampSustain { 0.8f };
         float ampRelease { 0.2f };
+
+        float filterCutoffHz { 4800.0f };
+        float filterResonance { 0.25f };
+        float filterDrive { 1.35f };
+        float filterKeyTracking { 0.35f };
+        float filterEnvelopeAmountOctaves { 0.75f };
     };
 
     void prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels);
@@ -66,6 +73,7 @@ private:
 
     AdsrData adsr;
     OscData osc;
+    LeadFilterData leadFilter;
     juce::dsp::Gain<float> gain;
     juce::AudioBuffer<float> synthBuffer;
 

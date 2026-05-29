@@ -33,6 +33,9 @@ namespace ID
 
     inline constexpr auto filterCutoff = "FILTER_CUTOFF";
     inline constexpr auto filterResonance = "FILTER_RESONANCE";
+    inline constexpr auto filterDrive = "DRIVE";
+    inline constexpr auto filterKeyTracking = "FILTER_KEYTRACK";
+    inline constexpr auto filterEnvelopeAmount = "FILTER_ENV_AMOUNT";
 
     inline constexpr auto outputHighpassCutoff = "OUTPUT_HIGHPASS_CUTOFF";
     inline constexpr auto outputHighpassResonance = "OUTPUT_HIGHPASS_RESONANCE";
@@ -158,8 +161,26 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         ID::filterResonance,
         "Filter Resonance",
-        juce::NormalisableRange<float> { 1.0f, 10.0f, 0.1f },
-        1.0f));
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f },
+        0.25f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::filterDrive,
+        "Drive",
+        juce::NormalisableRange<float> { 1.0f, 8.0f, 0.01f, 0.5f },
+        1.35f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::filterKeyTracking,
+        "Filter Keytrack",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f },
+        0.35f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::filterEnvelopeAmount,
+        "Filter Env Amount",
+        juce::NormalisableRange<float> { 0.0f, 4.0f, 0.01f },
+        0.75f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         ID::outputHighpassCutoff,

@@ -51,7 +51,6 @@ public:
 
 private:
     RMWestVoice::MonoLeadEngine monoLeadEngine;
-    FilterData lowPassFilter;
     FilterData highPassFilter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RMWestVoiceAudioProcessor)

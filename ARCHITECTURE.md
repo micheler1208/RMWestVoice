@@ -17,15 +17,15 @@ MIDI input
   -> MonoLeadEngine
   -> MonoNoteStack
   -> OscData
+  -> LP24 lead filter + drive
   -> Gain
   -> ADSR
-  -> Low-pass filter
-  -> High-pass filter
+  -> Output high-pass cleanup
   -> Master volume
   -> Audio output
 ```
 
-The UI controls are connected to processor parameters through `AudioProcessorValueTreeState` attachments. The processor reads the current APVTS values during `processBlock` and applies them to the mono engine, filters, and final gain.
+The UI controls are connected to processor parameters through `AudioProcessorValueTreeState` attachments. The processor reads the current APVTS values during `processBlock` and applies them to the mono engine, output high-pass cleanup, and final gain.
 
 ## Main Modules
 
@@ -42,20 +42,19 @@ The processor is the plugin's central owner of audio state and parameters. Its r
 
 - Declaring the plugin as a synth/instrument.
 - Creating and owning the `AudioProcessorValueTreeState`.
-- Preparing the mono lead engine and filters for playback.
+- Preparing the mono lead engine and output high-pass cleanup for playback.
 - Reading parameter values during audio processing.
 - Rendering MIDI-triggered mono synth audio.
-- Applying the filter chain and master gain.
+- Applying output high-pass cleanup and master gain.
 - Saving and restoring plugin state.
 
 Important members:
 
 | Member | Purpose |
 | --- | --- |
-| `MonoLeadEngine monoLeadEngine` | Owns mono note handling, oscillator, voice gain, and amp envelope. |
+| `MonoLeadEngine monoLeadEngine` | Owns mono note handling, oscillator, LP24 lead filter, voice gain, and amp envelope. |
 | `AudioProcessorValueTreeState apvts` | Owns parameters and serializable plugin state. |
-| `FilterData lowPassFilter` | Post-synth low-pass filter object. |
-| `FilterData highPassFilter` | Post-synth high-pass filter object. |
+| `FilterData highPassFilter` | Post-synth high-pass cleanup filter object. |
 
 ### `RMWestVoiceAudioProcessorEditor`
 
@@ -94,6 +93,7 @@ Responsibilities:
 - Rendering audio between MIDI event sample positions.
 - Translating the selected active MIDI note into oscillator frequency.
 - Applying Off, Always, or Auto-Legato glide through `GlideState`.
+- Applying the LP24 lead filter, filter drive, key tracking, and filter-envelope cutoff movement.
 - Triggering ADSR note-on/note-off while preserving held-note fallback behavior.
 - Preparing oscillator, gain, ADSR, and temporary render buffers.
 - Applying gain and ADSR.
@@ -108,6 +108,7 @@ MIDI events
   -> GlideState
   -> PitchModulationState
   -> OscData::getNextAudioBlock
+  -> LeadFilterData
   -> engine gain
   -> ADSR envelope
   -> mix into plugin output buffer
@@ -192,6 +193,23 @@ Responsibilities:
 - Allowing optional aftertouch contribution through `VIB_AFTERTOUCH`.
 - Restarting vibrato fade-in on non-legato note starts while preserving it across legato transitions.
 
+### `FilterModulationState`
+
+Files:
+
+```text
+RM West Voice/Source/Engine/FilterModulationState.h
+RM West Voice/Source/Engine/FilterModulationState.cpp
+```
+
+`FilterModulationState` is a pure C++ helper used by `LeadFilterData` to calculate the current LP24 cutoff target.
+
+Responsibilities:
+
+- Clamping cutoff to a safe audio range.
+- Applying `FILTER_KEYTRACK` as octave-based note tracking around MIDI note 60.
+- Applying `FILTER_ENV_AMOUNT` as additional envelope-driven cutoff movement in octaves.
+
 ## Data / DSP Layer
 
 ### `OscData`
@@ -257,6 +275,25 @@ Current parameter units:
 
 The UI suffix has been aligned so time parameters are shown in seconds.
 
+### `LeadFilterData`
+
+Files:
+
+```text
+RM West Voice/Source/Data/LeadFilterData.h
+RM West Voice/Source/Data/LeadFilterData.cpp
+```
+
+`LeadFilterData` owns the current main filter voice. It wraps `juce::dsp::LadderFilter<float>` in LPF24 mode and processes the mono engine render buffer before voice gain and the amp envelope.
+
+Responsibilities:
+
+- Preparing and resetting the LP24 ladder-style filter.
+- Applying cutoff, resonance, and drive.
+- Running a filter envelope using the current amp ADSR timings.
+- Updating key tracking from the current active MIDI note.
+- Processing the lead buffer in place before the engine gain and amp envelope.
+
 ### `FilterData`
 
 Files:
@@ -266,7 +303,7 @@ RM West Voice/Source/Data/FilterData.h
 RM West Voice/Source/Data/FilterData.cpp
 ```
 
-`FilterData` wraps a `juce::dsp::StateVariableTPTFilter<float>`.
+`FilterData` wraps a `juce::dsp::StateVariableTPTFilter<float>`. It is currently retained for output high-pass cleanup.
 
 Responsibilities:
 
@@ -275,12 +312,7 @@ Responsibilities:
 - Updating filter type, cutoff, and resonance.
 - Resetting internal filter state.
 
-The processor owns two filter instances:
-
-- `lowPassFilter`
-- `highPassFilter`
-
-Despite these member names, both use the same `FilterData` implementation and can technically select low-pass, band-pass, or high-pass behavior through their type parameters. The defaults currently make the first filter low-pass and the second high-pass.
+The processor owns one `FilterData` instance for `highPassFilter`. The main low-pass voice is now owned by `MonoLeadEngine` through `LeadFilterData`.
 
 ## UI Layer
 
@@ -318,7 +350,7 @@ Currently exposes:
 - `FILTER_CUTOFF`
 - `OUTPUT_GAIN`
 
-The APVTS also contains filter resonance and output high-pass cleanup parameters that are not surfaced by the current UI.
+The APVTS also contains filter resonance, drive, key tracking, filter envelope amount, and output high-pass cleanup parameters that are not surfaced by the current UI.
 
 ### Look-And-Feel Classes
 
@@ -366,8 +398,11 @@ The current parameter set is:
 | `AMP_DECAY` | Float | `1.0` | ADSR decay time in seconds. |
 | `AMP_SUSTAIN` | Float | `0.8` | ADSR sustain level. |
 | `AMP_RELEASE` | Float | `0.2` | ADSR release time in seconds. |
-| `FILTER_CUTOFF` | Float | `4800.0` | Main low-pass filter cutoff. |
-| `FILTER_RESONANCE` | Float | `1.0` | Main low-pass filter resonance. |
+| `FILTER_CUTOFF` | Float | `4800.0` | LP24 lead filter cutoff. |
+| `FILTER_RESONANCE` | Float | `0.25` | LP24 lead filter resonance. |
+| `DRIVE` | Float | `1.35` | LP24 lead filter drive/saturation amount. |
+| `FILTER_KEYTRACK` | Float | `0.35` | Cutoff tracking from active MIDI note. |
+| `FILTER_ENV_AMOUNT` | Float | `0.75` | Filter envelope cutoff amount in octaves. |
 | `OUTPUT_HIGHPASS_CUTOFF` | Float | `250.0` | Fixed output high-pass cleanup cutoff. |
 | `OUTPUT_HIGHPASS_RESONANCE` | Float | `1.0` | Fixed output high-pass cleanup resonance. |
 | `OUTPUT_GAIN` | Float | `0.6` | Final master gain. |
@@ -381,8 +416,8 @@ Parameter IDs should be treated as stable once public presets or DAW projects de
 During `prepareToPlay`:
 
 1. The mono lead engine is prepared.
-2. The engine prepares its oscillator core, gain, ADSR, and render buffer.
-3. The high-pass and low-pass filter objects are prepared.
+2. The engine prepares its oscillator core, LP24 lead filter, gain, ADSR, and render buffer.
+3. The output high-pass cleanup filter is prepared.
 
 ### Per Block
 
@@ -390,12 +425,11 @@ During `processBlock`:
 
 1. Unused output channels are cleared.
 2. Current APVTS values are read into `MonoLeadEngine::Parameters`.
-3. The mono lead engine updates oscillator, glide, pitch modulation, and ADSR settings.
+3. The mono lead engine updates oscillator, glide, pitch modulation, LP24 filter, and ADSR settings.
 4. MIDI note-on/note-off events are routed through `MonoNoteStack`; pitch wheel, mod wheel, and aftertouch update `PitchModulationState`.
 5. The mono lead engine renders MIDI-triggered audio into the output buffer.
-6. The low-pass filter object processes the buffer.
-7. The high-pass filter object processes the buffer.
-8. The `OUTPUT_GAIN` gain is applied.
+6. The output high-pass cleanup filter processes the buffer.
+7. The `OUTPUT_GAIN` gain is applied.
 
 ## State Persistence
 
@@ -480,7 +514,7 @@ The previous internal fixed 5 Hz LFO has been removed from `OscData`. The curren
 
 ### UI Coverage
 
-The APVTS contains expressive modulation, filter resonance, and output high-pass cleanup parameters that the compact current UI does not yet expose. This mismatch should be resolved during the UI/parameter design pass.
+The APVTS contains expressive modulation, filter resonance, drive, key tracking, filter envelope amount, and output high-pass cleanup parameters that the compact current UI does not yet expose. This mismatch should be resolved during the UI/parameter design pass.
 
 ### Presets
 
@@ -493,7 +527,7 @@ The following decisions are intentionally out of scope for this cleanup stage:
 - Advanced legato/retrigger behavior beyond the current glide support.
 - Advanced pitch and modulation response beyond the current pitch wheel, mod wheel, and optional aftertouch behavior.
 - Further oscillator modeling, band-limiting, and character shaping.
-- Saturation/nonlinear color.
+- Additional saturation/nonlinear color beyond the current LP24 drive stage.
 - Effects such as chorus, delay, or reverb.
 - Preset vocabulary and default patch design.
 - Detailed matching to any historically relevant synth lead sources.

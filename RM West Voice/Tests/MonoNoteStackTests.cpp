@@ -1,4 +1,5 @@
 #include "Engine/GlideState.h"
+#include "Engine/FilterModulationState.h"
 #include "Engine/MonoNoteStack.h"
 #include "Engine/PitchModulationState.h"
 
@@ -248,6 +249,42 @@ void testAftertouchCanDriveVibratoWhenEnabled()
     pitchModulation.getNextPitchRatio();
     expectNear(pitchModulation.getCurrentVibratoCents(), 50.0f, 0.01f, "enabled aftertouch drives vibrato depth");
 }
+
+void testFilterKeyTrackingRaisesCutoffByOctave()
+{
+    RMWestVoice::FilterModulationState filterModulation;
+    filterModulation.prepare(44100.0);
+    filterModulation.setBaseCutoffHz(1000.0f);
+    filterModulation.setKeyTracking(1.0f);
+    filterModulation.setEnvelopeAmountOctaves(0.0f);
+    filterModulation.setCurrentMidiNote(72);
+
+    expectNear(filterModulation.getCutoffHz(0.0f), 2000.0f, 0.01f, "full key tracking doubles cutoff one octave above C4");
+}
+
+void testFilterEnvelopeAmountAddsOctaves()
+{
+    RMWestVoice::FilterModulationState filterModulation;
+    filterModulation.prepare(44100.0);
+    filterModulation.setBaseCutoffHz(1000.0f);
+    filterModulation.setKeyTracking(0.0f);
+    filterModulation.setEnvelopeAmountOctaves(2.0f);
+    filterModulation.setCurrentMidiNote(60);
+
+    expectNear(filterModulation.getCutoffHz(0.5f), 2000.0f, 0.01f, "half envelope level with two-octave amount doubles cutoff");
+}
+
+void testFilterCutoffIsClampedBelowNyquist()
+{
+    RMWestVoice::FilterModulationState filterModulation;
+    filterModulation.prepare(1000.0);
+    filterModulation.setBaseCutoffHz(20000.0f);
+    filterModulation.setKeyTracking(1.0f);
+    filterModulation.setEnvelopeAmountOctaves(4.0f);
+    filterModulation.setCurrentMidiNote(127);
+
+    expectNear(filterModulation.getCutoffHz(1.0f), 450.0f, 0.01f, "filter cutoff is clamped to a safe fraction of sample rate");
+}
 } // namespace
 
 int main()
@@ -264,6 +301,9 @@ int main()
     testPitchWheelSmoothsTowardTarget();
     testVibratoRequiresModWheelAndFadesIn();
     testAftertouchCanDriveVibratoWhenEnabled();
+    testFilterKeyTrackingRaisesCutoffByOctave();
+    testFilterEnvelopeAmountAddsOctaves();
+    testFilterCutoffIsClampedBelowNyquist();
 
     if (failures != 0)
         return 1;
