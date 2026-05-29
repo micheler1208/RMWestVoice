@@ -25,8 +25,6 @@ RMWestVoiceAudioProcessor::RMWestVoiceAudioProcessor()
     apvts(*this, nullptr, "PARAMETERS", RMWestVoiceParameters::createParameterLayout())
 #endif
 {
-    synth.addSound(new SynthSound());
-    synth.addVoice(new SynthVoice());
 }
 
 // DESTRUCTOR
@@ -35,16 +33,7 @@ RMWestVoiceAudioProcessor::~RMWestVoiceAudioProcessor() {}
 // PREPARE TO PLAY
 void RMWestVoiceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    synth.setCurrentPlaybackSampleRate (sampleRate);
-    
-    for (int i = 0; i < synth.getNumVoices(); i++)
-    {
-        if (auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
-        {
-            voice->prepareToPlay (sampleRate, samplesPerBlock, getTotalNumOutputChannels());
-            voice->getOscillator().prepareLFO(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
-        }
-    }
+    monoLeadEngine.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
 
     highPassFilter.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
     lowPassFilter.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
@@ -61,25 +50,16 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    for (int i = 0; i < synth.getNumVoices(); ++i)
-    {
-        if (auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
-        {
-            auto& wave = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::wave);
-            auto& detuneCents = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::detuneCents);
+    RMWestVoice::MonoLeadEngine::Parameters monoParameters;
+    monoParameters.waveType = static_cast<int>(apvts.getRawParameterValue(RMWestVoiceParameters::ID::wave)->load());
+    monoParameters.detuneCents = apvts.getRawParameterValue(RMWestVoiceParameters::ID::detuneCents)->load();
+    monoParameters.ampAttack = apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampAttack)->load();
+    monoParameters.ampDecay = apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampDecay)->load();
+    monoParameters.ampSustain = apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampSustain)->load();
+    monoParameters.ampRelease = apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampRelease)->load();
 
-            auto& attack = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampAttack);
-            auto& decay = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampDecay);
-            auto& sustain = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampSustain);
-            auto& release = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampRelease);
-            
-            voice->getOscillator().setWaveType(static_cast<int>(wave.load()));
-            voice->getOscillator().setDetuneCents(detuneCents.load());
-            voice->update (attack.load(), decay.load(), sustain.load(), release.load());
-        }
-    }
-    
-    synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
+    monoLeadEngine.updateParameters(monoParameters);
+    monoLeadEngine.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
     // LP Filter
     auto& lowPassCutoff = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::filterCutoff);
@@ -108,7 +88,12 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
 
 
 // RELEASE RESOURCES
-void RMWestVoiceAudioProcessor::releaseResources() {}
+void RMWestVoiceAudioProcessor::releaseResources()
+{
+    monoLeadEngine.reset();
+    highPassFilter.reset();
+    lowPassFilter.reset();
+}
 
 // ISBUSESLAYOUTSUPPORTED
 #ifndef JucePlugin_PreferredChannelConfigurations

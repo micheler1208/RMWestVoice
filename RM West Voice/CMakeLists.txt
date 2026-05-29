@@ -44,7 +44,8 @@ target_sources(RMWestVoice
         Source/PluginParameters.h
         Source/PluginProcessor.cpp
         Source/PluginEditor.cpp
-        Source/SynthVoice.cpp
+        Source/Engine/MonoLeadEngine.cpp
+        Source/Engine/MonoLeadEngine.h
         Source/Engine/MonoNoteStack.cpp
         Source/Engine/MonoNoteStack.h
         Source/Data/AdsrData.cpp

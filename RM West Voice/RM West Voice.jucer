@@ -10,6 +10,10 @@
   <MAINGROUP id="mmZiVZ" name="RMWestVoice">
     <GROUP id="{B67CD096-824F-2D43-6B6F-77CD449E3681}" name="Source">
       <GROUP id="{2F0B15D3-58D4-4A43-A8FA-2C3622B03F0D}" name="Engine">
+        <FILE id="mleC01" name="MonoLeadEngine.cpp" compile="1" resource="0"
+              file="Source/Engine/MonoLeadEngine.cpp"/>
+        <FILE id="mleH01" name="MonoLeadEngine.h" compile="0" resource="0"
+              file="Source/Engine/MonoLeadEngine.h"/>
         <FILE id="mnsC01" name="MonoNoteStack.cpp" compile="1" resource="0"
               file="Source/Engine/MonoNoteStack.cpp"/>
         <FILE id="mnsH01" name="MonoNoteStack.h" compile="0" resource="0"
@@ -65,7 +69,7 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="ZCoWsw" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
       <FILE id="qjNPbc" name="SynthSound.h" compile="0" resource="0" file="Source/SynthSound.h"/>
-      <FILE id="w93qPm" name="SynthVoice.cpp" compile="1" resource="0" file="Source/SynthVoice.cpp"/>
+      <FILE id="w93qPm" name="SynthVoice.cpp" compile="0" resource="0" file="Source/SynthVoice.cpp"/>
       <FILE id="Pgde3H" name="SynthVoice.h" compile="0" resource="0" file="Source/SynthVoice.h"/>
     </GROUP>
   </MAINGROUP>

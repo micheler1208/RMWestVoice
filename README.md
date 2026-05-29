@@ -13,7 +13,7 @@ It does not produce MIDI output and it is not an audio effect. Audio is generate
 
 This repository has been stabilized around JUCE8 and a Visual Studio 2022 build flow. The project can be generated and built through CMake, while the original `.jucer` file is kept aligned as project metadata.
 
-The sound architecture is intentionally conservative at this stage. The current cleanup work focuses on build hygiene, state persistence, plugin metadata, and obvious technical issues. Larger musical changes such as glide, legato, pitch bend, controllable vibrato, saturation, effects, oscillator redesign, or historically informed G-funk lead modeling are deferred until after dedicated research.
+The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine, while larger musical changes such as glide, pitch bend, controllable vibrato, saturation, effects, oscillator redesign, or historically informed G-funk lead modeling remain staged as separate tasks.
 
 The post-research implementation sequence is tracked in [POST_RESEARCH_ROADMAP.md](POST_RESEARCH_ROADMAP.md).
 
@@ -49,8 +49,12 @@ RMWestVoice is not currently:
     |-- Source
     |   |-- PluginProcessor.*
     |   |-- PluginEditor.*
+    |   |-- PluginParameters.h
     |   |-- SynthVoice.*
     |   |-- SynthSound.h
+    |   |-- Engine
+    |   |   |-- MonoLeadEngine.*
+    |   |   `-- MonoNoteStack.*
     |   |-- Data
     |   |   |-- AdsrData.*
     |   |   |-- FilterData.*
@@ -63,6 +67,8 @@ RMWestVoice is not currently:
     |   |   `-- CustomSlider.h
     |   |-- font
     |   `-- img
+    |-- Tests
+    |   `-- MonoNoteStackTests.cpp
     `-- Builds
 ```
 

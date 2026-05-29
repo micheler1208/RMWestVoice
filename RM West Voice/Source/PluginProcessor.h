@@ -10,9 +10,8 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "SynthVoice.h"
-#include "SynthSound.h"
 #include "Data/FilterData.h"
+#include "Engine/MonoLeadEngine.h"
 
 class RMWestVoiceAudioProcessor  : public juce::AudioProcessor
 {
@@ -51,7 +50,7 @@ public:
     juce::AudioProcessorValueTreeState apvts;
 
 private:
-    juce::Synthesiser synth;
+    RMWestVoice::MonoLeadEngine monoLeadEngine;
     FilterData lowPassFilter;
     FilterData highPassFilter;
 
