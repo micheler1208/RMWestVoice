@@ -75,6 +75,11 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     monoParameters.detuneCents = apvts.getRawParameterValue(RMWestVoiceParameters::ID::detuneCents)->load();
     monoParameters.glideMode = getGlideModeFromParameterValue(apvts.getRawParameterValue(RMWestVoiceParameters::ID::glideMode)->load());
     monoParameters.glideTimeSecondsPerOctave = apvts.getRawParameterValue(RMWestVoiceParameters::ID::glideTime)->load();
+    monoParameters.pitchBendRangeSemitones = apvts.getRawParameterValue(RMWestVoiceParameters::ID::bendRange)->load();
+    monoParameters.vibratoDepthCents = apvts.getRawParameterValue(RMWestVoiceParameters::ID::vibratoDepth)->load();
+    monoParameters.vibratoRateHz = apvts.getRawParameterValue(RMWestVoiceParameters::ID::vibratoRate)->load();
+    monoParameters.vibratoFadeSeconds = apvts.getRawParameterValue(RMWestVoiceParameters::ID::vibratoFade)->load();
+    monoParameters.vibratoAftertouchAmount = apvts.getRawParameterValue(RMWestVoiceParameters::ID::vibratoAftertouch)->load();
     monoParameters.ampAttack = apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampAttack)->load();
     monoParameters.ampDecay = apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampDecay)->load();
     monoParameters.ampSustain = apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampSustain)->load();

@@ -21,6 +21,7 @@ void OscData::prepareToPlay(juce::dsp::ProcessSpec& spec)
     prepare(spec);
     secondaryOsc.prepare(spec);
     glideState.prepare(spec.sampleRate);
+    pitchModulation.prepare(spec.sampleRate);
     setWaveType(defaultWaveType);
 }
 
@@ -29,6 +30,7 @@ void OscData::reset()
     juce::dsp::Oscillator<float>::reset();
     secondaryOsc.reset();
     glideState.reset();
+    pitchModulation.reset();
     lastMidiNote = 0;
 }
 
@@ -99,6 +101,56 @@ void OscData::setGlideTimeSecondsPerOctave(float secondsPerOctave)
     glideState.setTimeSecondsPerOctave(secondsPerOctave);
 }
 
+void OscData::setPitchBendRangeSemitones(float semitones)
+{
+    pitchModulation.setPitchBendRangeSemitones(semitones);
+}
+
+void OscData::setPitchWheel(float normalizedBipolar)
+{
+    pitchModulation.setPitchWheel(normalizedBipolar);
+}
+
+void OscData::setModWheel(float normalized)
+{
+    pitchModulation.setModWheel(normalized);
+}
+
+void OscData::setAftertouch(float normalized)
+{
+    pitchModulation.setAftertouch(normalized);
+}
+
+void OscData::setVibratoDepthCents(float cents)
+{
+    pitchModulation.setVibratoDepthCents(cents);
+}
+
+void OscData::setVibratoRateHz(float hz)
+{
+    pitchModulation.setVibratoRateHz(hz);
+}
+
+void OscData::setVibratoFadeSeconds(float seconds)
+{
+    pitchModulation.setVibratoFadeSeconds(seconds);
+}
+
+void OscData::setVibratoAftertouchAmount(float normalized)
+{
+    pitchModulation.setVibratoAftertouchAmount(normalized);
+}
+
+void OscData::noteStarted(bool isLegatoTransition)
+{
+    pitchModulation.noteStarted(isLegatoTransition);
+}
+
+void OscData::noteStopped()
+{
+    pitchModulation.noteStopped();
+}
+
 // GET NEXT AUDIO BLOCK
 void OscData::getNextAudioBlock(juce::dsp::AudioBlock<float>& block)
 {
@@ -107,7 +159,7 @@ void OscData::getNextAudioBlock(juce::dsp::AudioBlock<float>& block)
 
     for (int s = 0; s < numSamples; ++s)
     {
-        const auto currentFreq = glideState.getNextFrequency();
+        const auto currentFreq = glideState.getNextFrequency() * pitchModulation.getNextPitchRatio();
         setFrequency(currentFreq);
         secondaryOsc.setFrequency(applyDetune(currentFreq, detuneCents));
 

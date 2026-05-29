@@ -9,6 +9,29 @@
 
 #include "MonoLeadEngine.h"
 
+namespace
+{
+constexpr auto modWheelControllerNumber = 1;
+constexpr auto pitchWheelCentre = 8192;
+constexpr auto pitchWheelMinimum = 0;
+constexpr auto pitchWheelMaximum = 16383;
+
+float normalize7BitValue(int value) noexcept
+{
+    return juce::jlimit(0.0f, 1.0f, static_cast<float>(value) / 127.0f);
+}
+
+float normalizePitchWheelValue(int value) noexcept
+{
+    const auto clampedValue = juce::jlimit(pitchWheelMinimum, pitchWheelMaximum, value);
+
+    if (clampedValue >= pitchWheelCentre)
+        return static_cast<float>(clampedValue - pitchWheelCentre) / static_cast<float>(pitchWheelMaximum - pitchWheelCentre);
+
+    return static_cast<float>(clampedValue - pitchWheelCentre) / static_cast<float>(pitchWheelCentre - pitchWheelMinimum);
+}
+} // namespace
+
 namespace RMWestVoice
 {
 void MonoLeadEngine::prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels)
@@ -49,6 +72,11 @@ void MonoLeadEngine::updateParameters(const Parameters& newParameters)
     osc.setDetuneCents(parameters.detuneCents);
     osc.setGlideMode(parameters.glideMode);
     osc.setGlideTimeSecondsPerOctave(parameters.glideTimeSecondsPerOctave);
+    osc.setPitchBendRangeSemitones(parameters.pitchBendRangeSemitones);
+    osc.setVibratoDepthCents(parameters.vibratoDepthCents);
+    osc.setVibratoRateHz(parameters.vibratoRateHz);
+    osc.setVibratoFadeSeconds(parameters.vibratoFadeSeconds);
+    osc.setVibratoAftertouchAmount(parameters.vibratoAftertouchAmount);
     adsr.updateADSR(
         parameters.ampAttack,
         parameters.ampDecay,
@@ -106,6 +134,24 @@ void MonoLeadEngine::renderAudioRange(juce::AudioBuffer<float>& outputBuffer, in
 
 void MonoLeadEngine::handleMidiMessage(const juce::MidiMessage& message)
 {
+    if (message.isPitchWheel())
+    {
+        handlePitchWheel(message);
+        return;
+    }
+
+    if (message.isController() && message.getControllerNumber() == modWheelControllerNumber)
+    {
+        handleModWheel(message);
+        return;
+    }
+
+    if (message.isChannelPressure() || message.isAftertouch())
+    {
+        handleAftertouch(message);
+        return;
+    }
+
     if (message.isNoteOn())
     {
         startActiveNote(noteStack.noteOn(message.getNoteNumber()));
@@ -122,7 +168,30 @@ void MonoLeadEngine::handleMidiMessage(const juce::MidiMessage& message)
     {
         noteStack.clear();
         adsr.noteOff();
+        osc.noteStopped();
     }
+}
+
+void MonoLeadEngine::handlePitchWheel(const juce::MidiMessage& message)
+{
+    osc.setPitchWheel(normalizePitchWheelValue(message.getPitchWheelValue()));
+}
+
+void MonoLeadEngine::handleModWheel(const juce::MidiMessage& message)
+{
+    osc.setModWheel(normalize7BitValue(message.getControllerValue()));
+}
+
+void MonoLeadEngine::handleAftertouch(const juce::MidiMessage& message)
+{
+    if (message.isChannelPressure())
+    {
+        osc.setAftertouch(normalize7BitValue(message.getChannelPressureValue()));
+        return;
+    }
+
+    if (noteStack.hasActiveNote() && message.getNoteNumber() == noteStack.getActiveNote())
+        osc.setAftertouch(normalize7BitValue(message.getAfterTouchValue()));
 }
 
 void MonoLeadEngine::startActiveNote(const MonoNoteStack::UpdateResult& noteUpdate)
@@ -131,6 +200,7 @@ void MonoLeadEngine::startActiveNote(const MonoNoteStack::UpdateResult& noteUpda
         return;
 
     osc.setWaveFrequency(noteUpdate.activeNote, noteUpdate.isLegatoNoteOn);
+    osc.noteStarted(noteUpdate.isLegatoNoteOn);
 
     if (! noteUpdate.isLegatoNoteOn || ! adsr.isActive())
         adsr.noteOn();
@@ -147,6 +217,9 @@ void MonoLeadEngine::stopOrFallbackFromActiveNote(const MonoNoteStack::UpdateRes
     }
 
     if (noteUpdate.hadActiveNote)
+    {
         adsr.noteOff();
+        osc.noteStopped();
+    }
 }
 } // namespace RMWestVoice

@@ -13,7 +13,7 @@ It does not produce MIDI output and it is not an audio effect. Audio is generate
 
 This repository has been stabilized around JUCE8 and a Visual Studio 2022 build flow. The project can be generated and built through CMake, while the original `.jucer` file is kept aligned as project metadata.
 
-The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine with basic rate-based glide and a two-oscillator core with curated Saw, Tri, Saw+Tri, and Saw+Pulse colors. Larger musical changes such as pitch bend, controllable vibrato, saturation, effects, or historically informed G-funk lead modeling remain staged as separate tasks.
+The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine with basic rate-based glide, a two-oscillator core with curated Saw, Tri, Saw+Tri, and Saw+Pulse colors, smoothed pitch bend, and performer-controlled vibrato. Larger musical changes such as saturation, effects, or historically informed G-funk lead modeling remain staged as separate tasks.
 
 The post-research implementation sequence is tracked in [POST_RESEARCH_ROADMAP.md](POST_RESEARCH_ROADMAP.md).
 
@@ -184,6 +184,11 @@ The current APVTS parameter surface exposes a small number of parameters. These 
 | `DETUNE_CENTS` | Detune | Applies secondary oscillator detune in cents. |
 | `GLIDE_MODE` | Glide Mode | Selects Off, Always, or Auto-Legato glide behavior. |
 | `GLIDE_TIME` | Glide Time | Sets rate-based glide time in seconds per octave. |
+| `BEND_RANGE` | Bend Range | Sets the pitch wheel range in semitones. |
+| `VIB_DEPTH` | Vibrato Depth | Sets maximum mod-wheel vibrato depth in cents. |
+| `VIB_RATE` | Vibrato Rate | Sets vibrato LFO rate in Hz. |
+| `VIB_FADE` | Vibrato Fade | Sets vibrato fade-in time from note start. |
+| `VIB_AFTERTOUCH` | Vibrato Aftertouch | Adds optional aftertouch contribution to vibrato depth. |
 | `AMP_ATTACK` | Amp Attack | ADSR attack time, shown in seconds. |
 | `AMP_DECAY` | Amp Decay | ADSR decay time, shown in seconds. |
 | `AMP_SUSTAIN` | Amp Sustain | ADSR sustain level. |
@@ -238,8 +243,7 @@ The following items are intentionally not solved in this stabilization pass:
 
 - Further oscillator modeling, band-limiting, and lead voicing.
 - Advanced legato/retrigger behavior beyond the current glide support.
-- Pitch bend behavior.
-- Controllable vibrato behavior.
+- Advanced pitch/modulation curves beyond the current pitch wheel, mod wheel, and optional aftertouch behavior.
 - Saturation, chorus, delay, reverb, or other effects.
 - Preset management beyond DAW state recall.
 - Full UI redesign.

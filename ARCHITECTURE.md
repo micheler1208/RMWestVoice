@@ -90,6 +90,7 @@ RM West Voice/Source/Engine/MonoLeadEngine.cpp
 Responsibilities:
 
 - Routing MIDI note-on/note-off events through `MonoNoteStack`.
+- Translating pitch wheel, mod wheel, and aftertouch MIDI into expressive pitch modulation.
 - Rendering audio between MIDI event sample positions.
 - Translating the selected active MIDI note into oscillator frequency.
 - Applying Off, Always, or Auto-Legato glide through `GlideState`.
@@ -105,6 +106,7 @@ MIDI events
   -> MonoNoteStack
   -> active note decision
   -> GlideState
+  -> PitchModulationState
   -> OscData::getNextAudioBlock
   -> engine gain
   -> ADSR envelope
@@ -171,6 +173,25 @@ Responsibilities:
 - Ramping in log-frequency space so one octave takes the same time regardless of register.
 - Jumping immediately when glide is disabled or Auto-Legato receives a non-legato note.
 
+### `PitchModulationState`
+
+Files:
+
+```text
+RM West Voice/Source/Engine/PitchModulationState.h
+RM West Voice/Source/Engine/PitchModulationState.cpp
+```
+
+`PitchModulationState` is a pure C++ helper used by `OscData` to calculate expressive pitch modulation.
+
+Responsibilities:
+
+- Smoothing incoming MIDI pitch wheel movement.
+- Applying `BEND_RANGE` as a semitone pitch wheel range.
+- Generating mod-wheel vibrato from `VIB_DEPTH`, `VIB_RATE`, and `VIB_FADE`.
+- Allowing optional aftertouch contribution through `VIB_AFTERTOUCH`.
+- Restarting vibrato fade-in on non-legato note starts while preserving it across legato transitions.
+
 ## Data / DSP Layer
 
 ### `OscData`
@@ -189,6 +210,7 @@ RM West Voice/Source/Data/OscData.cpp
 - Secondary oscillator mix state.
 - Detune state.
 - Glide state.
+- Pitch modulation state.
 - Last played MIDI note.
 
 Current oscillator mode behavior:
@@ -206,10 +228,12 @@ Current modulation notes:
 
 - `OSC_MIX` blends the secondary oscillator into the primary oscillator.
 - `DETUNE_CENTS` detunes only the secondary oscillator.
+- `BEND_RANGE` applies smoothed pitch wheel bend to both oscillators.
+- `VIB_DEPTH`, `VIB_RATE`, `VIB_FADE`, and `VIB_AFTERTOUCH` apply performer-controlled vibrato to both oscillators.
 - The previous always-on fixed LFO behavior has been removed.
 - Dormant FM helper code has been removed from the current audio path.
 
-This design is intentionally documented as transitional. Pitch bend, performer-controlled vibrato, and richer oscillator character should be added through the later roadmap tasks rather than casual one-off modulation.
+This design is intentionally documented as transitional. Richer oscillator character should be added through later roadmap tasks rather than casual one-off modulation.
 
 ### `AdsrData`
 
@@ -333,6 +357,11 @@ The current parameter set is:
 | `DETUNE_CENTS` | Float | `0.0` | Secondary oscillator detune in cents. |
 | `GLIDE_MODE` | Choice | `Auto-Legato` | Off, Always, or Auto-Legato glide behavior. |
 | `GLIDE_TIME` | Float | `0.08` | Rate-based glide time in seconds per octave. |
+| `BEND_RANGE` | Float | `12.0` | Pitch wheel range in semitones. |
+| `VIB_DEPTH` | Float | `35.0` | Maximum vibrato depth in cents. |
+| `VIB_RATE` | Float | `5.5` | Vibrato LFO rate in Hz. |
+| `VIB_FADE` | Float | `0.15` | Vibrato fade-in time in seconds. |
+| `VIB_AFTERTOUCH` | Float | `0.0` | Optional aftertouch contribution to vibrato amount. |
 | `AMP_ATTACK` | Float | `0.1` | ADSR attack time in seconds. |
 | `AMP_DECAY` | Float | `1.0` | ADSR decay time in seconds. |
 | `AMP_SUSTAIN` | Float | `0.8` | ADSR sustain level. |
@@ -361,8 +390,8 @@ During `processBlock`:
 
 1. Unused output channels are cleared.
 2. Current APVTS values are read into `MonoLeadEngine::Parameters`.
-3. The mono lead engine updates oscillator, glide, and ADSR settings.
-4. MIDI note-on/note-off events are routed through `MonoNoteStack`.
+3. The mono lead engine updates oscillator, glide, pitch modulation, and ADSR settings.
+4. MIDI note-on/note-off events are routed through `MonoNoteStack`; pitch wheel, mod wheel, and aftertouch update `PitchModulationState`.
 5. The mono lead engine renders MIDI-triggered audio into the output buffer.
 6. The low-pass filter object processes the buffer.
 7. The high-pass filter object processes the buffer.
@@ -441,9 +470,9 @@ Before public distribution, each bundled asset should be reviewed for license co
 
 Task 02 replaces the old `DAY`/`NIGHT`, `DETUNE`, dormant `OSC1FM*`, `LP_FILTER*`, `HP_FILTER*`, and `VOLUME` public IDs with a cleaner v2 parameter surface. No migration is included because this project is still pre-release and the roadmap explicitly allows this cleanup.
 
-### Vibrato Not Yet Implemented
+### Expressive Modulation Scope
 
-The previous internal fixed 5 Hz LFO has been removed from `OscData`. The final vibrato behavior should be added as a performer-controlled feature, using mod wheel and smoothing rules from the roadmap rather than a hidden always-on modulation source.
+The previous internal fixed 5 Hz LFO has been removed from `OscData`. The current vibrato is pitch-only, performer-controlled through mod wheel, and can optionally receive aftertouch contribution. More advanced modulation routing should be designed explicitly rather than added as hidden oscillator behavior.
 
 ### Legacy JUCE Voice Classes
 
@@ -451,7 +480,7 @@ The previous internal fixed 5 Hz LFO has been removed from `OscData`. The final 
 
 ### UI Coverage
 
-The APVTS contains filter resonance and output high-pass cleanup parameters that the UI does not yet expose. This mismatch should be resolved during a UI/parameter design pass.
+The APVTS contains expressive modulation, filter resonance, and output high-pass cleanup parameters that the compact current UI does not yet expose. This mismatch should be resolved during the UI/parameter design pass.
 
 ### Presets
 
@@ -462,8 +491,7 @@ The plugin supports DAW state persistence through APVTS serialization, but it do
 The following decisions are intentionally out of scope for this cleanup stage:
 
 - Advanced legato/retrigger behavior beyond the current glide support.
-- Pitch bend range and response.
-- Controllable vibrato.
+- Advanced pitch and modulation response beyond the current pitch wheel, mod wheel, and optional aftertouch behavior.
 - Further oscillator modeling, band-limiting, and character shaping.
 - Saturation/nonlinear color.
 - Effects such as chorus, delay, or reverb.

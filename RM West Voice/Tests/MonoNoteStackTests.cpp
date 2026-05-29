@@ -1,5 +1,6 @@
 #include "Engine/GlideState.h"
 #include "Engine/MonoNoteStack.h"
+#include "Engine/PitchModulationState.h"
 
 #include <cmath>
 #include <iostream>
@@ -190,6 +191,63 @@ void testGlideRateScalesWithOctaveDistance()
 
     expect(glide.getRemainingSamples() == 20, "two-octave glide takes twice as many samples as one octave");
 }
+
+void testPitchWheelSmoothsTowardTarget()
+{
+    RMWestVoice::PitchModulationState pitchModulation;
+    pitchModulation.prepare(1000.0);
+    pitchModulation.setPitchBendRangeSemitones(12.0f);
+    pitchModulation.setPitchWheel(1.0f);
+
+    pitchModulation.getNextPitchRatio();
+
+    expect(pitchModulation.getCurrentPitchBendSemitones() > 0.0f, "pitch wheel starts moving toward target");
+    expect(pitchModulation.getCurrentPitchBendSemitones() < 12.0f, "pitch wheel is smoothed");
+
+    float pitchRatio = 1.0f;
+    for (int i = 0; i < 220; ++i)
+        pitchRatio = pitchModulation.getNextPitchRatio();
+
+    expectNear(pitchModulation.getCurrentPitchBendSemitones(), 12.0f, 0.01f, "pitch wheel reaches configured bend range");
+    expectNear(pitchRatio, 2.0f, 0.01f, "one-octave bend produces two-times pitch ratio");
+}
+
+void testVibratoRequiresModWheelAndFadesIn()
+{
+    RMWestVoice::PitchModulationState pitchModulation;
+    pitchModulation.prepare(4.0);
+    pitchModulation.setVibratoDepthCents(40.0f);
+    pitchModulation.setVibratoRateHz(1.0f);
+    pitchModulation.setVibratoFadeSeconds(1.0f);
+    pitchModulation.noteStarted(false);
+
+    pitchModulation.getNextPitchRatio();
+    expectNear(pitchModulation.getCurrentVibratoCents(), 0.0f, 0.001f, "vibrato is silent with mod wheel down");
+
+    pitchModulation.setModWheel(1.0f);
+    pitchModulation.noteStarted(false);
+    pitchModulation.getNextPitchRatio();
+    expectNear(pitchModulation.getCurrentVibratoCents(), 10.0f, 0.01f, "vibrato fades in from note start");
+}
+
+void testAftertouchCanDriveVibratoWhenEnabled()
+{
+    RMWestVoice::PitchModulationState pitchModulation;
+    pitchModulation.prepare(4.0);
+    pitchModulation.setVibratoDepthCents(50.0f);
+    pitchModulation.setVibratoRateHz(1.0f);
+    pitchModulation.setVibratoFadeSeconds(0.0f);
+    pitchModulation.setAftertouch(1.0f);
+    pitchModulation.noteStarted(false);
+
+    pitchModulation.getNextPitchRatio();
+    expectNear(pitchModulation.getCurrentVibratoCents(), 0.0f, 0.001f, "aftertouch does not drive vibrato until enabled");
+
+    pitchModulation.setVibratoAftertouchAmount(1.0f);
+    pitchModulation.noteStarted(false);
+    pitchModulation.getNextPitchRatio();
+    expectNear(pitchModulation.getCurrentVibratoCents(), 50.0f, 0.01f, "enabled aftertouch drives vibrato depth");
+}
 } // namespace
 
 int main()
@@ -203,6 +261,9 @@ int main()
     testGlideAlwaysUsesSecondsPerOctave();
     testGlideAutoLegatoRequiresLegato();
     testGlideRateScalesWithOctaveDistance();
+    testPitchWheelSmoothsTowardTarget();
+    testVibratoRequiresModWheelAndFadesIn();
+    testAftertouchCanDriveVibratoWhenEnabled();
 
     if (failures != 0)
         return 1;

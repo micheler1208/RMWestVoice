@@ -20,6 +20,11 @@ namespace ID
     inline constexpr auto detuneCents = "DETUNE_CENTS";
     inline constexpr auto glideMode = "GLIDE_MODE";
     inline constexpr auto glideTime = "GLIDE_TIME";
+    inline constexpr auto bendRange = "BEND_RANGE";
+    inline constexpr auto vibratoDepth = "VIB_DEPTH";
+    inline constexpr auto vibratoRate = "VIB_RATE";
+    inline constexpr auto vibratoFade = "VIB_FADE";
+    inline constexpr auto vibratoAftertouch = "VIB_AFTERTOUCH";
 
     inline constexpr auto ampAttack = "AMP_ATTACK";
     inline constexpr auto ampDecay = "AMP_DECAY";
@@ -89,6 +94,36 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         "Glide Time",
         juce::NormalisableRange<float> { 0.0f, 2.0f, 0.001f, 0.4f },
         0.08f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::bendRange,
+        "Bend Range",
+        juce::NormalisableRange<float> { 1.0f, 24.0f, 1.0f },
+        12.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::vibratoDepth,
+        "Vibrato Depth",
+        juce::NormalisableRange<float> { 0.0f, 100.0f, 0.1f },
+        35.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::vibratoRate,
+        "Vibrato Rate",
+        juce::NormalisableRange<float> { 0.1f, 12.0f, 0.01f },
+        5.5f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::vibratoFade,
+        "Vibrato Fade",
+        juce::NormalisableRange<float> { 0.0f, 2.0f, 0.001f, 0.4f },
+        0.15f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::vibratoAftertouch,
+        "Vibrato Aftertouch",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f },
+        0.0f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         ID::ampAttack,

@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 
 #include "../Engine/GlideState.h"
+#include "../Engine/PitchModulationState.h"
 
 class OscData : public juce::dsp::Oscillator<float>
 {
@@ -25,6 +26,16 @@ public:
     void setDetuneCents(float cents);
     void setGlideMode(RMWestVoice::GlideState::Mode mode);
     void setGlideTimeSecondsPerOctave(float secondsPerOctave);
+    void setPitchBendRangeSemitones(float semitones);
+    void setPitchWheel(float normalizedBipolar);
+    void setModWheel(float normalized);
+    void setAftertouch(float normalized);
+    void setVibratoDepthCents(float cents);
+    void setVibratoRateHz(float hz);
+    void setVibratoFadeSeconds(float seconds);
+    void setVibratoAftertouchAmount(float normalized);
+    void noteStarted(bool isLegatoTransition);
+    void noteStopped();
     
 private:
     static float sawWave(float phase) noexcept;
@@ -39,4 +50,5 @@ private:
     float oscMix = 0.35f;
     float detuneCents = 0.0f;
     RMWestVoice::GlideState glideState;
+    RMWestVoice::PitchModulationState pitchModulation;
 };

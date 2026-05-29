@@ -27,6 +27,11 @@ public:
         float detuneCents { 0.0f };
         GlideState::Mode glideMode { GlideState::Mode::autoLegato };
         float glideTimeSecondsPerOctave { 0.08f };
+        float pitchBendRangeSemitones { 12.0f };
+        float vibratoDepthCents { 35.0f };
+        float vibratoRateHz { 5.5f };
+        float vibratoFadeSeconds { 0.15f };
+        float vibratoAftertouchAmount { 0.0f };
 
         float ampAttack { 0.1f };
         float ampDecay { 1.0f };
@@ -50,6 +55,9 @@ public:
 private:
     void renderAudioRange(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples);
     void handleMidiMessage(const juce::MidiMessage& message);
+    void handlePitchWheel(const juce::MidiMessage& message);
+    void handleModWheel(const juce::MidiMessage& message);
+    void handleAftertouch(const juce::MidiMessage& message);
     void startActiveNote(const MonoNoteStack::UpdateResult& noteUpdate);
     void stopOrFallbackFromActiveNote(const MonoNoteStack::UpdateResult& noteUpdate);
 

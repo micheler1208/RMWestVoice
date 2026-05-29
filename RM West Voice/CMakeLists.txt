@@ -46,6 +46,8 @@ target_sources(RMWestVoice
         Source/PluginEditor.cpp
         Source/Engine/MonoLeadEngine.cpp
         Source/Engine/MonoLeadEngine.h
+        Source/Engine/PitchModulationState.cpp
+        Source/Engine/PitchModulationState.h
         Source/Engine/GlideState.cpp
         Source/Engine/GlideState.h
         Source/Engine/MonoNoteStack.cpp
@@ -80,7 +82,9 @@ add_executable(RMWestVoiceTests
     Source/Engine/GlideState.cpp
     Source/Engine/GlideState.h
     Source/Engine/MonoNoteStack.cpp
-    Source/Engine/MonoNoteStack.h)
+    Source/Engine/MonoNoteStack.h
+    Source/Engine/PitchModulationState.cpp
+    Source/Engine/PitchModulationState.h)
 
 target_include_directories(RMWestVoiceTests
     PRIVATE
