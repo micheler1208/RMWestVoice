@@ -284,7 +284,8 @@ RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor(RMWestVoiceAudi
     performanceSection = std::make_unique<ParameterSection>("Performance", performanceAccent, 74);
     performanceSection->addChoice(audioProcessor.apvts, RMWestVoiceParameters::ID::glideMode, "Glide", { "Off", "Always", "Auto-Legato" });
     performanceSection->addSlider(audioProcessor.apvts, RMWestVoiceParameters::ID::glideTime, "Glide Time", SliderDisplay::seconds);
-    performanceSection->addSlider(audioProcessor.apvts, RMWestVoiceParameters::ID::bendRange, "Bend", SliderDisplay::semitones);
+    performanceSection->addChoice(audioProcessor.apvts, RMWestVoiceParameters::ID::notePriority, "Priority", { "Last", "Low" });
+    performanceSection->addChoice(audioProcessor.apvts, RMWestVoiceParameters::ID::bendRange, "Bend", { "2", "5", "7", "12" });
     performanceSection->addSlider(audioProcessor.apvts, RMWestVoiceParameters::ID::vibratoDepth, "Vib Depth", SliderDisplay::cents);
     performanceSection->addSlider(audioProcessor.apvts, RMWestVoiceParameters::ID::vibratoRate, "Vib Rate", SliderDisplay::hertz);
     performanceSection->addSlider(audioProcessor.apvts, RMWestVoiceParameters::ID::vibratoFade, "Vib Fade", SliderDisplay::seconds);

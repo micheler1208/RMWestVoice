@@ -30,7 +30,8 @@ public:
         float detuneCents { 0.0f };
         GlideState::Mode glideMode { GlideState::Mode::autoLegato };
         float glideTimeSecondsPerOctave { 0.08f };
-        float pitchBendRangeSemitones { 12.0f };
+        MonoNoteStack::Priority notePriority { MonoNoteStack::Priority::lastNote };
+        float pitchBendRangeSemitones { 5.0f };
         float vibratoDepthCents { 35.0f };
         float vibratoRateHz { 5.5f };
         float vibratoFadeSeconds { 0.15f };

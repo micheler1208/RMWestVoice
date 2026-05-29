@@ -5,9 +5,9 @@ This roadmap translates the technical and historical research in
 small implementation tasks. Each task should be handled as its own branch,
 commit, and push so the synth can evolve without large mixed changes.
 
-## Current Baseline
+## Starting Baseline Before Task Sequence
 
-The current project is a stabilized JUCE8 synth prototype:
+At the start of this roadmap, the project was a stabilized JUCE8 synth prototype:
 
 - CMake is the reliable build entrypoint for Standalone and VST3 targets.
 - `RMWestVoiceAudioProcessor` owns APVTS state, one `juce::Synthesiser`, one
@@ -23,7 +23,7 @@ The current project is a stabilized JUCE8 synth prototype:
   APVTS parameters are not surfaced.
 - Plugin state is serialized through APVTS XML state.
 
-This baseline is buildable and useful, but it is not yet the historically
+That baseline was buildable and useful, but not yet the historically
 credible mono lead described by the research document.
 
 ## Research-Backed Target
@@ -70,8 +70,8 @@ Default policy:
 
 ## Task Order
 
-Task 1 is this roadmap commit. The following tasks should be implemented one at
-a time.
+Task 1 is this roadmap commit. Tasks 2-12 have now been implemented and the
+roadmap remains the reference checklist for the v1 feature scope.
 
 | Task | Name | Scope |
 | --- | --- | --- |

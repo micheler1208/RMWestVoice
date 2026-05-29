@@ -8,9 +8,12 @@
 */
 
 #include "PluginProcessor.h"
-#include "PluginEditor.h"
 #include "PluginParameters.h"
 #include "Presets/FactoryPresets.h"
+
+#if ! RMWESTVOICE_HEADLESS_PROCESSOR_TEST
+#include "PluginEditor.h"
+#endif
 
 namespace
 {
@@ -29,6 +32,38 @@ RMWestVoice::GlideState::Mode getGlideModeFromParameterValue(float value)
         case RMWestVoiceParameters::GlideMode::off:
         default:
             return RMWestVoice::GlideState::Mode::off;
+    }
+}
+
+RMWestVoice::MonoNoteStack::Priority getNotePriorityFromParameterValue(float value)
+{
+    switch (static_cast<int>(value))
+    {
+        case RMWestVoiceParameters::NotePriority::lowNote:
+            return RMWestVoice::MonoNoteStack::Priority::lowNote;
+
+        case RMWestVoiceParameters::NotePriority::lastNote:
+        default:
+            return RMWestVoice::MonoNoteStack::Priority::lastNote;
+    }
+}
+
+float getBendRangeSemitonesFromParameterValue(float value)
+{
+    switch (static_cast<int>(value))
+    {
+        case RMWestVoiceParameters::BendRange::twoSemitones:
+            return 2.0f;
+
+        case RMWestVoiceParameters::BendRange::sevenSemitones:
+            return 7.0f;
+
+        case RMWestVoiceParameters::BendRange::twelveSemitones:
+            return 12.0f;
+
+        case RMWestVoiceParameters::BendRange::fiveSemitones:
+        default:
+            return 5.0f;
     }
 }
 } // namespace
@@ -78,7 +113,8 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     monoParameters.detuneCents = apvts.getRawParameterValue(RMWestVoiceParameters::ID::detuneCents)->load();
     monoParameters.glideMode = getGlideModeFromParameterValue(apvts.getRawParameterValue(RMWestVoiceParameters::ID::glideMode)->load());
     monoParameters.glideTimeSecondsPerOctave = apvts.getRawParameterValue(RMWestVoiceParameters::ID::glideTime)->load();
-    monoParameters.pitchBendRangeSemitones = apvts.getRawParameterValue(RMWestVoiceParameters::ID::bendRange)->load();
+    monoParameters.notePriority = getNotePriorityFromParameterValue(apvts.getRawParameterValue(RMWestVoiceParameters::ID::notePriority)->load());
+    monoParameters.pitchBendRangeSemitones = getBendRangeSemitonesFromParameterValue(apvts.getRawParameterValue(RMWestVoiceParameters::ID::bendRange)->load());
     monoParameters.vibratoDepthCents = apvts.getRawParameterValue(RMWestVoiceParameters::ID::vibratoDepth)->load();
     monoParameters.vibratoRateHz = apvts.getRawParameterValue(RMWestVoiceParameters::ID::vibratoRate)->load();
     monoParameters.vibratoFadeSeconds = apvts.getRawParameterValue(RMWestVoiceParameters::ID::vibratoFade)->load();
@@ -184,10 +220,24 @@ void RMWestVoiceAudioProcessor::setStateInformation(const void* data, int sizeIn
 }
 
 // CREATE EDITOR
-juce::AudioProcessorEditor* RMWestVoiceAudioProcessor::createEditor() { return new RMWestVoiceAudioProcessorEditor(*this); }
+juce::AudioProcessorEditor* RMWestVoiceAudioProcessor::createEditor()
+{
+#if RMWESTVOICE_HEADLESS_PROCESSOR_TEST
+    return nullptr;
+#else
+    return new RMWestVoiceAudioProcessorEditor(*this);
+#endif
+}
 
 // HAS EDITOR
-bool RMWestVoiceAudioProcessor::hasEditor() const { return true; }
+bool RMWestVoiceAudioProcessor::hasEditor() const
+{
+#if RMWESTVOICE_HEADLESS_PROCESSOR_TEST
+    return false;
+#else
+    return true;
+#endif
+}
 
 // GET NAME
 const juce::String RMWestVoiceAudioProcessor::getName() const { return JucePlugin_Name; }

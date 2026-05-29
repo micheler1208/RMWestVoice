@@ -8,13 +8,13 @@ namespace RMWestVoice
 struct FactoryPreset
 {
     const char* name;
-    std::array<float, 30> values;
+    std::array<float, 31> values;
 };
 
 class FactoryPresets
 {
 public:
-    static constexpr std::size_t parameterCount = 30;
+    static constexpr std::size_t parameterCount = 31;
 
     static int getNumPresets() noexcept;
     static int sanitizeIndex(int index) noexcept;

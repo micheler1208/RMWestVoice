@@ -66,10 +66,7 @@ target_sources(RMWestVoice
         Source/Data/LeadFilterData.h
         Source/Data/PostVoiceFxData.cpp
         Source/Data/PostVoiceFxData.h
-        Source/Data/OscData.cpp
-        Source/UI/AdsrComponent.cpp
-        Source/UI/FilterComponent.cpp
-        Source/UI/OscComponent.cpp)
+        Source/Data/OscData.cpp)
 
 target_compile_definitions(RMWestVoice
     PUBLIC
@@ -115,3 +112,69 @@ target_compile_features(RMWestVoiceTests
         cxx_std_17)
 
 add_test(NAME RMWestVoiceTests COMMAND RMWestVoiceTests)
+
+juce_add_console_app(RMWestVoiceProcessorTests
+    PRODUCT_NAME "RMWestVoice Processor Tests")
+
+target_sources(RMWestVoiceProcessorTests
+    PRIVATE
+        Tests/ProcessorRenderTests.cpp
+        Source/PluginParameters.h
+        Source/PluginProcessor.cpp
+        Source/PluginProcessor.h
+        Source/Presets/FactoryPresets.cpp
+        Source/Presets/FactoryPresets.h
+        Source/Engine/MonoLeadEngine.cpp
+        Source/Engine/MonoLeadEngine.h
+        Source/Engine/CharacterState.cpp
+        Source/Engine/CharacterState.h
+        Source/Engine/FilterModulationState.cpp
+        Source/Engine/FilterModulationState.h
+        Source/Engine/PostVoiceFxState.cpp
+        Source/Engine/PostVoiceFxState.h
+        Source/Engine/PitchModulationState.cpp
+        Source/Engine/PitchModulationState.h
+        Source/Engine/GlideState.cpp
+        Source/Engine/GlideState.h
+        Source/Engine/MonoNoteStack.cpp
+        Source/Engine/MonoNoteStack.h
+        Source/Data/AdsrData.cpp
+        Source/Data/AdsrData.h
+        Source/Data/FilterData.cpp
+        Source/Data/FilterData.h
+        Source/Data/LeadFilterData.cpp
+        Source/Data/LeadFilterData.h
+        Source/Data/PostVoiceFxData.cpp
+        Source/Data/PostVoiceFxData.h
+        Source/Data/OscData.cpp
+        Source/Data/OscData.h)
+
+target_include_directories(RMWestVoiceProcessorTests
+    PRIVATE
+        Source)
+
+target_compile_definitions(RMWestVoiceProcessorTests
+    PRIVATE
+        RMWESTVOICE_HEADLESS_PROCESSOR_TEST=1
+        JucePlugin_IsSynth=1
+        JucePlugin_WantsMidiInput=1
+        JucePlugin_ProducesMidiOutput=0
+        JucePlugin_IsMidiEffect=0
+        JucePlugin_Name="RM West Voice"
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0
+        JUCE_ASIO=1
+        JUCE_VST3_CAN_REPLACE_VST2=0
+        JUCE_STRICT_REFCOUNTEDPOINTER=1)
+
+target_link_libraries(RMWestVoiceProcessorTests
+    PRIVATE
+        juce::juce_audio_utils
+        juce::juce_dsp
+    PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_warning_flags)
+
+juce_generate_juce_header(RMWestVoiceProcessorTests)
+
+add_test(NAME RMWestVoiceProcessorTests COMMAND RMWestVoiceProcessorTests)

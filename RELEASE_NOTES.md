@@ -12,8 +12,9 @@ until the asset license blockers are resolved.
   surface.
 - Added a custom mono lead engine with note stack behavior and controlled MIDI
   handling.
-- Added rate-based glide, pitch bend range, mod-wheel vibrato, fade-in, and
-  optional aftertouch contribution.
+- Added selectable mono note priority, rate-based glide, discrete pitch bend
+  range choices, mod-wheel vibrato, fade-in, and optional aftertouch
+  contribution.
 - Reworked the oscillator path into a two-oscillator lead core with curated
   wave choices.
 - Added LP24 lead filtering with drive, key tracking, and filter envelope
@@ -28,11 +29,11 @@ until the asset license blockers are resolved.
 
 The initial program list is documented in [FACTORY_PRESETS.md](FACTORY_PRESETS.md):
 
-- Default Coast Lead
-- Tight Dry Analog
-- Worm Glide Hook
-- Hybrid Glass Lead
-- Dub Echo Lead
+- Classic Worm
+- Smooth Whine
+- Hybrid Lead
+- Dry Analog
+- Wide Mix Lead
 
 ## Verification
 
@@ -40,9 +41,10 @@ Before cutting a release candidate, run:
 
 ```powershell
 cmake -S "RM West Voice" -B "RM West Voice\Builds\VisualStudio2022" -G "Visual Studio 17 2022" -A x64
-cmake --build "RM West Voice\Builds\VisualStudio2022" --config Debug --target RMWestVoiceTests RMWestVoice_Standalone RMWestVoice_VST3 -- /m
+cmake --build "RM West Voice\Builds\VisualStudio2022" --config Debug --target RMWestVoiceTests RMWestVoiceProcessorTests RMWestVoice_Standalone RMWestVoice_VST3 -- /m
 ctest --test-dir "RM West Voice\Builds\VisualStudio2022" -C Debug --output-on-failure
-cmake --build "RM West Voice\Builds\VisualStudio2022" --config Release --target RMWestVoice_Standalone RMWestVoice_VST3 -- /m
+cmake --build "RM West Voice\Builds\VisualStudio2022" --config Release --target RMWestVoiceTests RMWestVoiceProcessorTests RMWestVoice_Standalone RMWestVoice_VST3 -- /m
+ctest --test-dir "RM West Voice\Builds\VisualStudio2022" -C Release --output-on-failure
 ```
 
 The Release standalone should also be smoke-tested by launching it, keeping it
@@ -54,7 +56,5 @@ open briefly, and closing it cleanly.
   See [ASSET_LICENSE_AUDIT.md](ASSET_LICENSE_AUDIT.md).
 - There is no standalone preset browser or import/export file format; factory
   presets are exposed through host programs.
-- Legacy `SynthVoice` / `SynthSound` sources remain in the tree but are not part
-  of the current CMake runtime path.
 - Final sound-design tuning should happen after asset replacement and before
   any public binary release.

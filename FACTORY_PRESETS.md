@@ -9,11 +9,11 @@ DAW/session state continues to persist through APVTS parameter serialization.
 
 | Program | Name | Purpose |
 | --- | --- | --- |
-| 1 | Default Coast Lead | Balanced default patch matching the current parameter defaults. |
-| 2 | Tight Dry Analog | Dry, immediate analog saw lead with minimal width and no ambience. |
-| 3 | Worm Glide Hook | Resonant glide lead with stronger vocal filter movement and light space. |
-| 4 | Hybrid Glass Lead | Hybrid character patch with Saw+Pulse color, brighter width, and short ambience. |
-| 5 | Dub Echo Lead | Slower glide patch with audible delay and reverb for post-voice presentation. |
+| 1 | Classic Worm | Resonant glide lead with stronger vocal filter movement and light space. |
+| 2 | Smooth Whine | Balanced smooth lead matching the current default-style behavior. |
+| 3 | Hybrid Lead | Hybrid character patch with Saw+Pulse color, brighter width, and short ambience. |
+| 4 | Dry Analog | Dry, immediate analog saw lead with minimal width and no ambience. |
+| 5 | Wide Mix Lead | Slower glide patch with audible delay and reverb for post-voice presentation. |
 
 ## Implementation
 

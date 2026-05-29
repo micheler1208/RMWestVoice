@@ -21,6 +21,7 @@ namespace ID
     inline constexpr auto detuneCents = "DETUNE_CENTS";
     inline constexpr auto glideMode = "GLIDE_MODE";
     inline constexpr auto glideTime = "GLIDE_TIME";
+    inline constexpr auto notePriority = "NOTE_PRIORITY";
     inline constexpr auto bendRange = "BEND_RANGE";
     inline constexpr auto vibratoDepth = "VIB_DEPTH";
     inline constexpr auto vibratoRate = "VIB_RATE";
@@ -72,6 +73,20 @@ namespace GlideMode
     inline constexpr int autoLegato = 2;
 }
 
+namespace NotePriority
+{
+    inline constexpr int lastNote = 0;
+    inline constexpr int lowNote = 1;
+}
+
+namespace BendRange
+{
+    inline constexpr int twoSemitones = 0;
+    inline constexpr int fiveSemitones = 1;
+    inline constexpr int sevenSemitones = 2;
+    inline constexpr int twelveSemitones = 3;
+}
+
 namespace FilterType
 {
     inline constexpr int lowPass = 0;
@@ -119,11 +134,17 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         juce::NormalisableRange<float> { 0.0f, 2.0f, 0.001f, 0.4f },
         0.08f));
 
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(
+        ID::notePriority,
+        "Note Priority",
+        juce::StringArray { "Last", "Low" },
+        NotePriority::lastNote));
+
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(
         ID::bendRange,
         "Bend Range",
-        juce::NormalisableRange<float> { 1.0f, 24.0f, 1.0f },
-        12.0f));
+        juce::StringArray { "2", "5", "7", "12" },
+        BendRange::fiveSemitones));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         ID::vibratoDepth,

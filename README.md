@@ -54,8 +54,6 @@ RMWestVoice is not currently:
     |   |-- PluginProcessor.*
     |   |-- PluginEditor.*
     |   |-- PluginParameters.h
-    |   |-- SynthVoice.*
-    |   |-- SynthSound.h
     |   |-- Presets
     |   |   `-- FactoryPresets.*
     |   |-- Engine
@@ -71,16 +69,11 @@ RMWestVoice is not currently:
     |   |   |-- LeadFilterData.*
     |   |   |-- OscData.*
     |   |   `-- PostVoiceFxData.*
-    |   |-- UI
-    |   |   |-- AdsrComponent.*
-    |   |   |-- FilterComponent.*
-    |   |   |-- OscComponent.*
-    |   |   |-- CustomLookAndFeel*.h
-    |   |   `-- CustomSlider.h
     |   |-- font
     |   `-- img
     |-- Tests
-    |   `-- MonoNoteStackTests.cpp
+    |   |-- MonoNoteStackTests.cpp
+    |   `-- ProcessorRenderTests.cpp
     `-- Builds
 ```
 
@@ -135,12 +128,13 @@ RM West Voice/Builds/VisualStudio2022/RMWestVoice.sln
 
 ## Test Instructions
 
-The CMake build also defines a small logic test executable for non-audio engine code.
+The CMake build defines logic tests for non-audio engine code and a processor
+render test that exercises MIDI, presets, state restore, and release-to-silence.
 
 Build the tests:
 
 ```powershell
-cmake --build "RM West Voice\Builds\VisualStudio2022" --config Debug --target RMWestVoiceTests -- /m
+cmake --build "RM West Voice\Builds\VisualStudio2022" --config Debug --target RMWestVoiceTests RMWestVoiceProcessorTests -- /m
 ```
 
 Run the tests:
@@ -196,7 +190,8 @@ The current APVTS parameter surface is exposed by the editor and serialized by t
 | `DETUNE_CENTS` | Detune | Applies secondary oscillator detune in cents. |
 | `GLIDE_MODE` | Glide Mode | Selects Off, Always, or Auto-Legato glide behavior. |
 | `GLIDE_TIME` | Glide Time | Sets rate-based glide time in seconds per octave. |
-| `BEND_RANGE` | Bend Range | Sets the pitch wheel range in semitones. |
+| `NOTE_PRIORITY` | Note Priority | Selects Last or Low mono note priority. |
+| `BEND_RANGE` | Bend Range | Selects a pitch wheel range of 2, 5, 7, or 12 semitones. |
 | `VIB_DEPTH` | Vibrato Depth | Sets maximum mod-wheel vibrato depth in cents. |
 | `VIB_RATE` | Vibrato Rate | Sets vibrato LFO rate in Hz. |
 | `VIB_FADE` | Vibrato Fade | Sets vibrato fade-in time from note start. |
@@ -227,11 +222,11 @@ Task 02 introduced this pre-release v2 parameter surface. The old `DAY`/`NIGHT`,
 
 The plugin exposes five factory programs through the host program API:
 
-- Default Coast Lead
-- Tight Dry Analog
-- Worm Glide Hook
-- Hybrid Glass Lead
-- Dub Echo Lead
+- Classic Worm
+- Smooth Whine
+- Hybrid Lead
+- Dry Analog
+- Wide Mix Lead
 
 Changing a factory program writes values into the existing APVTS parameter set.
 There is not yet a custom preset browser or import/export file format. See
@@ -292,7 +287,11 @@ The stabilized project has been checked with:
 
 ```powershell
 cmake --build "RM West Voice\Builds\VisualStudio2022" --config Debug --target RMWestVoice_Standalone RMWestVoice_VST3 -- /m
+cmake --build "RM West Voice\Builds\VisualStudio2022" --config Debug --target RMWestVoiceTests RMWestVoiceProcessorTests -- /m
+ctest --test-dir "RM West Voice\Builds\VisualStudio2022" -C Debug --output-on-failure
 cmake --build "RM West Voice\Builds\VisualStudio2022" --config Release --target RMWestVoice_Standalone RMWestVoice_VST3 -- /m
+cmake --build "RM West Voice\Builds\VisualStudio2022" --config Release --target RMWestVoiceTests RMWestVoiceProcessorTests -- /m
+ctest --test-dir "RM West Voice\Builds\VisualStudio2022" -C Release --output-on-failure
 ```
 
 The Release standalone has also been smoke-tested by launching it, keeping it open briefly, and closing it cleanly.

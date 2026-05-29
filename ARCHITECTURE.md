@@ -169,27 +169,6 @@ Current modes:
 | `Worm` | No hybrid layer; slightly stronger source drive, resonant emphasis, and filter-envelope emphasis for a more vocal legacy branch. |
 | `Hybrid` | Enables the auxiliary synthesized digital layer, keeps drive more contained, and reduces filter-envelope emphasis. |
 
-### Legacy `SynthVoice` / `SynthSound`
-
-Files:
-
-```text
-RM West Voice/Source/SynthVoice.h
-RM West Voice/Source/SynthVoice.cpp
-RM West Voice/Source/SynthSound.h
-```
-
-These classes remain in the source tree from the earlier JUCE `Synthesiser` prototype, but the current CMake runtime path no longer compiles or owns them. They should be removed or repurposed in a later cleanup task if they remain unused.
-
-Previous processing order:
-
-```text
-OscData::getNextAudioBlock
-  -> voice gain
-  -> ADSR envelope
-  -> mix into plugin output buffer
-```
-
 ### `MonoNoteStack`
 
 Files:
@@ -420,26 +399,13 @@ RM West Voice/Source/PluginEditor.cpp
 
 | Section | Controls |
 | --- | --- |
-| Performance | `GLIDE_MODE`, `GLIDE_TIME`, `BEND_RANGE`, `VIB_DEPTH`, `VIB_RATE`, `VIB_FADE`, `VIB_AFTERTOUCH`, `AMP_ATTACK`, `AMP_DECAY`, `AMP_SUSTAIN`, `AMP_RELEASE` |
+| Performance | `GLIDE_MODE`, `GLIDE_TIME`, `NOTE_PRIORITY`, `BEND_RANGE`, `VIB_DEPTH`, `VIB_RATE`, `VIB_FADE`, `VIB_AFTERTOUCH`, `AMP_ATTACK`, `AMP_DECAY`, `AMP_SUSTAIN`, `AMP_RELEASE` |
 | Tone | `CHARACTER`, `WAVE`, `OSC_MIX`, `DETUNE_CENTS` |
 | Filter | `FILTER_CUTOFF`, `FILTER_RESONANCE`, `DRIVE`, `FILTER_KEYTRACK`, `FILTER_ENV_AMOUNT` |
 | FX | `WIDTH`, `DELAY_MIX`, `DELAY_TIME`, `DELAY_FEEDBACK`, `REVERB_MIX`, `REVERB_SIZE`, `REVERB_DAMPING` |
 | Output | `OUTPUT_HIGHPASS_CUTOFF`, `OUTPUT_HIGHPASS_RESONANCE`, `OUTPUT_GAIN` |
 
-The previous `OscComponent`, `AdsrComponent`, and `FilterComponent` source files remain in `RM West Voice/Source/UI`, but the active editor layout no longer instantiates those components.
-
-### Look-And-Feel Classes
-
-The project contains custom JUCE look-and-feel classes:
-
-```text
-CustomLookAndFeelDetune.h
-CustomLookAndFeelOsc.h
-CustomLookAndFeelViolet.h
-CustomLookAndFeelYellow.h
-```
-
-These classes draw rotary sliders, labels, text editors, and buttons using the current visual style and bundled fonts.
+The earlier `OscComponent`, `AdsrComponent`, `FilterComponent`, custom look-and-feel headers, and `CustomSlider` helper have been removed from the source tree. The section-based editor owns the current UI controls directly.
 
 ## Parameter Ownership
 
@@ -466,7 +432,8 @@ The current parameter set is:
 | `DETUNE_CENTS` | Float | `0.0` | Secondary oscillator detune in cents. |
 | `GLIDE_MODE` | Choice | `Auto-Legato` | Off, Always, or Auto-Legato glide behavior. |
 | `GLIDE_TIME` | Float | `0.08` | Rate-based glide time in seconds per octave. |
-| `BEND_RANGE` | Float | `12.0` | Pitch wheel range in semitones. |
+| `NOTE_PRIORITY` | Choice | `Last` | Mono note priority: Last or Low. |
+| `BEND_RANGE` | Choice | `5` | Pitch wheel range choice: 2, 5, 7, or 12 semitones. |
 | `VIB_DEPTH` | Float | `35.0` | Maximum vibrato depth in cents. |
 | `VIB_RATE` | Float | `5.5` | Vibrato LFO rate in Hz. |
 | `VIB_FADE` | Float | `0.15` | Vibrato fade-in time in seconds. |
@@ -565,6 +532,7 @@ Important build decisions:
 - Binary assets are compiled with `juce_add_binary_data`.
 - Plugin formats are limited to `VST3` and `Standalone`.
 - `RMWestVoiceTests` is a CMake test executable for pure engine logic.
+- `RMWestVoiceProcessorTests` is a headless processor render test for MIDI, preset state restore, bounded output, finite samples, and release-to-silence.
 - VST3 uses JUCE8's bundled VST3 SDK.
 - `COPY_PLUGIN_AFTER_BUILD` is disabled.
 - `JUCE_VST3_CAN_REPLACE_VST2=0` is explicitly defined.
@@ -601,13 +569,9 @@ Task 02 replaces the old `DAY`/`NIGHT`, `DETUNE`, dormant `OSC1FM*`, `LP_FILTER*
 
 The previous internal fixed 5 Hz LFO has been removed from `OscData`. The current vibrato is pitch-only, performer-controlled through mod wheel, and can optionally receive aftertouch contribution. More advanced modulation routing should be designed explicitly rather than added as hidden oscillator behavior.
 
-### Legacy JUCE Voice Classes
-
-`SynthVoice` and `SynthSound` are still present as source files but are no longer part of the current CMake runtime path. They should not be used for new mono engine work.
-
 ### UI Coverage
 
-The section-based editor exposes the current APVTS parameter set. The remaining UI work is visual polish, workflow refinement, and preset integration rather than parameter coverage.
+The section-based editor exposes the current APVTS parameter set, including mono note priority and the discrete bend range choices. The remaining UI work is visual polish, workflow refinement, and preset integration rather than parameter coverage.
 
 ### Presets
 
@@ -637,7 +601,7 @@ When changing this codebase:
 - Keep generated build files out of source control.
 - Update this document when ownership, signal flow, or parameter behavior changes.
 - Verify both Standalone and VST3 targets after build-system changes.
-- Run `RMWestVoiceTests` through CTest when engine logic changes.
+- Run `RMWestVoiceTests` and `RMWestVoiceProcessorTests` through CTest when engine or processor behavior changes.
 
 ## Suggested Verification Commands
 
@@ -650,18 +614,13 @@ cmake -S "RM West Voice" -B "RM West Voice\Builds\VisualStudio2022" -G "Visual S
 Debug:
 
 ```powershell
-cmake --build "RM West Voice\Builds\VisualStudio2022" --config Debug --target RMWestVoice_Standalone RMWestVoice_VST3 -- /m
+cmake --build "RM West Voice\Builds\VisualStudio2022" --config Debug --target RMWestVoiceTests RMWestVoiceProcessorTests RMWestVoice_Standalone RMWestVoice_VST3 -- /m
+ctest --test-dir "RM West Voice\Builds\VisualStudio2022" -C Debug --output-on-failure
 ```
 
 Release:
 
 ```powershell
-cmake --build "RM West Voice\Builds\VisualStudio2022" --config Release --target RMWestVoice_Standalone RMWestVoice_VST3 -- /m
-```
-
-Engine tests:
-
-```powershell
-cmake --build "RM West Voice\Builds\VisualStudio2022" --config Debug --target RMWestVoiceTests -- /m
-ctest --test-dir "RM West Voice\Builds\VisualStudio2022" -C Debug --output-on-failure
+cmake --build "RM West Voice\Builds\VisualStudio2022" --config Release --target RMWestVoiceTests RMWestVoiceProcessorTests RMWestVoice_Standalone RMWestVoice_VST3 -- /m
+ctest --test-dir "RM West Voice\Builds\VisualStudio2022" -C Release --output-on-failure
 ```

@@ -365,6 +365,14 @@ void testFactoryPresetsExposeCompleteUniqueParameterSets()
     expect(parameterIDs.size() == RMWestVoice::FactoryPresets::parameterCount, "factory preset parameter IDs are unique");
 
     std::set<std::string> presetNames;
+    const std::set<std::string> expectedPresetNames {
+        "Classic Worm",
+        "Smooth Whine",
+        "Hybrid Lead",
+        "Dry Analog",
+        "Wide Mix Lead"
+    };
+
     for (int index = 0; index < RMWestVoice::FactoryPresets::getNumPresets(); ++index)
     {
         const auto& preset = RMWestVoice::FactoryPresets::getPreset(index);
@@ -373,6 +381,7 @@ void testFactoryPresetsExposeCompleteUniqueParameterSets()
     }
 
     expect(presetNames.size() == static_cast<std::size_t>(RMWestVoice::FactoryPresets::getNumPresets()), "factory preset names are unique");
+    expect(presetNames == expectedPresetNames, "factory preset names match the release vocabulary");
 }
 
 void testFactoryPresetIndexSanitizing()
@@ -391,7 +400,8 @@ void testFactoryPresetValuesStayWithinParameterRanges()
         { -25.0f, 25.0f },
         { 0.0f, 2.0f },
         { 0.0f, 2.0f },
-        { 1.0f, 24.0f },
+        { 0.0f, 1.0f },
+        { 0.0f, 3.0f },
         { 0.0f, 100.0f },
         { 0.1f, 12.0f },
         { 0.0f, 2.0f },

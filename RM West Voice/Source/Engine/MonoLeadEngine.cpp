@@ -100,6 +100,17 @@ void MonoLeadEngine::updateParameters(const Parameters& newParameters)
         parameters.ampDecay,
         parameters.ampSustain,
         parameters.ampRelease);
+
+    if (noteStack.getPriority() != parameters.notePriority)
+    {
+        const auto noteUpdate = noteStack.setPriority(parameters.notePriority);
+
+        if (noteUpdate.activeNoteChanged && noteUpdate.hasActiveNote)
+        {
+            osc.setWaveFrequency(noteUpdate.activeNote, noteUpdate.hadActiveNote);
+            leadFilter.noteStarted(noteUpdate.activeNote, true);
+        }
+    }
 }
 
 void MonoLeadEngine::renderNextBlock(
