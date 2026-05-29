@@ -55,7 +55,7 @@ void RMWestVoiceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     monoLeadEngine.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
 
     highPassFilter.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
-
+    postVoiceFx.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
 }
 
 // PROCESS BLOCK
@@ -103,6 +103,17 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
 
     highPassFilter.process(buffer);
 
+    PostVoiceFxData::Parameters fxParameters;
+    fxParameters.width = apvts.getRawParameterValue(RMWestVoiceParameters::ID::width)->load();
+    fxParameters.delayMix = apvts.getRawParameterValue(RMWestVoiceParameters::ID::delayMix)->load();
+    fxParameters.delayTimeSeconds = apvts.getRawParameterValue(RMWestVoiceParameters::ID::delayTime)->load();
+    fxParameters.delayFeedback = apvts.getRawParameterValue(RMWestVoiceParameters::ID::delayFeedback)->load();
+    fxParameters.reverbMix = apvts.getRawParameterValue(RMWestVoiceParameters::ID::reverbMix)->load();
+    fxParameters.reverbSize = apvts.getRawParameterValue(RMWestVoiceParameters::ID::reverbSize)->load();
+    fxParameters.reverbDamping = apvts.getRawParameterValue(RMWestVoiceParameters::ID::reverbDamping)->load();
+    postVoiceFx.updateParameters(fxParameters);
+    postVoiceFx.process(buffer);
+
     // Master Volume
     float volume = apvts.getRawParameterValue(RMWestVoiceParameters::ID::outputGain)->load();
     buffer.applyGain(volume);
@@ -114,6 +125,7 @@ void RMWestVoiceAudioProcessor::releaseResources()
 {
     monoLeadEngine.reset();
     highPassFilter.reset();
+    postVoiceFx.reset();
 }
 
 // ISBUSESLAYOUTSUPPORTED
@@ -198,7 +210,7 @@ bool  RMWestVoiceAudioProcessor::isMidiEffect() const
 }
 
 // GET TAIL LENGTH
-double RMWestVoiceAudioProcessor::getTailLengthSeconds() const { return 0.0; }
+double RMWestVoiceAudioProcessor::getTailLengthSeconds() const { return 2.0; }
 
 // GET NUM PROGRAMS
 int RMWestVoiceAudioProcessor::getNumPrograms() { return 1; }

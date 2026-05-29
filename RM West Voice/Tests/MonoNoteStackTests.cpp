@@ -3,6 +3,7 @@
 #include "Engine/FilterModulationState.h"
 #include "Engine/MonoNoteStack.h"
 #include "Engine/PitchModulationState.h"
+#include "Engine/PostVoiceFxState.h"
 
 #include <cmath>
 #include <iostream>
@@ -306,6 +307,44 @@ void testCharacterIndexFallback()
     expect(RMWestVoice::CharacterState::modeFromIndex(2) == RMWestVoice::CharacterMode::hybrid, "character index two is hybrid");
     expect(RMWestVoice::CharacterState::modeFromIndex(99) == RMWestVoice::CharacterMode::analog, "invalid character index falls back to analog");
 }
+
+void testPostVoiceFxWidthMapsToMeasuredDoublerDelay()
+{
+    RMWestVoice::PostVoiceFxState fxState;
+    fxState.prepare(1000.0);
+
+    fxState.setWidth(0.0f);
+    expect(fxState.getSettings().doublerDelaySamples == 0, "zero width disables the doubler delay");
+
+    fxState.setWidth(0.5f);
+    expect(fxState.getSettings().doublerDelaySamples == 13, "half width maps to a 13 ms doubler delay at 1 kHz");
+
+    fxState.setWidth(2.0f);
+    expect(fxState.getSettings().width == 1.0f, "width clamps to the normalized maximum");
+    expect(fxState.getSettings().doublerDelaySamples == 18, "maximum width maps to an 18 ms doubler delay at 1 kHz");
+}
+
+void testPostVoiceFxTimingAndMixesAreClamped()
+{
+    RMWestVoice::PostVoiceFxState fxState;
+    fxState.prepare(1000.0);
+
+    fxState.setDelayTimeSeconds(2.0f);
+    fxState.setDelayMix(1.0f);
+    fxState.setDelayFeedback(1.0f);
+    fxState.setReverbMix(1.0f);
+    fxState.setReverbSize(1.0f);
+    fxState.setReverbDamping(-1.0f);
+
+    const auto& settings = fxState.getSettings();
+    expectNear(settings.delayTimeSeconds, 0.75f, 0.001f, "delay time clamps to the post-voice maximum");
+    expect(settings.delaySamples == 750, "delay sample count tracks clamped delay time");
+    expectNear(settings.delayMix, 0.45f, 0.001f, "delay mix clamps below half-wet");
+    expectNear(settings.delayFeedback, 0.75f, 0.001f, "delay feedback clamps to a safe maximum");
+    expectNear(settings.reverbMix, 0.35f, 0.001f, "reverb mix clamps to a measured wet maximum");
+    expectNear(settings.reverbSize, 0.9f, 0.001f, "reverb size clamps below full freeze-like space");
+    expectNear(settings.reverbDamping, 0.0f, 0.001f, "reverb damping clamps at zero");
+}
 } // namespace
 
 int main()
@@ -327,6 +366,8 @@ int main()
     testFilterCutoffIsClampedBelowNyquist();
     testCharacterModesMapToExpectedSettings();
     testCharacterIndexFallback();
+    testPostVoiceFxWidthMapsToMeasuredDoublerDelay();
+    testPostVoiceFxTimingAndMixesAreClamped();
 
     if (failures != 0)
         return 1;

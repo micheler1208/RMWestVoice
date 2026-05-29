@@ -34,6 +34,10 @@
               file="Source/Engine/PitchModulationState.cpp"/>
         <FILE id="pmsH01" name="PitchModulationState.h" compile="0" resource="0"
               file="Source/Engine/PitchModulationState.h"/>
+        <FILE id="pvfxS1" name="PostVoiceFxState.cpp" compile="1" resource="0"
+              file="Source/Engine/PostVoiceFxState.cpp"/>
+        <FILE id="pvfxS2" name="PostVoiceFxState.h" compile="0" resource="0"
+              file="Source/Engine/PostVoiceFxState.h"/>
       </GROUP>
       <GROUP id="{B2620DE6-A62A-A66E-32DC-030A00DA8306}" name="Data">
         <FILE id="onAcrW" name="AdsrData.cpp" compile="1" resource="0" file="Source/Data/AdsrData.cpp"/>
@@ -44,6 +48,10 @@
               file="Source/Data/LeadFilterData.cpp"/>
         <FILE id="lfdH01" name="LeadFilterData.h" compile="0" resource="0"
               file="Source/Data/LeadFilterData.h"/>
+        <FILE id="pvfxD1" name="PostVoiceFxData.cpp" compile="1" resource="0"
+              file="Source/Data/PostVoiceFxData.cpp"/>
+        <FILE id="pvfxD2" name="PostVoiceFxData.h" compile="0" resource="0"
+              file="Source/Data/PostVoiceFxData.h"/>
         <FILE id="bnI9Km" name="OscData.cpp" compile="1" resource="0" file="Source/Data/OscData.cpp"/>
         <FILE id="Wktwkx" name="OscData.h" compile="0" resource="0" file="Source/Data/OscData.h"/>
       </GROUP>

@@ -13,7 +13,7 @@ It does not produce MIDI output and it is not an audio effect. Audio is generate
 
 This repository has been stabilized around JUCE8 and a Visual Studio 2022 build flow. The project can be generated and built through CMake, while the original `.jucer` file is kept aligned as project metadata.
 
-The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine with basic rate-based glide, a two-oscillator core with curated Saw, Tri, Saw+Tri, and Saw+Pulse colors, smoothed pitch bend, performer-controlled vibrato, an LP24 lead filter with drive, and an Analog/Worm/Hybrid character macro. Larger musical changes such as post-voice effects or preset vocabulary remain staged as separate tasks.
+The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine with basic rate-based glide, a two-oscillator core with curated Saw, Tri, Saw+Tri, and Saw+Pulse colors, smoothed pitch bend, performer-controlled vibrato, an LP24 lead filter with drive, an Analog/Worm/Hybrid character macro, and a measured post-voice width/delay/reverb stage. Larger musical changes such as preset vocabulary and the final UI pass remain staged as separate tasks.
 
 The post-research implementation sequence is tracked in [POST_RESEARCH_ROADMAP.md](POST_RESEARCH_ROADMAP.md).
 
@@ -57,12 +57,14 @@ RMWestVoice is not currently:
     |   |   |-- FilterModulationState.*
     |   |   |-- GlideState.*
     |   |   |-- MonoLeadEngine.*
-    |   |   `-- MonoNoteStack.*
+    |   |   |-- MonoNoteStack.*
+    |   |   `-- PostVoiceFxState.*
     |   |-- Data
     |   |   |-- AdsrData.*
     |   |   |-- FilterData.*
     |   |   |-- LeadFilterData.*
-    |   |   `-- OscData.*
+    |   |   |-- OscData.*
+    |   |   `-- PostVoiceFxData.*
     |   |-- UI
     |   |   |-- AdsrComponent.*
     |   |   |-- FilterComponent.*
@@ -204,6 +206,13 @@ The current APVTS parameter surface exposes a small number of parameters. These 
 | `FILTER_ENV_AMOUNT` | Filter Env Amount | Adds note-envelope cutoff movement in octaves. |
 | `OUTPUT_HIGHPASS_CUTOFF` | Output Highpass Cutoff | Fixed output high-pass cleanup cutoff. |
 | `OUTPUT_HIGHPASS_RESONANCE` | Output Highpass Resonance | Fixed output high-pass cleanup resonance. |
+| `WIDTH` | Width | Adds conservative stereo doubler width after the dry mono source. |
+| `DELAY_MIX` | Delay Mix | Adds post-voice delay return level. |
+| `DELAY_TIME` | Delay Time | Sets post-voice delay time in seconds. |
+| `DELAY_FEEDBACK` | Delay Feedback | Sets post-voice delay regeneration. |
+| `REVERB_MIX` | Reverb Mix | Adds post-voice reverb return level. |
+| `REVERB_SIZE` | Reverb Size | Sets the post-voice reverb room size. |
+| `REVERB_DAMPING` | Reverb Damping | Sets post-voice reverb high-frequency damping. |
 | `OUTPUT_GAIN` | Output Gain | Final output gain. |
 
 Task 02 introduced this pre-release v2 parameter surface. The old `DAY`/`NIGHT`, `DETUNE`, dormant `OSC1FM*`, `LP_FILTER*`, `HP_FILTER*`, and `VOLUME` IDs are intentionally not preserved.
@@ -251,7 +260,7 @@ The following items are intentionally not solved in this stabilization pass:
 - Further oscillator modeling, band-limiting, and lead voicing.
 - Advanced legato/retrigger behavior beyond the current glide support.
 - Advanced pitch/modulation curves beyond the current pitch wheel, mod wheel, and optional aftertouch behavior.
-- Chorus, delay, reverb, or other post-voice effects.
+- Further post-voice FX voicing and UI exposure.
 - Preset management beyond DAW state recall.
 - Full UI redesign.
 - Licensing audit for bundled fonts and image assets.

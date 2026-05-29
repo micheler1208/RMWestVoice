@@ -40,6 +40,13 @@ namespace ID
 
     inline constexpr auto outputHighpassCutoff = "OUTPUT_HIGHPASS_CUTOFF";
     inline constexpr auto outputHighpassResonance = "OUTPUT_HIGHPASS_RESONANCE";
+    inline constexpr auto width = "WIDTH";
+    inline constexpr auto delayMix = "DELAY_MIX";
+    inline constexpr auto delayTime = "DELAY_TIME";
+    inline constexpr auto delayFeedback = "DELAY_FEEDBACK";
+    inline constexpr auto reverbMix = "REVERB_MIX";
+    inline constexpr auto reverbSize = "REVERB_SIZE";
+    inline constexpr auto reverbDamping = "REVERB_DAMPING";
     inline constexpr auto outputGain = "OUTPUT_GAIN";
 }
 
@@ -207,6 +214,48 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         "Output Highpass Resonance",
         juce::NormalisableRange<float> { 1.0f, 10.0f, 0.1f },
         1.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::width,
+        "Width",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f },
+        0.18f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::delayMix,
+        "Delay Mix",
+        juce::NormalisableRange<float> { 0.0f, 0.45f, 0.01f },
+        0.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::delayTime,
+        "Delay Time",
+        juce::NormalisableRange<float> { 0.05f, 0.75f, 0.001f, 0.35f },
+        0.28f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::delayFeedback,
+        "Delay Feedback",
+        juce::NormalisableRange<float> { 0.0f, 0.75f, 0.01f },
+        0.25f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::reverbMix,
+        "Reverb Mix",
+        juce::NormalisableRange<float> { 0.0f, 0.35f, 0.01f },
+        0.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::reverbSize,
+        "Reverb Size",
+        juce::NormalisableRange<float> { 0.1f, 0.9f, 0.01f },
+        0.35f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::reverbDamping,
+        "Reverb Damping",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f },
+        0.45f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         ID::outputGain,

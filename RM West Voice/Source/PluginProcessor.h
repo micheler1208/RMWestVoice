@@ -11,6 +11,7 @@
 
 #include <JuceHeader.h>
 #include "Data/FilterData.h"
+#include "Data/PostVoiceFxData.h"
 #include "Engine/MonoLeadEngine.h"
 
 class RMWestVoiceAudioProcessor  : public juce::AudioProcessor
@@ -52,6 +53,7 @@ public:
 private:
     RMWestVoice::MonoLeadEngine monoLeadEngine;
     FilterData highPassFilter;
+    PostVoiceFxData postVoiceFx;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RMWestVoiceAudioProcessor)
 };

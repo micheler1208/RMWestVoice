@@ -22,11 +22,12 @@ MIDI input
   -> Gain
   -> ADSR
   -> Output high-pass cleanup
+  -> PostVoiceFxData width/delay/reverb
   -> Master volume
   -> Audio output
 ```
 
-The UI controls are connected to processor parameters through `AudioProcessorValueTreeState` attachments. The processor reads the current APVTS values during `processBlock` and applies them to the mono engine, output high-pass cleanup, and final gain.
+The UI controls are connected to processor parameters through `AudioProcessorValueTreeState` attachments. The processor reads the current APVTS values during `processBlock` and applies them to the mono engine, output high-pass cleanup, post-voice effects, and final gain.
 
 ## Main Modules
 
@@ -44,9 +45,11 @@ The processor is the plugin's central owner of audio state and parameters. Its r
 - Declaring the plugin as a synth/instrument.
 - Creating and owning the `AudioProcessorValueTreeState`.
 - Preparing the mono lead engine and output high-pass cleanup for playback.
+- Preparing post-voice presentation effects for playback.
 - Reading parameter values during audio processing.
 - Rendering MIDI-triggered mono synth audio.
-- Applying output high-pass cleanup and master gain.
+- Applying output high-pass cleanup, post-voice effects, and master gain.
+- Reporting a fixed two-second tail so hosts allow delay and reverb decay.
 - Saving and restoring plugin state.
 
 Important members:
@@ -56,6 +59,7 @@ Important members:
 | `MonoLeadEngine monoLeadEngine` | Owns mono note handling, oscillator, character macro, LP24 lead filter, voice gain, and amp envelope. |
 | `AudioProcessorValueTreeState apvts` | Owns parameters and serializable plugin state. |
 | `FilterData highPassFilter` | Post-synth high-pass cleanup filter object. |
+| `PostVoiceFxData postVoiceFx` | Post-voice width, delay, and reverb processor that runs after the dry mono source and cleanup filter. |
 
 ### `RMWestVoiceAudioProcessorEditor`
 
@@ -232,6 +236,24 @@ Responsibilities:
 - Applying `FILTER_KEYTRACK` as octave-based note tracking around MIDI note 60.
 - Applying `FILTER_ENV_AMOUNT` as additional envelope-driven cutoff movement in octaves.
 
+### `PostVoiceFxState`
+
+Files:
+
+```text
+RM West Voice/Source/Engine/PostVoiceFxState.h
+RM West Voice/Source/Engine/PostVoiceFxState.cpp
+```
+
+`PostVoiceFxState` is a pure C++ helper used by `PostVoiceFxData` to clamp post-voice FX controls and derive sample-based timing.
+
+Responsibilities:
+
+- Keeping stereo width in a conservative normalized range.
+- Mapping width to an 8-18 ms doubler delay when width is enabled.
+- Clamping delay time, mix, and feedback to measured post-voice ranges.
+- Clamping reverb mix, size, and damping before JUCE reverb parameters are updated.
+
 ## Data / DSP Layer
 
 ### `OscData`
@@ -340,6 +362,24 @@ Responsibilities:
 
 The processor owns one `FilterData` instance for `highPassFilter`. The main low-pass voice is now owned by `MonoLeadEngine` through `LeadFilterData`.
 
+### `PostVoiceFxData`
+
+Files:
+
+```text
+RM West Voice/Source/Data/PostVoiceFxData.h
+RM West Voice/Source/Data/PostVoiceFxData.cpp
+```
+
+`PostVoiceFxData` owns the current post-voice presentation effects. It runs after the mono source and output high-pass cleanup, before `OUTPUT_GAIN`.
+
+Responsibilities:
+
+- Applying a small stereo doubler width stage only when the output bus is stereo.
+- Maintaining a bounded stereo delay buffer with separate right-channel timing offset.
+- Applying JUCE's stereo or mono reverb after width and delay.
+- Keeping the dry mono source upstream of the effects path.
+
 ## UI Layer
 
 The UI layer is located in:
@@ -432,6 +472,13 @@ The current parameter set is:
 | `FILTER_ENV_AMOUNT` | Float | `0.75` | Filter envelope cutoff amount in octaves. |
 | `OUTPUT_HIGHPASS_CUTOFF` | Float | `250.0` | Fixed output high-pass cleanup cutoff. |
 | `OUTPUT_HIGHPASS_RESONANCE` | Float | `1.0` | Fixed output high-pass cleanup resonance. |
+| `WIDTH` | Float | `0.18` | Conservative stereo doubler width after the dry mono source. |
+| `DELAY_MIX` | Float | `0.0` | Post-voice delay return amount. |
+| `DELAY_TIME` | Float | `0.28` | Post-voice delay time in seconds. |
+| `DELAY_FEEDBACK` | Float | `0.25` | Post-voice delay feedback amount. |
+| `REVERB_MIX` | Float | `0.0` | Post-voice reverb return amount. |
+| `REVERB_SIZE` | Float | `0.35` | Post-voice reverb room size. |
+| `REVERB_DAMPING` | Float | `0.45` | Post-voice reverb damping. |
 | `OUTPUT_GAIN` | Float | `0.6` | Final master gain. |
 
 Parameter IDs should be treated as stable once public presets or DAW projects depend on them. Future renames should include a migration strategy.
@@ -445,6 +492,7 @@ During `prepareToPlay`:
 1. The mono lead engine is prepared.
 2. The engine prepares its oscillator core, LP24 lead filter, gain, ADSR, and render buffer.
 3. The output high-pass cleanup filter is prepared.
+4. The post-voice width, delay, and reverb stage is prepared.
 
 ### Per Block
 
@@ -456,7 +504,8 @@ During `processBlock`:
 4. MIDI note-on/note-off events are routed through `MonoNoteStack`; pitch wheel, mod wheel, and aftertouch update `PitchModulationState`.
 5. The mono lead engine renders MIDI-triggered audio into the output buffer.
 6. The output high-pass cleanup filter processes the buffer.
-7. The `OUTPUT_GAIN` gain is applied.
+7. The post-voice width, delay, and reverb stage processes the buffer.
+8. The `OUTPUT_GAIN` gain is applied.
 
 ## State Persistence
 
@@ -541,7 +590,7 @@ The previous internal fixed 5 Hz LFO has been removed from `OscData`. The curren
 
 ### UI Coverage
 
-The APVTS contains character, expressive modulation, filter resonance, drive, key tracking, filter envelope amount, and output high-pass cleanup parameters that the compact current UI does not yet expose. This mismatch should be resolved during the UI/parameter design pass.
+The APVTS contains character, expressive modulation, filter resonance, drive, key tracking, filter envelope amount, output high-pass cleanup, and post-voice FX parameters that the compact current UI does not yet expose. This mismatch should be resolved during the UI/parameter design pass.
 
 ### Presets
 
@@ -554,7 +603,7 @@ The following decisions are intentionally out of scope for this cleanup stage:
 - Advanced legato/retrigger behavior beyond the current glide support.
 - Advanced pitch and modulation response beyond the current pitch wheel, mod wheel, and optional aftertouch behavior.
 - Further oscillator modeling, band-limiting, oversampling, and character refinement.
-- Effects such as chorus, delay, or reverb.
+- Further post-voice FX voicing, UI exposure, and preset integration.
 - Preset vocabulary and default patch design.
 - Detailed matching to any historically relevant synth lead sources.
 

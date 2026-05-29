@@ -50,6 +50,8 @@ target_sources(RMWestVoice
         Source/Engine/CharacterState.h
         Source/Engine/FilterModulationState.cpp
         Source/Engine/FilterModulationState.h
+        Source/Engine/PostVoiceFxState.cpp
+        Source/Engine/PostVoiceFxState.h
         Source/Engine/PitchModulationState.cpp
         Source/Engine/PitchModulationState.h
         Source/Engine/GlideState.cpp
@@ -60,6 +62,8 @@ target_sources(RMWestVoice
         Source/Data/FilterData.cpp
         Source/Data/LeadFilterData.cpp
         Source/Data/LeadFilterData.h
+        Source/Data/PostVoiceFxData.cpp
+        Source/Data/PostVoiceFxData.h
         Source/Data/OscData.cpp
         Source/UI/AdsrComponent.cpp
         Source/UI/FilterComponent.cpp
@@ -91,6 +95,8 @@ add_executable(RMWestVoiceTests
     Source/Engine/CharacterState.h
     Source/Engine/FilterModulationState.cpp
     Source/Engine/FilterModulationState.h
+    Source/Engine/PostVoiceFxState.cpp
+    Source/Engine/PostVoiceFxState.h
     Source/Engine/MonoNoteStack.cpp
     Source/Engine/MonoNoteStack.h
     Source/Engine/PitchModulationState.cpp
