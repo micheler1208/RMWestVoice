@@ -9,6 +9,7 @@
 
 #include <JuceHeader.h>
 #include "FilterComponent.h"
+#include "../PluginParameters.h"
 #include <BinaryData.h>
 
 //==============================================================================
@@ -29,9 +30,12 @@ FilterComponent::FilterComponent(juce::AudioProcessorValueTreeState& apvts)
     cutoffSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     cutoffSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(235, 47, 144));
     addAndMakeVisible(&cutoffSlider);
-    cutoffAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, "LP_FILTERFREQ", cutoffSlider);
+    cutoffAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+        apvts,
+        RMWestVoiceParameters::ID::filterCutoff,
+        cutoffSlider);
 
-    // VOLUME SLIDER
+    // OUTPUT GAIN SLIDER
     volumeSlider.setLookAndFeel(&customLookAndFeelViolet);
     volumeSlider.setName("Volume");
     volumeSlider.setSliderStyle(juce::Slider::Rotary);
@@ -40,7 +44,10 @@ FilterComponent::FilterComponent(juce::AudioProcessorValueTreeState& apvts)
     volumeSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     volumeSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(235, 47, 144));
     addAndMakeVisible(&volumeSlider);
-    volumeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, "VOLUME", volumeSlider);
+    volumeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+        apvts,
+        RMWestVoiceParameters::ID::outputGain,
+        volumeSlider);
 
     // LABELS
     juce::Font labelFont { juce::FontOptions (juce::Typeface::createSystemTypefaceFor(BinaryData::timegoing_ttf, BinaryData::timegoing_ttfSize)) };
@@ -53,7 +60,7 @@ FilterComponent::FilterComponent(juce::AudioProcessorValueTreeState& apvts)
     cutoffLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(&cutoffLabel);
 
-    // VOLUME SLIDER
+    // OUTPUT GAIN SLIDER
     volumeLabel.setText("Volume", juce::dontSendNotification);
     volumeLabel.setFont(labelFont);
     volumeLabel.setColour(juce::Label::textColourId, juce::Colour::fromRGB(235, 47, 144));

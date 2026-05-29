@@ -34,7 +34,7 @@ private:
     CustomSlider cutoffSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cutoffAttachment;
     
-    // VOLUME
+    // OUTPUT GAIN
     CustomSlider volumeSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volumeAttachment;
 

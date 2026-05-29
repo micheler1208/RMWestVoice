@@ -9,6 +9,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "PluginParameters.h"
 
 // CONSTRUCTOR
 RMWestVoiceAudioProcessor::RMWestVoiceAudioProcessor()
@@ -19,9 +20,9 @@ RMWestVoiceAudioProcessor::RMWestVoiceAudioProcessor()
             .withInput("Input", juce::AudioChannelSet::stereo(), true)
            #endif
             .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-          #endif
+            #endif
             ),
-    apvts(*this, nullptr, "PARAMETERS", createParams()) 
+    apvts(*this, nullptr, "PARAMETERS", RMWestVoiceParameters::createParameterLayout())
 #endif
 {
     synth.addSound(new SynthSound());
@@ -64,21 +65,16 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     {
         if (auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
         {
-            auto& dayValue = *apvts.getRawParameterValue("DAY");
-            auto& detuneValue = *apvts.getRawParameterValue("DETUNE");
+            auto& wave = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::wave);
+            auto& detuneCents = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::detuneCents);
 
-            auto& fmFreq = *apvts.getRawParameterValue ("OSC1FMFREQ");
-            auto& fmDepth = *apvts.getRawParameterValue ("OSC1FMDEPTH");
-            juce::ignoreUnused (fmFreq, fmDepth);
+            auto& attack = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampAttack);
+            auto& decay = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampDecay);
+            auto& sustain = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampSustain);
+            auto& release = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampRelease);
             
-            auto& attack = *apvts.getRawParameterValue ("ATTACK");
-            auto& decay = *apvts.getRawParameterValue ("DECAY");
-            auto& sustain = *apvts.getRawParameterValue ("SUSTAIN");
-            auto& release = *apvts.getRawParameterValue ("RELEASE");
-            
-            voice->getOscillator().setWaveType (dayValue);
-            //voice->getOscillator().updateFm (fmFreq, fmDepth);
-            voice->getOscillator().setDetune(detuneValue);
+            voice->getOscillator().setWaveType(static_cast<int>(wave.load()));
+            voice->getOscillator().setDetuneCents(detuneCents.load());
             voice->update (attack.load(), decay.load(), sustain.load(), release.load());
         }
     }
@@ -86,23 +82,27 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 
     // LP Filter
-    auto& lowPassFilterType = *apvts.getRawParameterValue("LP_FILTERTYPE");
-    auto& lowPassCutoff = *apvts.getRawParameterValue("LP_FILTERFREQ");
-    auto& lowPassResonance = *apvts.getRawParameterValue("LP_FILTERRES");
-    lowPassFilter.updateParameters(static_cast<int> (lowPassFilterType.load()), lowPassCutoff, lowPassResonance);
+    auto& lowPassCutoff = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::filterCutoff);
+    auto& lowPassResonance = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::filterResonance);
+    lowPassFilter.updateParameters(
+        RMWestVoiceParameters::FilterType::lowPass,
+        lowPassCutoff.load(),
+        lowPassResonance.load());
 
     lowPassFilter.process(buffer);
 
     //HP Filter
-    auto& highPassFilterType = *apvts.getRawParameterValue("HP_FILTERTYPE");
-    auto& highPassCutoff = *apvts.getRawParameterValue("HP_FILTERFREQ");
-    auto& highPassResonance = *apvts.getRawParameterValue("HP_FILTERRES");
-    highPassFilter.updateParameters(static_cast<int> (highPassFilterType.load()), highPassCutoff, highPassResonance);
+    auto& highPassCutoff = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::outputHighpassCutoff);
+    auto& highPassResonance = *apvts.getRawParameterValue(RMWestVoiceParameters::ID::outputHighpassResonance);
+    highPassFilter.updateParameters(
+        RMWestVoiceParameters::FilterType::highPass,
+        highPassCutoff.load(),
+        highPassResonance.load());
 
     highPassFilter.process(buffer);
 
     // Master Volume
-    float volume = apvts.getRawParameterValue("VOLUME")->load();
+    float volume = apvts.getRawParameterValue(RMWestVoiceParameters::ID::outputGain)->load();
     buffer.applyGain(volume);
 }
 
@@ -220,43 +220,4 @@ void RMWestVoiceAudioProcessor::changeProgramName(int index, const juce::String&
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new RMWestVoiceAudioProcessor();
-}
-
-// CREATE PARAMETERS
-juce::AudioProcessorValueTreeState::ParameterLayout RMWestVoiceAudioProcessor::createParams()
-{
-    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
-    
-    // OSC select
-    //params.push_back (std::make_unique<juce::AudioParameterChoice>("OSC1WAVETYPE", "Osc 1 Wave Type", juce::StringArray { "Triangle", "Saw"}, 0)); 
-    params.push_back(std::make_unique<juce::AudioParameterBool>("DAY", "Day", true));
-    params.push_back(std::make_unique<juce::AudioParameterBool>("NIGHT", "Night", false));
-
-    // Detune
-    params.push_back(std::make_unique<juce::AudioParameterBool>("DETUNE", "Detune", false));
-
-    // FM
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("OSC1FMFREQ", "Osc 1 FM Frequency", juce::NormalisableRange<float> { 0.0f, 1000.0f, 0.01f, 0.3f }, 0.0f));
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("OSC1FMDEPTH", "Osc 1 FM Depth", juce::NormalisableRange<float> { 0.0f, 1000.0f, 0.01f, 0.3f }, 0.0f));
-    
-    // ADSR
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", juce::NormalisableRange<float> { 0.1f, 1.0f, }, 0.1f));
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", juce::NormalisableRange<float> { 0.1f, 1.0f, }, 1.0f));
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float> { 0.1f, 1.0f, }, 0.8f));
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float> { 0.1f, 3.0f, }, 0.2f));
-
-    // Filter LP
-    params.push_back (std::make_unique<juce::AudioParameterChoice>("LP_FILTERTYPE", "Low Pass Filter Type", juce::StringArray { "Low-Pass", "Band-Pass", "High-Pass" }, 0));
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("LP_FILTERFREQ", "Low Pass Filter Freq", juce::NormalisableRange<float> { 20.0f, 20000.0f, 0.1f, 0.6f }, 4800.0f));
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("LP_FILTERRES", "Low PassFilter Resonance", juce::NormalisableRange<float> { 1.0f, 10.0f, 0.1f }, 1.0f));
-
-    // FILTER HP
-    params.push_back(std::make_unique<juce::AudioParameterChoice>("HP_FILTERTYPE", "High Pass Filter Type", juce::StringArray{ "Low-Pass", "Band-Pass", "High-Pass" }, 2));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("HP_FILTERFREQ", "High Pass Filter Freq", juce::NormalisableRange<float> { 20.0f, 20000.0f, 0.1f, 0.6f }, 250.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("HP_FILTERRES", "High Pass Filter Resonance", juce::NormalisableRange<float> { 1.0f, 10.0f, 0.1f }, 1.0f));
-
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUME", "Volume", 0.0f, 1.0f, 0.6f)); // Volume
- 
-  
-    return { params.begin(), params.end() };
 }

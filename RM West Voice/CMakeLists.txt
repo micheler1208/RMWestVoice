@@ -39,6 +39,7 @@ juce_add_binary_data(RMWestVoiceBinaryData
 
 target_sources(RMWestVoice
     PRIVATE
+        Source/PluginParameters.h
         Source/PluginProcessor.cpp
         Source/PluginEditor.cpp
         Source/SynthVoice.cpp

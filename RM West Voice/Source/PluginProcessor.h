@@ -51,7 +51,6 @@ public:
     juce::AudioProcessorValueTreeState apvts;
 
 private:
-    juce::AudioProcessorValueTreeState::ParameterLayout createParams(); 
     juce::Synthesiser synth;
     FilterData lowPassFilter;
     FilterData highPassFilter;

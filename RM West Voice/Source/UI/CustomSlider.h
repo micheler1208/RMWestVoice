@@ -45,6 +45,11 @@ protected:
             suffix = " Hz";
             textValue = juce::String(value, 0);  // No decimal places for Cutoff
         }
+        else if (getName() == "Detune")
+        {
+            suffix = " ct";
+            textValue = juce::String(value, 1);
+        }
 
         return textValue + suffix;
     }

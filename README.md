@@ -156,24 +156,19 @@ The existing control surface exposes a small number of parameters. These names a
 
 | Parameter ID | Label | Current purpose |
 | --- | --- | --- |
-| `DAY` | Day | Selects one oscillator shape branch. |
-| `NIGHT` | Night | UI-level partner toggle for the oscillator mode. |
-| `DETUNE` | Detune | Enables the oscillator detune behavior. |
-| `OSC1FMFREQ` | Osc 1 FM Frequency | Existing parameter, currently deferred. |
-| `OSC1FMDEPTH` | Osc 1 FM Depth | Existing parameter, currently deferred. |
-| `ATTACK` | Attack | ADSR attack time, shown in seconds. |
-| `DECAY` | Decay | ADSR decay time, shown in seconds. |
-| `SUSTAIN` | Sustain | ADSR sustain level. |
-| `RELEASE` | Release | ADSR release time, shown in seconds. |
-| `LP_FILTERTYPE` | Low Pass Filter Type | Filter mode selector for the low-pass filter object. |
-| `LP_FILTERFREQ` | Low Pass Filter Freq | Low-pass filter cutoff. |
-| `LP_FILTERRES` | Low PassFilter Resonance | Low-pass filter resonance. |
-| `HP_FILTERTYPE` | High Pass Filter Type | Filter mode selector for the high-pass filter object. |
-| `HP_FILTERFREQ` | High Pass Filter Freq | High-pass filter cutoff. |
-| `HP_FILTERRES` | High Pass Filter Resonance | High-pass filter resonance. |
-| `VOLUME` | Volume | Final output gain. |
+| `WAVE` | Wave | Selects the current Tri/Saw oscillator branch. |
+| `DETUNE_CENTS` | Detune | Applies oscillator detune in cents. |
+| `AMP_ATTACK` | Amp Attack | ADSR attack time, shown in seconds. |
+| `AMP_DECAY` | Amp Decay | ADSR decay time, shown in seconds. |
+| `AMP_SUSTAIN` | Amp Sustain | ADSR sustain level. |
+| `AMP_RELEASE` | Amp Release | ADSR release time, shown in seconds. |
+| `FILTER_CUTOFF` | Filter Cutoff | Main low-pass filter cutoff. |
+| `FILTER_RESONANCE` | Filter Resonance | Main low-pass filter resonance. |
+| `OUTPUT_HIGHPASS_CUTOFF` | Output Highpass Cutoff | Fixed output high-pass cleanup cutoff. |
+| `OUTPUT_HIGHPASS_RESONANCE` | Output Highpass Resonance | Fixed output high-pass cleanup resonance. |
+| `OUTPUT_GAIN` | Output Gain | Final output gain. |
 
-Several parameter names and relationships are intentionally left unchanged for now to avoid breaking existing automation/preset behavior before the sound architecture is redesigned.
+Task 02 introduced this pre-release v2 parameter surface. The old `DAY`/`NIGHT`, `DETUNE`, dormant `OSC1FM*`, `LP_FILTER*`, `HP_FILTER*`, and `VOLUME` IDs are intentionally not preserved.
 
 ## State Persistence
 
@@ -206,8 +201,7 @@ The `.jucer` file remains useful as historical project metadata and has been upd
 When changing the project:
 
 - Keep sound-design changes separate from build and infrastructure changes.
-- Avoid renaming parameter IDs unless a migration strategy is added.
-- Treat `DAY`/`NIGHT` and the FM parameters as known design debt until the post-research phase.
+- Treat the v2 parameter IDs as stable from this point forward unless a later task explicitly documents a breaking pre-release change.
 - Do not introduce new historical claims into the instrument without a source-backed research pass.
 - Keep generated build output out of Git.
 

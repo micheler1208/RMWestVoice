@@ -10,8 +10,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "CustomLookAndFeelDetune.h"
-#include "CustomLookAndFeelOsc.h"
+#include "CustomSlider.h"
 
 //==============================================================================
 /*
@@ -27,16 +26,12 @@ public:
     void resized() override;
 
 private:
-    juce::ToggleButton dayButton;
-    juce::ToggleButton nightButton;
-    juce::TextButton detuneButton;
+    juce::ComboBox waveSelector;
+    CustomSlider detuneSlider;
+    juce::Label detuneLabel;
 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> dayButtonAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> nightButtonAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> detuneButtonAttachment;
-
-    CustomLookAndFeelDetune customLookAndFeelDetune;
-    CustomLookAndFeelOsc customLookAndFeelOsc;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> waveAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> detuneAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OscComponent)
 };

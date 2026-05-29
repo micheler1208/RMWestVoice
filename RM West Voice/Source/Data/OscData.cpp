@@ -28,9 +28,9 @@ void OscData::prepareLFO(double playbackSampleRate, int samplesPerBlock, int num
 }
 
 // SET WAVE TYPE
-void OscData::setWaveType(const bool dayValue)
+void OscData::setWaveType(const int waveType)
 {
-    if(dayValue)
+    if (waveType == 0)
         initialise([](float x) { return std::abs(2.0f * (x - std::floor(x + 0.5f))); });
     else
         initialise([](float x) {return x / juce::MathConstants<float>::pi; });
@@ -39,16 +39,15 @@ void OscData::setWaveType(const bool dayValue)
 // SET WAVE FREQUENCY
 void OscData::setWaveFrequency(const int midiNoteNumber)
 {
-    auto noteFrequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
-    noteFrequency *= (1.0f + detune);
+    auto noteFrequency = applyDetune(static_cast<float>(juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber)));
     setFrequency(static_cast<float> (noteFrequency) + fmMod + lfoMod);
     lastMidiNote = midiNoteNumber;
 }
 
 // SET DETUNE
-void OscData::setDetune(bool isDetuned)
+void OscData::setDetuneCents(float cents)
 {
-    detuneActive = isDetuned;
+    detuneCents = cents;
 }
 
 
@@ -65,9 +64,7 @@ void OscData::getNextAudioBlock(juce::dsp::AudioBlock<float>& block)
     {
         lfoMod = lfo.processSample(0.0f) * 5.0f;
 
-        auto currentFreq = juce::MidiMessage::getMidiNoteInHertz(lastMidiNote);
-        if (detuneActive)
-            currentFreq *= (1.0f - detune);
+        auto currentFreq = applyDetune(static_cast<float>(juce::MidiMessage::getMidiNoteInHertz(lastMidiNote)));
         setFrequency(static_cast<float> (currentFreq) + fmMod + lfoMod);
 
         for (int ch = 0; ch < numChannels; ++ch)
@@ -99,4 +96,9 @@ void OscData::updateFm (const float freq, const float depth)
     fmDepth = depth;
     auto currentFreq = static_cast<float> (juce::MidiMessage::getMidiNoteInHertz(lastMidiNote)) + fmMod;
     setFrequency (currentFreq >= 0 ? currentFreq : currentFreq * -1.0f);
+}
+
+float OscData::applyDetune(float sourceFrequency) const
+{
+    return sourceFrequency * std::pow(2.0f, detuneCents / 1200.0f);
 }

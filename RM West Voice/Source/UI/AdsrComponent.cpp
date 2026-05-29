@@ -9,6 +9,7 @@
 
 #include <JuceHeader.h>
 #include "AdsrComponent.h"
+#include "../PluginParameters.h"
 #include <BinaryData.h>
 
 //==============================================================================
@@ -28,7 +29,7 @@ AdsrComponent::AdsrComponent(juce::AudioProcessorValueTreeState& apvts)
     attackSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     attackSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
     addAndMakeVisible(&attackSlider);
-    attackAttachment = std::make_unique<SliderAttachment>(apvts, "ATTACK", attackSlider);
+    attackAttachment = std::make_unique<SliderAttachment>(apvts, RMWestVoiceParameters::ID::ampAttack, attackSlider);
 
     // DECAY SLIDER
     decaySlider.setLookAndFeel(&customLookAndFeelYellow);
@@ -39,7 +40,7 @@ AdsrComponent::AdsrComponent(juce::AudioProcessorValueTreeState& apvts)
     decaySlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     decaySlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
     addAndMakeVisible(&decaySlider);
-    decayAttachment = std::make_unique<SliderAttachment>(apvts, "DECAY", decaySlider);
+    decayAttachment = std::make_unique<SliderAttachment>(apvts, RMWestVoiceParameters::ID::ampDecay, decaySlider);
 
     // SUSTAIN SLIDER
     sustainSlider.setLookAndFeel(&customLookAndFeelYellow);
@@ -50,7 +51,7 @@ AdsrComponent::AdsrComponent(juce::AudioProcessorValueTreeState& apvts)
     sustainSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     sustainSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
     addAndMakeVisible(&sustainSlider);
-    sustainAttachment = std::make_unique<SliderAttachment>(apvts, "SUSTAIN", sustainSlider);
+    sustainAttachment = std::make_unique<SliderAttachment>(apvts, RMWestVoiceParameters::ID::ampSustain, sustainSlider);
 
     // RELEASE SLIDER
     releaseSlider.setLookAndFeel(&customLookAndFeelYellow);
@@ -61,7 +62,7 @@ AdsrComponent::AdsrComponent(juce::AudioProcessorValueTreeState& apvts)
     releaseSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
     releaseSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 228, 163));
     addAndMakeVisible(&releaseSlider);
-    releaseAttachment = std::make_unique<SliderAttachment>(apvts, "RELEASE", releaseSlider);
+    releaseAttachment = std::make_unique<SliderAttachment>(apvts, RMWestVoiceParameters::ID::ampRelease, releaseSlider);
 
     // LABELS
     juce::Font labelFont { juce::FontOptions (juce::Typeface::createSystemTypefaceFor(BinaryData::timegoing_ttf, BinaryData::timegoing_ttfSize)) };

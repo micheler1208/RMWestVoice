@@ -53,6 +53,8 @@
             file="Source/PluginProcessor.cpp"/>
       <FILE id="DCVHCF" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
+      <FILE id="PrmV2H" name="PluginParameters.h" compile="0" resource="0"
+            file="Source/PluginParameters.h"/>
       <FILE id="ZJL6dC" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="ZCoWsw" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>

@@ -107,7 +107,7 @@ OscData::getNextAudioBlock
   -> mix into plugin output buffer
 ```
 
-The gain inside the voice is currently fixed at `0.3f`. The user-facing `VOLUME` parameter is applied later in the processor as master gain.
+The gain inside the voice is currently fixed at `0.3f`. The user-facing `OUTPUT_GAIN` parameter is applied later in the processor as master gain.
 
 ### `SynthSound`
 
@@ -145,18 +145,17 @@ Current oscillator mode behavior:
 
 | Input | Behavior |
 | --- | --- |
-| `DAY == true` | Uses the current triangle-like waveform branch. |
-| `DAY == false` | Uses the current ramp-like waveform branch. |
+| `WAVE == Tri` | Uses the current triangle-like waveform branch. |
+| `WAVE == Saw` | Uses the current ramp-like waveform branch. |
 
-The processor currently calls `setWaveType(dayValue)` but does not read `NIGHT` directly. `DAY` and `NIGHT` are attached to UI radio buttons, but the processor's DSP decision is driven by `DAY`.
+The processor currently calls `setWaveType` from the `WAVE` choice parameter.
 
 Current modulation notes:
 
 - LFO is prepared through `prepareLFO`.
 - LFO frequency is fixed at 5 Hz.
 - LFO modulation is applied continuously during `getNextAudioBlock`.
-- FM parameter objects exist in the APVTS.
-- FM update is currently not enabled in the processor.
+- FM helper code still exists inside `OscData`, but it is no longer exposed as dormant public APVTS parameters.
 
 This design is intentionally documented as transitional. The FM and LFO model should be revisited after the research phase rather than expanded casually.
 
@@ -175,10 +174,10 @@ Current parameter units:
 
 | Parameter | Unit |
 | --- | --- |
-| `ATTACK` | Seconds |
-| `DECAY` | Seconds |
-| `SUSTAIN` | Normalized level |
-| `RELEASE` | Seconds |
+| `AMP_ATTACK` | Seconds |
+| `AMP_DECAY` | Seconds |
+| `AMP_SUSTAIN` | Normalized level |
+| `AMP_RELEASE` | Seconds |
 
 The UI suffix has been aligned so time parameters are shown in seconds.
 
@@ -219,20 +218,19 @@ RM West Voice/Source/UI
 
 Owns oscillator-related controls:
 
-- `DAY`
-- `NIGHT`
-- `DETUNE`
+- `WAVE`
+- `DETUNE_CENTS`
 
-`DAY` and `NIGHT` are configured as a radio pair in the UI. `DETUNE` changes its displayed text between the current in-tune and detuned states.
+`WAVE` is attached through a combo box. `DETUNE_CENTS` is attached through a compact slider.
 
 ### `AdsrComponent`
 
 Owns ADSR controls:
 
-- `ATTACK`
-- `DECAY`
-- `SUSTAIN`
-- `RELEASE`
+- `AMP_ATTACK`
+- `AMP_DECAY`
+- `AMP_SUSTAIN`
+- `AMP_RELEASE`
 
 Each control is attached to the APVTS through `AudioProcessorValueTreeState::SliderAttachment`.
 
@@ -240,10 +238,10 @@ Each control is attached to the APVTS through `AudioProcessorValueTreeState::Sli
 
 Currently exposes:
 
-- `LP_FILTERFREQ`
-- `VOLUME`
+- `FILTER_CUTOFF`
+- `OUTPUT_GAIN`
 
-The APVTS also contains additional low-pass and high-pass filter type/resonance/cutoff parameters. Not all of those parameters are surfaced by the current UI.
+The APVTS also contains filter resonance and output high-pass cleanup parameters that are not surfaced by the current UI.
 
 ### Look-And-Feel Classes
 
@@ -260,10 +258,10 @@ These classes draw rotary sliders, labels, text editors, and buttons using the c
 
 ## Parameter Ownership
 
-All plugin parameters are created in:
+All plugin parameters are declared in:
 
 ```text
-RMWestVoiceAudioProcessor::createParams()
+RM West Voice/Source/PluginParameters.h
 ```
 
 The APVTS is the source of truth for:
@@ -277,22 +275,17 @@ The current parameter set is:
 
 | ID | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `DAY` | Bool | `true` | Main oscillator branch used by DSP. |
-| `NIGHT` | Bool | `false` | UI radio partner, not read directly by DSP. |
-| `DETUNE` | Bool | `false` | Enables detune behavior in `OscData`. |
-| `OSC1FMFREQ` | Float | `0.0` | Present but not currently applied by processor. |
-| `OSC1FMDEPTH` | Float | `0.0` | Present but not currently applied by processor. |
-| `ATTACK` | Float | `0.1` | ADSR attack time in seconds. |
-| `DECAY` | Float | `1.0` | ADSR decay time in seconds. |
-| `SUSTAIN` | Float | `0.8` | ADSR sustain level. |
-| `RELEASE` | Float | `0.2` | ADSR release time in seconds. |
-| `LP_FILTERTYPE` | Choice | `0` | Low-pass filter object type. |
-| `LP_FILTERFREQ` | Float | `4800.0` | Low-pass filter object cutoff. |
-| `LP_FILTERRES` | Float | `1.0` | Low-pass filter object resonance. |
-| `HP_FILTERTYPE` | Choice | `2` | High-pass filter object type. |
-| `HP_FILTERFREQ` | Float | `250.0` | High-pass filter object cutoff. |
-| `HP_FILTERRES` | Float | `1.0` | High-pass filter object resonance. |
-| `VOLUME` | Float | `0.6` | Final master gain. |
+| `WAVE` | Choice | `Tri` | Main oscillator branch used by DSP. |
+| `DETUNE_CENTS` | Float | `0.0` | Oscillator detune in cents. |
+| `AMP_ATTACK` | Float | `0.1` | ADSR attack time in seconds. |
+| `AMP_DECAY` | Float | `1.0` | ADSR decay time in seconds. |
+| `AMP_SUSTAIN` | Float | `0.8` | ADSR sustain level. |
+| `AMP_RELEASE` | Float | `0.2` | ADSR release time in seconds. |
+| `FILTER_CUTOFF` | Float | `4800.0` | Main low-pass filter cutoff. |
+| `FILTER_RESONANCE` | Float | `1.0` | Main low-pass filter resonance. |
+| `OUTPUT_HIGHPASS_CUTOFF` | Float | `250.0` | Fixed output high-pass cleanup cutoff. |
+| `OUTPUT_HIGHPASS_RESONANCE` | Float | `1.0` | Fixed output high-pass cleanup resonance. |
+| `OUTPUT_GAIN` | Float | `0.6` | Final master gain. |
 
 Parameter IDs should be treated as stable once public presets or DAW projects depend on them. Future renames should include a migration strategy.
 
@@ -319,7 +312,7 @@ During `processBlock`:
 6. The JUCE synthesiser renders MIDI-triggered audio.
 7. The low-pass filter object processes the buffer.
 8. The high-pass filter object processes the buffer.
-9. The `VOLUME` gain is applied.
+9. The `OUTPUT_GAIN` gain is applied.
 
 ## State Persistence
 
@@ -389,23 +382,9 @@ Before public distribution, each bundled asset should be reviewed for license co
 
 ## Known Technical Debt
 
-### `DAY` / `NIGHT` Parameter Model
+### Pre-Release Parameter V2 Break
 
-`DAY` and `NIGHT` are represented as two separate boolean parameters. The UI treats them as a radio pair, but the DSP currently reads only `DAY`.
-
-Future options:
-
-- Replace with a single `AudioParameterChoice`.
-- Keep the current pair and explicitly derive a single internal mode.
-- Add migration logic if public compatibility becomes important.
-
-This should be decided during the post-research sound architecture pass.
-
-### FM Parameters
-
-`OSC1FMFREQ` and `OSC1FMDEPTH` exist in the parameter layout, but processor-side FM application is currently disabled.
-
-This is documented rather than removed because deleting or renaming parameters can break future preset compatibility and because the final modulation model has not been researched yet.
+Task 02 replaces the old `DAY`/`NIGHT`, `DETUNE`, dormant `OSC1FM*`, `LP_FILTER*`, `HP_FILTER*`, and `VOLUME` public IDs with a cleaner v2 parameter surface. No migration is included because this project is still pre-release and the roadmap explicitly allows this cleanup.
 
 ### Fixed LFO Behavior
 
@@ -419,7 +398,7 @@ The processor currently adds one voice. This fits a lead-prototype mindset but i
 
 ### UI Coverage
 
-The APVTS contains more filter parameters than the UI currently exposes. This mismatch should be resolved during a UI/parameter design pass.
+The APVTS contains filter resonance and output high-pass cleanup parameters that the UI does not yet expose. This mismatch should be resolved during a UI/parameter design pass.
 
 ### Presets
 
