@@ -10,16 +10,21 @@
 #pragma once
 #include <JuceHeader.h>
 
+#include "../Engine/GlideState.h"
 
 class OscData : public juce::dsp::Oscillator<float>
 {
 public:
     void prepareToPlay (juce::dsp::ProcessSpec& spec);
+    void reset();
     void setWaveType (int waveType);
-    void setWaveFrequency (const int midiNoteNumber);
+    void setWaveFrequency (int midiNoteNumber);
+    void setWaveFrequency (int midiNoteNumber, bool isLegatoTransition);
     void getNextAudioBlock (juce::dsp::AudioBlock<float>& block);
     void updateFm (const float freq, const float depth);
     void setDetuneCents(float cents);
+    void setGlideMode(RMWestVoice::GlideState::Mode mode);
+    void setGlideTimeSecondsPerOctave(float secondsPerOctave);
     void prepareLFO(double playbackSampleRate, int samplesPerBlock, int numChannels);
     
 private:
@@ -32,6 +37,7 @@ private:
     int lastMidiNote { 0 };
 
     float detuneCents = 0.0f;
+    RMWestVoice::GlideState glideState;
     
     juce::dsp::Oscillator<float> lfo { [](float x) { return std::sin(x); } };   
     float lfoMod = 0.0f;

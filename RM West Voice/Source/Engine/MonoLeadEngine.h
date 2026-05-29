@@ -24,6 +24,8 @@ public:
     {
         int waveType { 0 };
         float detuneCents { 0.0f };
+        GlideState::Mode glideMode { GlideState::Mode::autoLegato };
+        float glideTimeSecondsPerOctave { 0.08f };
 
         float ampAttack { 0.1f };
         float ampDecay { 1.0f };

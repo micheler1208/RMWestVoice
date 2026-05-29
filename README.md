@@ -13,7 +13,7 @@ It does not produce MIDI output and it is not an audio effect. Audio is generate
 
 This repository has been stabilized around JUCE8 and a Visual Studio 2022 build flow. The project can be generated and built through CMake, while the original `.jucer` file is kept aligned as project metadata.
 
-The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine, while larger musical changes such as glide, pitch bend, controllable vibrato, saturation, effects, oscillator redesign, or historically informed G-funk lead modeling remain staged as separate tasks.
+The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine with basic rate-based glide, while larger musical changes such as pitch bend, controllable vibrato, saturation, effects, oscillator redesign, or historically informed G-funk lead modeling remain staged as separate tasks.
 
 The post-research implementation sequence is tracked in [POST_RESEARCH_ROADMAP.md](POST_RESEARCH_ROADMAP.md).
 
@@ -53,6 +53,7 @@ RMWestVoice is not currently:
     |   |-- SynthVoice.*
     |   |-- SynthSound.h
     |   |-- Engine
+    |   |   |-- GlideState.*
     |   |   |-- MonoLeadEngine.*
     |   |   `-- MonoNoteStack.*
     |   |-- Data
@@ -174,12 +175,14 @@ Current technical metadata:
 
 ## Current Controls
 
-The existing control surface exposes a small number of parameters. These names are important because they are used by the `AudioProcessorValueTreeState` and may be seen by DAWs.
+The current APVTS parameter surface exposes a small number of parameters. These names are important because they are serialized by the plugin and may be seen by DAWs.
 
 | Parameter ID | Label | Current purpose |
 | --- | --- | --- |
 | `WAVE` | Wave | Selects the current Tri/Saw oscillator branch. |
 | `DETUNE_CENTS` | Detune | Applies oscillator detune in cents. |
+| `GLIDE_MODE` | Glide Mode | Selects Off, Always, or Auto-Legato glide behavior. |
+| `GLIDE_TIME` | Glide Time | Sets rate-based glide time in seconds per octave. |
 | `AMP_ATTACK` | Amp Attack | ADSR attack time, shown in seconds. |
 | `AMP_DECAY` | Amp Decay | ADSR decay time, shown in seconds. |
 | `AMP_SUSTAIN` | Amp Sustain | ADSR sustain level. |
@@ -233,7 +236,7 @@ When changing the project:
 The following items are intentionally not solved in this stabilization pass:
 
 - Historically informed oscillator and lead architecture.
-- Glide/portamento and legato behavior.
+- Advanced legato/retrigger behavior beyond the current glide support.
 - Pitch bend behavior.
 - Controllable vibrato behavior.
 - Saturation, chorus, delay, reverb, or other effects.

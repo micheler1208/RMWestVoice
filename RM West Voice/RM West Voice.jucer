@@ -10,6 +10,10 @@
   <MAINGROUP id="mmZiVZ" name="RMWestVoice">
     <GROUP id="{B67CD096-824F-2D43-6B6F-77CD449E3681}" name="Source">
       <GROUP id="{2F0B15D3-58D4-4A43-A8FA-2C3622B03F0D}" name="Engine">
+        <FILE id="gldC01" name="GlideState.cpp" compile="1" resource="0"
+              file="Source/Engine/GlideState.cpp"/>
+        <FILE id="gldH01" name="GlideState.h" compile="0" resource="0"
+              file="Source/Engine/GlideState.h"/>
         <FILE id="mleC01" name="MonoLeadEngine.cpp" compile="1" resource="0"
               file="Source/Engine/MonoLeadEngine.cpp"/>
         <FILE id="mleH01" name="MonoLeadEngine.h" compile="0" resource="0"

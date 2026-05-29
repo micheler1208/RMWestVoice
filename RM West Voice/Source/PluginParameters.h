@@ -17,6 +17,8 @@ namespace ID
 {
     inline constexpr auto wave = "WAVE";
     inline constexpr auto detuneCents = "DETUNE_CENTS";
+    inline constexpr auto glideMode = "GLIDE_MODE";
+    inline constexpr auto glideTime = "GLIDE_TIME";
 
     inline constexpr auto ampAttack = "AMP_ATTACK";
     inline constexpr auto ampDecay = "AMP_DECAY";
@@ -35,6 +37,13 @@ namespace Wave
 {
     inline constexpr int tri = 0;
     inline constexpr int saw = 1;
+}
+
+namespace GlideMode
+{
+    inline constexpr int off = 0;
+    inline constexpr int always = 1;
+    inline constexpr int autoLegato = 2;
 }
 
 namespace FilterType
@@ -59,6 +68,18 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         "Detune",
         juce::NormalisableRange<float> { -25.0f, 25.0f, 0.1f },
         0.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(
+        ID::glideMode,
+        "Glide Mode",
+        juce::StringArray { "Off", "Always", "Auto-Legato" },
+        GlideMode::autoLegato));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        ID::glideTime,
+        "Glide Time",
+        juce::NormalisableRange<float> { 0.0f, 2.0f, 0.001f, 0.4f },
+        0.08f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         ID::ampAttack,

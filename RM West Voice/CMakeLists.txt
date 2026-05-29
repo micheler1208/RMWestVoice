@@ -46,6 +46,8 @@ target_sources(RMWestVoice
         Source/PluginEditor.cpp
         Source/Engine/MonoLeadEngine.cpp
         Source/Engine/MonoLeadEngine.h
+        Source/Engine/GlideState.cpp
+        Source/Engine/GlideState.h
         Source/Engine/MonoNoteStack.cpp
         Source/Engine/MonoNoteStack.h
         Source/Data/AdsrData.cpp
@@ -75,6 +77,8 @@ target_link_libraries(RMWestVoice
 
 add_executable(RMWestVoiceTests
     Tests/MonoNoteStackTests.cpp
+    Source/Engine/GlideState.cpp
+    Source/Engine/GlideState.h
     Source/Engine/MonoNoteStack.cpp
     Source/Engine/MonoNoteStack.h)
 

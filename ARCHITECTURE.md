@@ -92,6 +92,7 @@ Responsibilities:
 - Routing MIDI note-on/note-off events through `MonoNoteStack`.
 - Rendering audio between MIDI event sample positions.
 - Translating the selected active MIDI note into oscillator frequency.
+- Applying Off, Always, or Auto-Legato glide through `GlideState`.
 - Triggering ADSR note-on/note-off while preserving held-note fallback behavior.
 - Preparing oscillator, gain, ADSR, and temporary render buffers.
 - Applying gain and ADSR.
@@ -103,6 +104,7 @@ Current engine processing order:
 MIDI events
   -> MonoNoteStack
   -> active note decision
+  -> GlideState
   -> OscData::getNextAudioBlock
   -> engine gain
   -> ADSR envelope
@@ -151,6 +153,24 @@ Responsibilities:
 - Reporting whether a note-on occurred while another note was already held.
 - Ignoring invalid MIDI note numbers outside the 0-127 range.
 
+### `GlideState`
+
+Files:
+
+```text
+RM West Voice/Source/Engine/GlideState.h
+RM West Voice/Source/Engine/GlideState.cpp
+```
+
+`GlideState` is a pure C++ helper used by `OscData` to calculate rate-based portamento.
+
+Responsibilities:
+
+- Supporting Off, Always, and Auto-Legato glide modes.
+- Treating `GLIDE_TIME` as seconds per octave.
+- Ramping in log-frequency space so one octave takes the same time regardless of register.
+- Jumping immediately when glide is disabled or Auto-Legato receives a non-legato note.
+
 ## Data / DSP Layer
 
 ### `OscData`
@@ -168,6 +188,7 @@ RM West Voice/Source/Data/OscData.cpp
 - A secondary FM oscillator object.
 - A simple LFO oscillator object.
 - Detune state.
+- Glide state.
 - Last played MIDI note.
 - Internal FM and LFO modulation values.
 
@@ -307,6 +328,8 @@ The current parameter set is:
 | --- | --- | --- | --- |
 | `WAVE` | Choice | `Tri` | Main oscillator branch used by DSP. |
 | `DETUNE_CENTS` | Float | `0.0` | Oscillator detune in cents. |
+| `GLIDE_MODE` | Choice | `Auto-Legato` | Off, Always, or Auto-Legato glide behavior. |
+| `GLIDE_TIME` | Float | `0.08` | Rate-based glide time in seconds per octave. |
 | `AMP_ATTACK` | Float | `0.1` | ADSR attack time in seconds. |
 | `AMP_DECAY` | Float | `1.0` | ADSR decay time in seconds. |
 | `AMP_SUSTAIN` | Float | `0.8` | ADSR sustain level. |
@@ -335,7 +358,7 @@ During `processBlock`:
 
 1. Unused output channels are cleared.
 2. Current APVTS values are read into `MonoLeadEngine::Parameters`.
-3. The mono lead engine updates oscillator and ADSR settings.
+3. The mono lead engine updates oscillator, glide, and ADSR settings.
 4. MIDI note-on/note-off events are routed through `MonoNoteStack`.
 5. The mono lead engine renders MIDI-triggered audio into the output buffer.
 6. The low-pass filter object processes the buffer.
@@ -437,8 +460,7 @@ The plugin supports DAW state persistence through APVTS serialization, but it do
 
 The following decisions are intentionally out of scope for this cleanup stage:
 
-- Portamento/glide.
-- Legato behavior.
+- Advanced legato/retrigger behavior beyond the current glide support.
 - Pitch bend range and response.
 - Controllable vibrato.
 - Oscillator selection and historically grounded waveform choices.

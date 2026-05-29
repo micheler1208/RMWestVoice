@@ -47,6 +47,8 @@ void MonoLeadEngine::updateParameters(const Parameters& newParameters)
 
     osc.setWaveType(parameters.waveType);
     osc.setDetuneCents(parameters.detuneCents);
+    osc.setGlideMode(parameters.glideMode);
+    osc.setGlideTimeSecondsPerOctave(parameters.glideTimeSecondsPerOctave);
     adsr.updateADSR(
         parameters.ampAttack,
         parameters.ampDecay,
@@ -128,8 +130,10 @@ void MonoLeadEngine::startActiveNote(const MonoNoteStack::UpdateResult& noteUpda
     if (! noteUpdate.hasActiveNote)
         return;
 
-    osc.setWaveFrequency(noteUpdate.activeNote);
-    adsr.noteOn();
+    osc.setWaveFrequency(noteUpdate.activeNote, noteUpdate.isLegatoNoteOn);
+
+    if (! noteUpdate.isLegatoNoteOn || ! adsr.isActive())
+        adsr.noteOn();
 }
 
 void MonoLeadEngine::stopOrFallbackFromActiveNote(const MonoNoteStack::UpdateResult& noteUpdate)
@@ -137,7 +141,7 @@ void MonoLeadEngine::stopOrFallbackFromActiveNote(const MonoNoteStack::UpdateRes
     if (noteUpdate.hasActiveNote)
     {
         if (noteUpdate.activeNoteChanged)
-            osc.setWaveFrequency(noteUpdate.activeNote);
+            osc.setWaveFrequency(noteUpdate.activeNote, noteUpdate.hadActiveNote);
 
         return;
     }

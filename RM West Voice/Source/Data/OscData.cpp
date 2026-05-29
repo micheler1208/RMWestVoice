@@ -14,6 +14,7 @@ void OscData::prepareToPlay(juce::dsp::ProcessSpec& spec)
 {
     prepare(spec);
     fmOsc.prepare (spec);
+    glideState.prepare(spec.sampleRate);
 }
 
 // PREPARE LFO
@@ -25,6 +26,17 @@ void OscData::prepareLFO(double playbackSampleRate, int samplesPerBlock, int num
     spec.numChannels = static_cast<juce::uint32> (numChannels);
     lfo.prepare(spec);
     lfo.setFrequency(5.0f); // 5Hz
+}
+
+void OscData::reset()
+{
+    juce::dsp::Oscillator<float>::reset();
+    fmOsc.reset();
+    lfo.reset();
+    glideState.reset();
+    fmMod = 0.0f;
+    lfoMod = 0.0f;
+    lastMidiNote = 0;
 }
 
 // SET WAVE TYPE
@@ -39,8 +51,13 @@ void OscData::setWaveType(const int waveType)
 // SET WAVE FREQUENCY
 void OscData::setWaveFrequency(const int midiNoteNumber)
 {
-    auto noteFrequency = applyDetune(static_cast<float>(juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber)));
-    setFrequency(static_cast<float> (noteFrequency) + fmMod + lfoMod);
+    setWaveFrequency(midiNoteNumber, false);
+}
+
+void OscData::setWaveFrequency(const int midiNoteNumber, bool isLegatoTransition)
+{
+    const auto noteFrequency = static_cast<float>(juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber));
+    glideState.startTransition(noteFrequency, isLegatoTransition);
     lastMidiNote = midiNoteNumber;
 }
 
@@ -48,6 +65,16 @@ void OscData::setWaveFrequency(const int midiNoteNumber)
 void OscData::setDetuneCents(float cents)
 {
     detuneCents = cents;
+}
+
+void OscData::setGlideMode(RMWestVoice::GlideState::Mode mode)
+{
+    glideState.setMode(mode);
+}
+
+void OscData::setGlideTimeSecondsPerOctave(float secondsPerOctave)
+{
+    glideState.setTimeSecondsPerOctave(secondsPerOctave);
 }
 
 
@@ -64,7 +91,7 @@ void OscData::getNextAudioBlock(juce::dsp::AudioBlock<float>& block)
     {
         lfoMod = lfo.processSample(0.0f) * 5.0f;
 
-        auto currentFreq = applyDetune(static_cast<float>(juce::MidiMessage::getMidiNoteInHertz(lastMidiNote)));
+        auto currentFreq = applyDetune(glideState.getNextFrequency());
         setFrequency(static_cast<float> (currentFreq) + fmMod + lfoMod);
 
         for (int ch = 0; ch < numChannels; ++ch)

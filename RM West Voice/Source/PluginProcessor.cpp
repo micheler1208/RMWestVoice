@@ -11,6 +11,25 @@
 #include "PluginEditor.h"
 #include "PluginParameters.h"
 
+namespace
+{
+RMWestVoice::GlideState::Mode getGlideModeFromParameterValue(float value)
+{
+    switch (static_cast<int>(value))
+    {
+        case RMWestVoiceParameters::GlideMode::always:
+            return RMWestVoice::GlideState::Mode::always;
+
+        case RMWestVoiceParameters::GlideMode::autoLegato:
+            return RMWestVoice::GlideState::Mode::autoLegato;
+
+        case RMWestVoiceParameters::GlideMode::off:
+        default:
+            return RMWestVoice::GlideState::Mode::off;
+    }
+}
+} // namespace
+
 // CONSTRUCTOR
 RMWestVoiceAudioProcessor::RMWestVoiceAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -53,6 +72,8 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     RMWestVoice::MonoLeadEngine::Parameters monoParameters;
     monoParameters.waveType = static_cast<int>(apvts.getRawParameterValue(RMWestVoiceParameters::ID::wave)->load());
     monoParameters.detuneCents = apvts.getRawParameterValue(RMWestVoiceParameters::ID::detuneCents)->load();
+    monoParameters.glideMode = getGlideModeFromParameterValue(apvts.getRawParameterValue(RMWestVoiceParameters::ID::glideMode)->load());
+    monoParameters.glideTimeSecondsPerOctave = apvts.getRawParameterValue(RMWestVoiceParameters::ID::glideTime)->load();
     monoParameters.ampAttack = apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampAttack)->load();
     monoParameters.ampDecay = apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampDecay)->load();
     monoParameters.ampSustain = apvts.getRawParameterValue(RMWestVoiceParameters::ID::ampSustain)->load();

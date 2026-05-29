@@ -1,5 +1,7 @@
+#include "Engine/GlideState.h"
 #include "Engine/MonoNoteStack.h"
 
+#include <cmath>
 #include <iostream>
 #include <string>
 
@@ -20,6 +22,11 @@ void expectActiveNote(const RMWestVoice::MonoNoteStack& stack, int expectedNote,
 {
     expect(stack.getActiveNote() == expectedNote, context + " active note");
     expect(stack.hasActiveNote() == (expectedNote != RMWestVoice::MonoNoteStack::noNote), context + " active state");
+}
+
+void expectNear(float actual, float expected, float tolerance, const std::string& message)
+{
+    expect(std::abs(actual - expected) <= tolerance, message);
 }
 
 void testLastNotePriority()
@@ -119,6 +126,70 @@ void testInvalidNotesAreIgnored()
     expectActiveNote(stack, 60, "invalid note-off ignored");
     expect(! result.activeNoteChanged, "invalid note-off does not change active note");
 }
+
+void testGlideOffJumpsImmediately()
+{
+    RMWestVoice::GlideState glide;
+    glide.prepare(10.0);
+    glide.setMode(RMWestVoice::GlideState::Mode::off);
+    glide.setTimeSecondsPerOctave(1.0f);
+
+    glide.startTransition(100.0f, false);
+    glide.startTransition(200.0f, true);
+
+    expect(! glide.isGliding(), "off mode does not glide");
+    expectNear(glide.getCurrentFrequency(), 200.0f, 0.01f, "off mode jumps to target");
+}
+
+void testGlideAlwaysUsesSecondsPerOctave()
+{
+    RMWestVoice::GlideState glide;
+    glide.prepare(10.0);
+    glide.setMode(RMWestVoice::GlideState::Mode::always);
+    glide.setTimeSecondsPerOctave(1.0f);
+
+    glide.startTransition(100.0f, false);
+    glide.startTransition(200.0f, false);
+
+    expect(glide.isGliding(), "always mode glides without legato");
+    expect(glide.getRemainingSamples() == 10, "one octave glide uses one second at 10 Hz sample rate");
+
+    for (int i = 0; i < 10; ++i)
+        glide.getNextFrequency();
+
+    expect(! glide.isGliding(), "always mode glide completes");
+    expectNear(glide.getCurrentFrequency(), 200.0f, 0.01f, "always mode reaches target");
+}
+
+void testGlideAutoLegatoRequiresLegato()
+{
+    RMWestVoice::GlideState glide;
+    glide.prepare(10.0);
+    glide.setMode(RMWestVoice::GlideState::Mode::autoLegato);
+    glide.setTimeSecondsPerOctave(1.0f);
+
+    glide.startTransition(100.0f, false);
+    glide.startTransition(200.0f, false);
+    expect(! glide.isGliding(), "auto-legato does not glide for separated notes");
+    expectNear(glide.getCurrentFrequency(), 200.0f, 0.01f, "auto-legato non-legato jumps");
+
+    glide.startTransition(400.0f, true);
+    expect(glide.isGliding(), "auto-legato glides for overlapping notes");
+    expect(glide.getRemainingSamples() == 10, "auto-legato one octave glide uses rate timing");
+}
+
+void testGlideRateScalesWithOctaveDistance()
+{
+    RMWestVoice::GlideState glide;
+    glide.prepare(10.0);
+    glide.setMode(RMWestVoice::GlideState::Mode::always);
+    glide.setTimeSecondsPerOctave(1.0f);
+
+    glide.startTransition(100.0f, false);
+    glide.startTransition(400.0f, false);
+
+    expect(glide.getRemainingSamples() == 20, "two-octave glide takes twice as many samples as one octave");
+}
 } // namespace
 
 int main()
@@ -128,10 +199,14 @@ int main()
     testRepeatedNoteRefreshesLastPriority();
     testPrioritySwitchRecalculatesActiveNote();
     testInvalidNotesAreIgnored();
+    testGlideOffJumpsImmediately();
+    testGlideAlwaysUsesSecondsPerOctave();
+    testGlideAutoLegatoRequiresLegato();
+    testGlideRateScalesWithOctaveDistance();
 
     if (failures != 0)
         return 1;
 
-    std::cout << "MonoNoteStack tests passed\n";
+    std::cout << "Engine tests passed\n";
     return 0;
 }
