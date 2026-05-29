@@ -5,6 +5,8 @@ project(RMWestVoice VERSION 1.0.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+enable_testing()
+
 set(JUCE_ROOT "C:/D/MIKE-VST/WORKSPACE JUCE/JUCE8/JUCE" CACHE PATH "Path to JUCE 8")
 add_subdirectory("${JUCE_ROOT}" "${CMAKE_CURRENT_BINARY_DIR}/JUCE")
 
@@ -43,6 +45,8 @@ target_sources(RMWestVoice
         Source/PluginProcessor.cpp
         Source/PluginEditor.cpp
         Source/SynthVoice.cpp
+        Source/Engine/MonoNoteStack.cpp
+        Source/Engine/MonoNoteStack.h
         Source/Data/AdsrData.cpp
         Source/Data/FilterData.cpp
         Source/Data/OscData.cpp
@@ -67,3 +71,18 @@ target_link_libraries(RMWestVoice
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
+
+add_executable(RMWestVoiceTests
+    Tests/MonoNoteStackTests.cpp
+    Source/Engine/MonoNoteStack.cpp
+    Source/Engine/MonoNoteStack.h)
+
+target_include_directories(RMWestVoiceTests
+    PRIVATE
+        Source)
+
+target_compile_features(RMWestVoiceTests
+    PRIVATE
+        cxx_std_17)
+
+add_test(NAME RMWestVoiceTests COMMAND RMWestVoiceTests)

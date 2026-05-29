@@ -115,6 +115,22 @@ The generated Visual Studio solution is:
 RM West Voice/Builds/VisualStudio2022/RMWestVoice.sln
 ```
 
+## Test Instructions
+
+The CMake build also defines a small logic test executable for non-audio engine code.
+
+Build the tests:
+
+```powershell
+cmake --build "RM West Voice\Builds\VisualStudio2022" --config Debug --target RMWestVoiceTests -- /m
+```
+
+Run the tests:
+
+```powershell
+ctest --test-dir "RM West Voice\Builds\VisualStudio2022" -C Debug --output-on-failure
+```
+
 ## Expected Build Outputs
 
 Release standalone:
@@ -202,6 +218,7 @@ When changing the project:
 
 - Keep sound-design changes separate from build and infrastructure changes.
 - Treat the v2 parameter IDs as stable from this point forward unless a later task explicitly documents a breaking pre-release change.
+- Add pure logic tests for engine behavior before wiring that behavior into the audio path where practical.
 - Do not introduce new historical claims into the instrument without a source-backed research pass.
 - Keep generated build output out of Git.
 

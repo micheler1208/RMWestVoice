@@ -121,6 +121,25 @@ RM West Voice/Source/SynthSound.h
 
 The class is intentionally minimal. Its main architectural role is to give `SynthVoice::canPlaySound` a concrete type to validate.
 
+### `MonoNoteStack`
+
+Files:
+
+```text
+RM West Voice/Source/Engine/MonoNoteStack.h
+RM West Voice/Source/Engine/MonoNoteStack.cpp
+```
+
+`MonoNoteStack` is a pure C++ helper for the upcoming mono lead engine. It is compiled into the plugin target but is not wired into audio processing yet.
+
+Responsibilities:
+
+- Tracking currently held MIDI notes.
+- Selecting an active note by last-note or low-note priority.
+- Falling back to the next held note when the active note is released.
+- Reporting whether a note-on occurred while another note was already held.
+- Ignoring invalid MIDI note numbers outside the 0-127 range.
+
 ## Data / DSP Layer
 
 ### `OscData`
@@ -356,6 +375,7 @@ Important build decisions:
 - JUCE8 is added with `add_subdirectory`.
 - Binary assets are compiled with `juce_add_binary_data`.
 - Plugin formats are limited to `VST3` and `Standalone`.
+- `RMWestVoiceTests` is a CMake test executable for pure engine logic.
 - VST3 uses JUCE8's bundled VST3 SDK.
 - `COPY_PLUGIN_AFTER_BUILD` is disabled.
 - `JUCE_VST3_CAN_REPLACE_VST2=0` is explicitly defined.
@@ -430,6 +450,7 @@ When changing this codebase:
 - Keep generated build files out of source control.
 - Update this document when ownership, signal flow, or parameter behavior changes.
 - Verify both Standalone and VST3 targets after build-system changes.
+- Run `RMWestVoiceTests` through CTest when engine logic changes.
 
 ## Suggested Verification Commands
 
@@ -449,4 +470,11 @@ Release:
 
 ```powershell
 cmake --build "RM West Voice\Builds\VisualStudio2022" --config Release --target RMWestVoice_Standalone RMWestVoice_VST3 -- /m
+```
+
+Engine tests:
+
+```powershell
+cmake --build "RM West Voice\Builds\VisualStudio2022" --config Debug --target RMWestVoiceTests -- /m
+ctest --test-dir "RM West Voice\Builds\VisualStudio2022" -C Debug --output-on-failure
 ```
