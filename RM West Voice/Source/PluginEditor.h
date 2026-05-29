@@ -12,9 +12,6 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "UI/AdsrComponent.h"
-#include "UI/OscComponent.h"
-#include "UI/FilterComponent.h"
 
 //==============================================================================
 /**
@@ -30,19 +27,17 @@ public:
     void resized() override;
 
 private:
-    RMWestVoiceAudioProcessor& audioProcessor;    
-    
-    // IMAGES
+    class ParameterSection;
+
+    RMWestVoiceAudioProcessor& audioProcessor;
+
     juce::Image backgroundImage;
 
-    //OSC
-    OscComponent osc;
-
-    //ADSR
-    AdsrComponent adsr;
-
-    //FILTERS
-    FilterComponent filters;
+    std::unique_ptr<ParameterSection> performanceSection;
+    std::unique_ptr<ParameterSection> toneSection;
+    std::unique_ptr<ParameterSection> filterSection;
+    std::unique_ptr<ParameterSection> fxSection;
+    std::unique_ptr<ParameterSection> outputSection;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RMWestVoiceAudioProcessorEditor)
 };

@@ -13,7 +13,7 @@ It does not produce MIDI output and it is not an audio effect. Audio is generate
 
 This repository has been stabilized around JUCE8 and a Visual Studio 2022 build flow. The project can be generated and built through CMake, while the original `.jucer` file is kept aligned as project metadata.
 
-The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine with basic rate-based glide, a two-oscillator core with curated Saw, Tri, Saw+Tri, and Saw+Pulse colors, smoothed pitch bend, performer-controlled vibrato, an LP24 lead filter with drive, an Analog/Worm/Hybrid character macro, and a measured post-voice width/delay/reverb stage. Larger musical changes such as preset vocabulary and the final UI pass remain staged as separate tasks.
+The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine with basic rate-based glide, a two-oscillator core with curated Saw, Tri, Saw+Tri, and Saw+Pulse colors, smoothed pitch bend, performer-controlled vibrato, an LP24 lead filter with drive, an Analog/Worm/Hybrid character macro, and a measured post-voice width/delay/reverb stage. The editor now exposes the current parameter set in Performance, Tone, Filter, FX, and Output sections. Larger musical changes such as preset vocabulary remain staged as separate tasks.
 
 The post-research implementation sequence is tracked in [POST_RESEARCH_ROADMAP.md](POST_RESEARCH_ROADMAP.md).
 
@@ -180,7 +180,7 @@ Current technical metadata:
 
 ## Current Controls
 
-The current APVTS parameter surface exposes a small number of parameters. These names are important because they are serialized by the plugin and may be seen by DAWs.
+The current APVTS parameter surface is exposed by the editor and serialized by the plugin. These names are important because they may be seen by DAWs and preset/session state.
 
 | Parameter ID | Label | Current purpose |
 | --- | --- | --- |
@@ -260,9 +260,9 @@ The following items are intentionally not solved in this stabilization pass:
 - Further oscillator modeling, band-limiting, and lead voicing.
 - Advanced legato/retrigger behavior beyond the current glide support.
 - Advanced pitch/modulation curves beyond the current pitch wheel, mod wheel, and optional aftertouch behavior.
-- Further post-voice FX voicing and UI exposure.
+- Further post-voice FX voicing and preset integration.
 - Preset management beyond DAW state recall.
-- Full UI redesign.
+- Final visual polish beyond the current section-based editor.
 - Licensing audit for bundled fonts and image assets.
 - Installer or deployment flow for the VST3 bundle.
 
