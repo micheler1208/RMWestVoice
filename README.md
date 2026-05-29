@@ -15,6 +15,8 @@ This repository has been stabilized around JUCE8 and a Visual Studio 2022 build 
 
 The sound architecture is intentionally conservative at this stage. The current cleanup work focuses on build hygiene, state persistence, plugin metadata, and obvious technical issues. Larger musical changes such as glide, legato, pitch bend, controllable vibrato, saturation, effects, oscillator redesign, or historically informed G-funk lead modeling are deferred until after dedicated research.
 
+The post-research implementation sequence is tracked in [POST_RESEARCH_ROADMAP.md](POST_RESEARCH_ROADMAP.md).
+
 ## Product Scope
 
 RMWestVoice is best understood as:

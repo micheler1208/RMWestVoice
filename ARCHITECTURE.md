@@ -4,6 +4,8 @@ This document describes the current technical architecture of RMWestVoice. It re
 
 For build and usage instructions, see [README.md](README.md).
 
+For the post-research implementation sequence, see [POST_RESEARCH_ROADMAP.md](POST_RESEARCH_ROADMAP.md).
+
 ## High-Level Overview
 
 RMWestVoice is a JUCE audio plugin project built as an instrument. The plugin accepts MIDI input, generates audio internally, and outputs audio as a synth. It does not process incoming audio and does not emit MIDI.
