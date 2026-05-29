@@ -51,9 +51,12 @@ public:
     juce::AudioProcessorValueTreeState apvts;
 
 private:
+    void applyFactoryPreset(int index);
+
     RMWestVoice::MonoLeadEngine monoLeadEngine;
     FilterData highPassFilter;
     PostVoiceFxData postVoiceFx;
+    int currentProgramIndex { 0 };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RMWestVoiceAudioProcessor)
 };

@@ -9,6 +9,12 @@
               pluginManufacturerCode="Rmau" pluginCode="Rwvo" pluginVST3Category="Instrument|Synth">
   <MAINGROUP id="mmZiVZ" name="RMWestVoice">
     <GROUP id="{B67CD096-824F-2D43-6B6F-77CD449E3681}" name="Source">
+      <GROUP id="{9D1A6A87-5B9F-4759-A578-3F7B6E12A511}" name="Presets">
+        <FILE id="fpsC01" name="FactoryPresets.cpp" compile="1" resource="0"
+              file="Source/Presets/FactoryPresets.cpp"/>
+        <FILE id="fpsH01" name="FactoryPresets.h" compile="0" resource="0"
+              file="Source/Presets/FactoryPresets.h"/>
+      </GROUP>
       <GROUP id="{2F0B15D3-58D4-4A43-A8FA-2C3622B03F0D}" name="Engine">
         <FILE id="chsC01" name="CharacterState.cpp" compile="1" resource="0"
               file="Source/Engine/CharacterState.cpp"/>

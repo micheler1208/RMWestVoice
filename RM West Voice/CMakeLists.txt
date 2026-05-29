@@ -44,6 +44,8 @@ target_sources(RMWestVoice
         Source/PluginParameters.h
         Source/PluginProcessor.cpp
         Source/PluginEditor.cpp
+        Source/Presets/FactoryPresets.cpp
+        Source/Presets/FactoryPresets.h
         Source/Engine/MonoLeadEngine.cpp
         Source/Engine/MonoLeadEngine.h
         Source/Engine/CharacterState.cpp
@@ -89,6 +91,8 @@ target_link_libraries(RMWestVoice
 
 add_executable(RMWestVoiceTests
     Tests/MonoNoteStackTests.cpp
+    Source/Presets/FactoryPresets.cpp
+    Source/Presets/FactoryPresets.h
     Source/Engine/GlideState.cpp
     Source/Engine/GlideState.h
     Source/Engine/CharacterState.cpp

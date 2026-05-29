@@ -13,9 +13,9 @@ It does not produce MIDI output and it is not an audio effect. Audio is generate
 
 This repository has been stabilized around JUCE8 and a Visual Studio 2022 build flow. The project can be generated and built through CMake, while the original `.jucer` file is kept aligned as project metadata.
 
-The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine with basic rate-based glide, a two-oscillator core with curated Saw, Tri, Saw+Tri, and Saw+Pulse colors, smoothed pitch bend, performer-controlled vibrato, an LP24 lead filter with drive, an Analog/Worm/Hybrid character macro, and a measured post-voice width/delay/reverb stage. The editor now exposes the current parameter set in Performance, Tone, Filter, FX, and Output sections. Larger musical changes such as preset vocabulary remain staged as separate tasks.
+The sound architecture has completed the current post-research roadmap. The runtime path uses a custom mono lead engine with basic rate-based glide, a two-oscillator core with curated Saw, Tri, Saw+Tri, and Saw+Pulse colors, smoothed pitch bend, performer-controlled vibrato, an LP24 lead filter with drive, an Analog/Worm/Hybrid character macro, measured post-voice width/delay/reverb, a section-based editor, and five host-visible factory programs.
 
-The post-research implementation sequence is tracked in [POST_RESEARCH_ROADMAP.md](POST_RESEARCH_ROADMAP.md).
+The post-research implementation sequence is tracked in [POST_RESEARCH_ROADMAP.md](POST_RESEARCH_ROADMAP.md). Factory presets are documented in [FACTORY_PRESETS.md](FACTORY_PRESETS.md), release notes are in [RELEASE_NOTES.md](RELEASE_NOTES.md), and bundled asset status is tracked in [ASSET_LICENSE_AUDIT.md](ASSET_LICENSE_AUDIT.md).
 
 ## Product Scope
 
@@ -40,7 +40,11 @@ RMWestVoice is not currently:
 .
 |-- README.md
 |-- ARCHITECTURE.md
+|-- ASSET_LICENSE_AUDIT.md
+|-- FACTORY_PRESETS.md
 |-- LICENSE
+|-- POST_RESEARCH_ROADMAP.md
+|-- RELEASE_NOTES.md
 |-- .gitignore
 `-- RM West Voice
     |-- CMakeLists.txt
@@ -52,6 +56,8 @@ RMWestVoice is not currently:
     |   |-- PluginParameters.h
     |   |-- SynthVoice.*
     |   |-- SynthSound.h
+    |   |-- Presets
+    |   |   `-- FactoryPresets.*
     |   |-- Engine
     |   |   |-- CharacterState.*
     |   |   |-- FilterModulationState.*
@@ -217,6 +223,21 @@ The current APVTS parameter surface is exposed by the editor and serialized by t
 
 Task 02 introduced this pre-release v2 parameter surface. The old `DAY`/`NIGHT`, `DETUNE`, dormant `OSC1FM*`, `LP_FILTER*`, `HP_FILTER*`, and `VOLUME` IDs are intentionally not preserved.
 
+## Factory Presets
+
+The plugin exposes five factory programs through the host program API:
+
+- Default Coast Lead
+- Tight Dry Analog
+- Worm Glide Hook
+- Hybrid Glass Lead
+- Dub Echo Lead
+
+Changing a factory program writes values into the existing APVTS parameter set.
+There is not yet a custom preset browser or import/export file format. See
+[FACTORY_PRESETS.md](FACTORY_PRESETS.md) for implementation notes and preset
+policy.
+
 ## State Persistence
 
 Plugin state is stored through `AudioProcessorValueTreeState`.
@@ -260,10 +281,9 @@ The following items are intentionally not solved in this stabilization pass:
 - Further oscillator modeling, band-limiting, and lead voicing.
 - Advanced legato/retrigger behavior beyond the current glide support.
 - Advanced pitch/modulation curves beyond the current pitch wheel, mod wheel, and optional aftertouch behavior.
-- Further post-voice FX voicing and preset integration.
-- Preset management beyond DAW state recall.
+- Further post-voice FX voicing and preset browser/import/export support.
 - Final visual polish beyond the current section-based editor.
-- Licensing audit for bundled fonts and image assets.
+- Asset license resolution or replacement before public binary distribution.
 - Installer or deployment flow for the VST3 bundle.
 
 ## Verification Snapshot
@@ -281,4 +301,4 @@ The Release standalone has also been smoke-tested by launching it, keeping it op
 
 See [LICENSE](LICENSE).
 
-Before public distribution, bundled fonts and image assets should receive a separate licensing review.
+Before public distribution, resolve the blockers listed in [ASSET_LICENSE_AUDIT.md](ASSET_LICENSE_AUDIT.md).

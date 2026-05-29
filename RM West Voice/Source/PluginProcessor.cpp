@@ -10,9 +10,12 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "PluginParameters.h"
+#include "Presets/FactoryPresets.h"
 
 namespace
 {
+constexpr auto factoryPresetIndexProperty = "factoryPresetIndex";
+
 RMWestVoice::GlideState::Mode getGlideModeFromParameterValue(float value)
 {
     switch (static_cast<int>(value))
@@ -155,6 +158,8 @@ bool RMWestVoiceAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 void RMWestVoiceAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
     auto state = apvts.copyState();
+    state.setProperty(factoryPresetIndexProperty, currentProgramIndex, nullptr);
+
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
 
     if (xml != nullptr)
@@ -167,7 +172,15 @@ void RMWestVoiceAudioProcessor::setStateInformation(const void* data, int sizeIn
     std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 
     if (xmlState != nullptr && xmlState->hasTagName(apvts.state.getType()))
-        apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+    {
+        auto restoredState = juce::ValueTree::fromXml(*xmlState);
+
+        if (restoredState.hasProperty(factoryPresetIndexProperty))
+            currentProgramIndex = RMWestVoice::FactoryPresets::sanitizeIndex(
+                static_cast<int>(restoredState.getProperty(factoryPresetIndexProperty)));
+
+        apvts.replaceState(restoredState);
+    }
 }
 
 // CREATE EDITOR
@@ -213,25 +226,51 @@ bool  RMWestVoiceAudioProcessor::isMidiEffect() const
 double RMWestVoiceAudioProcessor::getTailLengthSeconds() const { return 2.0; }
 
 // GET NUM PROGRAMS
-int RMWestVoiceAudioProcessor::getNumPrograms() { return 1; }
+int RMWestVoiceAudioProcessor::getNumPrograms() { return RMWestVoice::FactoryPresets::getNumPresets(); }
 
 // GET CURRENT PROGRAM
-int RMWestVoiceAudioProcessor::getCurrentProgram() { return 0; }
+int RMWestVoiceAudioProcessor::getCurrentProgram() { return currentProgramIndex; }
 
 // SET CURRENT PROGRAM
-void RMWestVoiceAudioProcessor::setCurrentProgram(int index) { juce::ignoreUnused (index); }
+void RMWestVoiceAudioProcessor::setCurrentProgram(int index)
+{
+    applyFactoryPreset(index);
+}
 
 // GET PROGRAM NAME
 const juce::String RMWestVoiceAudioProcessor::getProgramName(int index)
 {
-    juce::ignoreUnused (index);
-    return {};
+    if (index < 0 || index >= getNumPrograms())
+        return {};
+
+    return RMWestVoice::FactoryPresets::getPreset(index).name;
 }
 
 // CHANGE PROGRAM NAME
 void RMWestVoiceAudioProcessor::changeProgramName(int index, const juce::String& newName)
 {
     juce::ignoreUnused (index, newName);
+}
+
+void RMWestVoiceAudioProcessor::applyFactoryPreset(int index)
+{
+    const auto sanitizedIndex = RMWestVoice::FactoryPresets::sanitizeIndex(index);
+    const auto& preset = RMWestVoice::FactoryPresets::getPreset(sanitizedIndex);
+
+    for (std::size_t parameterIndex = 0; parameterIndex < RMWestVoice::FactoryPresets::parameterCount; ++parameterIndex)
+    {
+        auto* parameter = apvts.getParameter(RMWestVoice::FactoryPresets::getParameterID(parameterIndex));
+        jassert(parameter != nullptr);
+
+        if (parameter == nullptr)
+            continue;
+
+        parameter->beginChangeGesture();
+        parameter->setValueNotifyingHost(parameter->convertTo0to1(preset.values[parameterIndex]));
+        parameter->endChangeGesture();
+    }
+
+    currentProgramIndex = sanitizedIndex;
 }
 
 // START INSTANCE

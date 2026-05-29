@@ -4,10 +4,14 @@
 #include "Engine/MonoNoteStack.h"
 #include "Engine/PitchModulationState.h"
 #include "Engine/PostVoiceFxState.h"
+#include "Presets/FactoryPresets.h"
 
+#include <array>
 #include <cmath>
 #include <iostream>
+#include <set>
 #include <string>
+#include <utility>
 
 namespace
 {
@@ -345,6 +349,86 @@ void testPostVoiceFxTimingAndMixesAreClamped()
     expectNear(settings.reverbSize, 0.9f, 0.001f, "reverb size clamps below full freeze-like space");
     expectNear(settings.reverbDamping, 0.0f, 0.001f, "reverb damping clamps at zero");
 }
+
+void testFactoryPresetsExposeCompleteUniqueParameterSets()
+{
+    expect(RMWestVoice::FactoryPresets::getNumPresets() >= 5, "factory presets include an initial vocabulary set");
+
+    std::set<std::string> parameterIDs;
+    for (std::size_t index = 0; index < RMWestVoice::FactoryPresets::parameterCount; ++index)
+    {
+        const auto* parameterID = RMWestVoice::FactoryPresets::getParameterID(index);
+        expect(parameterID != nullptr && std::string(parameterID).size() > 0, "factory preset parameter ID is present");
+        parameterIDs.insert(parameterID);
+    }
+
+    expect(parameterIDs.size() == RMWestVoice::FactoryPresets::parameterCount, "factory preset parameter IDs are unique");
+
+    std::set<std::string> presetNames;
+    for (int index = 0; index < RMWestVoice::FactoryPresets::getNumPresets(); ++index)
+    {
+        const auto& preset = RMWestVoice::FactoryPresets::getPreset(index);
+        expect(preset.name != nullptr && std::string(preset.name).size() > 0, "factory preset name is present");
+        presetNames.insert(preset.name);
+    }
+
+    expect(presetNames.size() == static_cast<std::size_t>(RMWestVoice::FactoryPresets::getNumPresets()), "factory preset names are unique");
+}
+
+void testFactoryPresetIndexSanitizing()
+{
+    expect(RMWestVoice::FactoryPresets::sanitizeIndex(2) == 2, "valid factory preset index is preserved");
+    expect(RMWestVoice::FactoryPresets::sanitizeIndex(-1) == 0, "negative factory preset index falls back to default");
+    expect(RMWestVoice::FactoryPresets::sanitizeIndex(RMWestVoice::FactoryPresets::getNumPresets()) == 0, "out-of-range factory preset index falls back to default");
+}
+
+void testFactoryPresetValuesStayWithinParameterRanges()
+{
+    constexpr std::array<std::pair<float, float>, RMWestVoice::FactoryPresets::parameterCount> ranges {{
+        { 0.0f, 2.0f },
+        { 0.0f, 3.0f },
+        { 0.0f, 1.0f },
+        { -25.0f, 25.0f },
+        { 0.0f, 2.0f },
+        { 0.0f, 2.0f },
+        { 1.0f, 24.0f },
+        { 0.0f, 100.0f },
+        { 0.1f, 12.0f },
+        { 0.0f, 2.0f },
+        { 0.0f, 1.0f },
+        { 0.1f, 1.0f },
+        { 0.1f, 1.0f },
+        { 0.1f, 1.0f },
+        { 0.1f, 3.0f },
+        { 20.0f, 20000.0f },
+        { 0.0f, 1.0f },
+        { 1.0f, 8.0f },
+        { 0.0f, 1.0f },
+        { 0.0f, 4.0f },
+        { 20.0f, 20000.0f },
+        { 1.0f, 10.0f },
+        { 0.0f, 1.0f },
+        { 0.0f, 0.45f },
+        { 0.05f, 0.75f },
+        { 0.0f, 0.75f },
+        { 0.0f, 0.35f },
+        { 0.1f, 0.9f },
+        { 0.0f, 1.0f },
+        { 0.0f, 1.0f }
+    }};
+
+    for (int presetIndex = 0; presetIndex < RMWestVoice::FactoryPresets::getNumPresets(); ++presetIndex)
+    {
+        const auto& preset = RMWestVoice::FactoryPresets::getPreset(presetIndex);
+
+        for (std::size_t parameterIndex = 0; parameterIndex < RMWestVoice::FactoryPresets::parameterCount; ++parameterIndex)
+        {
+            const auto value = preset.values[parameterIndex];
+            const auto [low, high] = ranges[parameterIndex];
+            expect(value >= low && value <= high, std::string(preset.name) + " value range for " + RMWestVoice::FactoryPresets::getParameterID(parameterIndex));
+        }
+    }
+}
 } // namespace
 
 int main()
@@ -368,6 +452,9 @@ int main()
     testCharacterIndexFallback();
     testPostVoiceFxWidthMapsToMeasuredDoublerDelay();
     testPostVoiceFxTimingAndMixesAreClamped();
+    testFactoryPresetsExposeCompleteUniqueParameterSets();
+    testFactoryPresetIndexSanitizing();
+    testFactoryPresetValuesStayWithinParameterRanges();
 
     if (failures != 0)
         return 1;

@@ -20,9 +20,11 @@ This note tracks the pre-research cleanup phase. It intentionally avoids changin
 - Plugin state is serialized through `AudioProcessorValueTreeState`.
 - The Visual Studio build uses JUCE8 modules and the bundled JUCE8 VST3 SDK.
 - Unused LFO headers were removed from the project; the later oscillator-core task also removed the hidden fixed LFO from `OscData`.
+- The post-research roadmap now includes five host-visible factory programs.
+- A local asset license audit is tracked in `../ASSET_LICENSE_AUDIT.md`; current bundled assets are not cleared for public binary distribution.
 
 ## Deferred Until Deep Research
 
 - Final voicing and lead architecture changes beyond the current post-voice FX stage.
 - Any future FM or hybrid color behavior, if the post-research design intentionally reintroduces it.
-- Final licensing audit for bundled fonts and background image before distribution.
+- Asset license resolution or replacement before distribution.
