@@ -69,6 +69,7 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
 
             auto& fmFreq = *apvts.getRawParameterValue ("OSC1FMFREQ");
             auto& fmDepth = *apvts.getRawParameterValue ("OSC1FMDEPTH");
+            juce::ignoreUnused (fmFreq, fmDepth);
             
             auto& attack = *apvts.getRawParameterValue ("ATTACK");
             auto& decay = *apvts.getRawParameterValue ("DECAY");
@@ -88,7 +89,7 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     auto& lowPassFilterType = *apvts.getRawParameterValue("LP_FILTERTYPE");
     auto& lowPassCutoff = *apvts.getRawParameterValue("LP_FILTERFREQ");
     auto& lowPassResonance = *apvts.getRawParameterValue("LP_FILTERRES");
-    lowPassFilter.updateParameters(lowPassFilterType, lowPassCutoff, lowPassResonance);
+    lowPassFilter.updateParameters(static_cast<int> (lowPassFilterType.load()), lowPassCutoff, lowPassResonance);
 
     lowPassFilter.process(buffer);
 
@@ -96,7 +97,7 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     auto& highPassFilterType = *apvts.getRawParameterValue("HP_FILTERTYPE");
     auto& highPassCutoff = *apvts.getRawParameterValue("HP_FILTERFREQ");
     auto& highPassResonance = *apvts.getRawParameterValue("HP_FILTERRES");
-    highPassFilter.updateParameters(highPassFilterType, highPassCutoff, highPassResonance);
+    highPassFilter.updateParameters(static_cast<int> (highPassFilterType.load()), highPassCutoff, highPassResonance);
 
     highPassFilter.process(buffer);
 
@@ -133,10 +134,23 @@ bool RMWestVoiceAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 
 
 // GET STATE INFORMATION
-void RMWestVoiceAudioProcessor::getStateInformation(juce::MemoryBlock& destData) {}
+void RMWestVoiceAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
+{
+    auto state = apvts.copyState();
+    std::unique_ptr<juce::XmlElement> xml(state.createXml());
+
+    if (xml != nullptr)
+        copyXmlToBinary(*xml, destData);
+}
 
 // SET STATE INFORMATION
-void RMWestVoiceAudioProcessor::setStateInformation(const void* data, int sizeInBytes) {}
+void RMWestVoiceAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
+{
+    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+
+    if (xmlState != nullptr && xmlState->hasTagName(apvts.state.getType()))
+        apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+}
 
 // CREATE EDITOR
 juce::AudioProcessorEditor* RMWestVoiceAudioProcessor::createEditor() { return new RMWestVoiceAudioProcessorEditor(*this); }
@@ -187,13 +201,20 @@ int RMWestVoiceAudioProcessor::getNumPrograms() { return 1; }
 int RMWestVoiceAudioProcessor::getCurrentProgram() { return 0; }
 
 // SET CURRENT PROGRAM
-void RMWestVoiceAudioProcessor::setCurrentProgram(int index) {}
+void RMWestVoiceAudioProcessor::setCurrentProgram(int index) { juce::ignoreUnused (index); }
 
 // GET PROGRAM NAME
-const juce::String RMWestVoiceAudioProcessor::getProgramName(int index) { return {}; }
+const juce::String RMWestVoiceAudioProcessor::getProgramName(int index)
+{
+    juce::ignoreUnused (index);
+    return {};
+}
 
 // CHANGE PROGRAM NAME
-void RMWestVoiceAudioProcessor::changeProgramName(int index, const juce::String& newName) {}
+void RMWestVoiceAudioProcessor::changeProgramName(int index, const juce::String& newName)
+{
+    juce::ignoreUnused (index, newName);
+}
 
 // START INSTANCE
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()

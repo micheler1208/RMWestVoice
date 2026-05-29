@@ -15,9 +15,9 @@ void FilterData::prepareToPlay (double sampleRate, int samplesPerBlock, int numC
     filter.reset();
     
     juce::dsp::ProcessSpec spec;
-    spec.maximumBlockSize = samplesPerBlock;
+    spec.maximumBlockSize = static_cast<juce::uint32> (samplesPerBlock);
     spec.sampleRate = sampleRate;
-    spec.numChannels = numChannels;
+    spec.numChannels = static_cast<juce::uint32> (numChannels);
     
     filter.prepare (spec);
     

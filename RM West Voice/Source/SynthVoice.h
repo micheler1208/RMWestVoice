@@ -12,7 +12,6 @@
 #include <JuceHeader.h>
 #include "SynthSound.h"
 #include "Data/AdsrData.h"
-#include "LFO.h"
 #include "Data/OscData.h"
 
 class SynthVoice : public juce::SynthesiserVoice

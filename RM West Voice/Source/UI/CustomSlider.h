@@ -32,7 +32,7 @@ protected:
 
         if (getName() == "Attack" || getName() == "Decay" || getName() == "Release")
         {
-            suffix = " ms";
+            suffix = " s";
             textValue = juce::String(value, numDecimalPlaces);
         }
         else if (getName() == "Sustain" || getName() == "Volume")

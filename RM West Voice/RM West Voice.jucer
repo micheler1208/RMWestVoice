@@ -2,8 +2,11 @@
 
 <JUCERPROJECT id="tQmux7" name="RMWestVoice" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
-              headerPath="C:\D\MIKE-VST\WORKSPACE JUCE\JUCE\modules\asioCommon"
-              pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut,pluginWantsMidiIn">
+              headerPath="C:\D\MIKE-VST\WORKSPACE JUCE\JUCE8\JUCE\modules\asioCommon"
+              pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
+              pluginFormats="buildVST3,buildStandalone" companyName="RM Audio"
+              bundleIdentifier="com.rmaudio.RMWestVoice" pluginManufacturer="RM Audio"
+              pluginManufacturerCode="Rmau" pluginCode="Rwvo" pluginVST3Category="Instrument|Synth">
   <MAINGROUP id="mmZiVZ" name="RMWestVoice">
     <GROUP id="{B67CD096-824F-2D43-6B6F-77CD449E3681}" name="Source">
       <GROUP id="{B2620DE6-A62A-A66E-32DC-030A00DA8306}" name="Data">
@@ -11,7 +14,6 @@
         <FILE id="eZHFl1" name="AdsrData.h" compile="0" resource="0" file="Source/Data/AdsrData.h"/>
         <FILE id="QI0kTO" name="FilterData.cpp" compile="1" resource="0" file="Source/Data/FilterData.cpp"/>
         <FILE id="omDf7I" name="FilterData.h" compile="0" resource="0" file="Source/Data/FilterData.h"/>
-        <FILE id="deR3cC" name="LFO.h" compile="0" resource="0" file="Source/Data/LFO.h"/>
         <FILE id="bnI9Km" name="OscData.cpp" compile="1" resource="0" file="Source/Data/OscData.cpp"/>
         <FILE id="Wktwkx" name="OscData.h" compile="0" resource="0" file="Source/Data/OscData.h"/>
       </GROUP>
@@ -80,23 +82,23 @@
   <EXPORTFORMATS>
     <VS2022 targetFolder="Builds/VisualStudio2022">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="RM West Voice" headerPath="C:\D\MIKE-VST\WORKSPACE JUCE\JUCE\modules\asioCommon"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="RM West Voice" headerPath="C:\D\MIKE-VST\WORKSPACE JUCE\JUCE\modules\asioCommon&#10;"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="RM West Voice" headerPath="C:\D\MIKE-VST\WORKSPACE JUCE\JUCE8\JUCE\modules\asioCommon"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="RM West Voice" headerPath="C:\D\MIKE-VST\WORKSPACE JUCE\JUCE8\JUCE\modules\asioCommon"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_audio_basics" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_devices" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_formats" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_plugin_client" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_processors" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_utils" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_core" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_events" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_graphics" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_gui_extra" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_dsp" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../JUCE8/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../JUCE8/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../JUCE8/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../JUCE8/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../JUCE8/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../JUCE8/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../JUCE8/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../JUCE8/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../JUCE8/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../JUCE8/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../JUCE8/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../JUCE8/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../JUCE8/JUCE/modules"/>
       </MODULEPATHS>
     </VS2022>
   </EXPORTFORMATS>

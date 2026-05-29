@@ -9,13 +9,14 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include <BinaryData.h>
 
 class CustomLookAndFeelOsc : public juce::LookAndFeel_V4
 {
 public:
     CustomLookAndFeelOsc()
+        : customFont (juce::FontOptions (juce::Typeface::createSystemTypefaceFor(BinaryData::heaters_ttf, BinaryData::heaters_ttfSize)))
     {
-        customFont = juce::Font(juce::Typeface::createSystemTypefaceFor(BinaryData::heaters_ttf, BinaryData::heaters_ttfSize));
     }
 
     void drawButtonBackground(juce::Graphics& g, juce::Button& button, const juce::Colour& backgroundColour,
@@ -41,11 +42,11 @@ public:
 
     void drawToggleButton(juce::Graphics& g, juce::ToggleButton& button, bool isMouseOverButton, bool isButtonDown) override
     {
+        juce::ignoreUnused (isMouseOverButton, isButtonDown);
         auto font = customFont.withHeight(28.0f);
         g.setFont(font);
 
         auto tickWidth = 20.0f;
-        auto tickHeight = 20.0f;
         auto edge = 4;
         auto margin = 6; // Adjust this value for the desired space
 
@@ -55,8 +56,8 @@ public:
         // Draw the tick box with transparency
         auto tickColour = button.getToggleState() ? juce::Colour::fromRGB(167, 240, 229) : juce::Colour::fromRGB(2, 141, 180);
         g.setColour(tickColour);
-        auto tickArea = buttonArea.removeFromLeft(static_cast<int>(tickWidth));
-        g.drawRoundedRectangle(tickArea.toFloat(), 6.0f, 1.0f);
+        auto tickArea = buttonArea.removeFromLeft(static_cast<int>(tickWidth)).toFloat();
+        g.drawRoundedRectangle(tickArea, 6.0f, 1.0f);
 
         // Draw the tick inside the box
         if (button.getToggleState())

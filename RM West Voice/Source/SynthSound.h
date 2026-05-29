@@ -18,12 +18,14 @@ public:
     // This sound is always valid to play any note.
     bool appliesToNote (int midiNoteNumber) override
     {
+        juce::ignoreUnused (midiNoteNumber);
         return true;
     }
 
     // This sound is always valid to play on any channel.
     bool appliesToChannel (int midiChannel) override
     {
+        juce::ignoreUnused (midiChannel);
         return true;
     }
 };

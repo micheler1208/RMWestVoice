@@ -20,7 +20,7 @@ public:
     void getNextAudioBlock (juce::dsp::AudioBlock<float>& block);
     void updateFm (const float freq, const float depth);
     void setDetune(bool isDetuned);
-    void OscData::prepareLFO(double sampleRate, int samplesPerBlock, int numChannels);
+    void prepareLFO(double playbackSampleRate, int samplesPerBlock, int numChannels);
     
 private:
     void processFmOsc (juce::dsp::AudioBlock<float>& block);

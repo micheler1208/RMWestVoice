@@ -9,13 +9,14 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include <BinaryData.h>
 
 class CustomLookAndFeelDetune : public juce::LookAndFeel_V4
 {
 public:
     CustomLookAndFeelDetune()
+        : customFont (juce::FontOptions (juce::Typeface::createSystemTypefaceFor(BinaryData::heaters_ttf, BinaryData::heaters_ttfSize)))
     {
-        customFont = juce::Font(juce::Typeface::createSystemTypefaceFor(BinaryData::heaters_ttf, BinaryData::heaters_ttfSize));
     }
 
     void drawButtonBackground(juce::Graphics& g, juce::Button& button, const juce::Colour& backgroundColour,
@@ -41,6 +42,7 @@ public:
 
     void drawButtonText(juce::Graphics& g, juce::TextButton& button, bool isMouseOverButton, bool isButtonDown) override
     {
+        juce::ignoreUnused (isMouseOverButton, isButtonDown);
         auto buttonFont = customFont.withHeight(24.0f);
         g.setFont(buttonFont);
 

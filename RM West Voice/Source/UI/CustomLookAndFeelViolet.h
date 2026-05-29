@@ -1,19 +1,21 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <BinaryData.h>
 
 class CustomLookAndFeelViolet : public juce::LookAndFeel_V4
 {
 public:
     CustomLookAndFeelViolet()
+        : customFont (juce::FontOptions (juce::Typeface::createSystemTypefaceFor(BinaryData::caviar_ttf, BinaryData::caviar_ttfSize)))
     {
-        customFont = juce::Font(juce::Typeface::createSystemTypefaceFor(BinaryData::caviar_ttf, BinaryData::caviar_ttfSize));
     }
 
     // ROTARY SLIDER
     void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height,
                           float sliderPosProportional, float rotaryStartAngle, float rotaryEndAngle, juce::Slider& slider) override
     {
+        juce::ignoreUnused (slider);
         const float radius = juce::jmin(width / 2, height / 2) - 4.0f;
         const float centreX = x + width * 0.5f;
         const float centreY = y + height * 0.5f;

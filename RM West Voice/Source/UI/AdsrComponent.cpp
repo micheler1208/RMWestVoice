@@ -9,6 +9,7 @@
 
 #include <JuceHeader.h>
 #include "AdsrComponent.h"
+#include <BinaryData.h>
 
 //==============================================================================
 
@@ -63,7 +64,7 @@ AdsrComponent::AdsrComponent(juce::AudioProcessorValueTreeState& apvts)
     releaseAttachment = std::make_unique<SliderAttachment>(apvts, "RELEASE", releaseSlider);
 
     // LABELS
-    juce::Font labelFont = juce::Font(juce::Typeface::createSystemTypefaceFor(BinaryData::timegoing_ttf, BinaryData::timegoing_ttfSize));
+    juce::Font labelFont { juce::FontOptions (juce::Typeface::createSystemTypefaceFor(BinaryData::timegoing_ttf, BinaryData::timegoing_ttfSize)) };
     labelFont.setHeight(48.0f);
 
     // ATTACK LABEL
@@ -108,6 +109,7 @@ AdsrComponent::~AdsrComponent()
 // PAINT
 void AdsrComponent::paint (juce::Graphics& g)
 {
+    juce::ignoreUnused (g);
 }
 
 // RESIZED

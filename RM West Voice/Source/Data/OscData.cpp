@@ -17,12 +17,12 @@ void OscData::prepareToPlay(juce::dsp::ProcessSpec& spec)
 }
 
 // PREPARE LFO
-void OscData::prepareLFO(double sampleRate, int samplesPerBlock, int numChannels)
+void OscData::prepareLFO(double playbackSampleRate, int samplesPerBlock, int numChannels)
 {
     juce::dsp::ProcessSpec spec;
-    spec.maximumBlockSize = samplesPerBlock;
-    spec.sampleRate = sampleRate;
-    spec.numChannels = numChannels;
+    spec.maximumBlockSize = static_cast<juce::uint32> (samplesPerBlock);
+    spec.sampleRate = playbackSampleRate;
+    spec.numChannels = static_cast<juce::uint32> (numChannels);
     lfo.prepare(spec);
     lfo.setFrequency(5.0f); // 5Hz
 }
@@ -39,9 +39,9 @@ void OscData::setWaveType(const bool dayValue)
 // SET WAVE FREQUENCY
 void OscData::setWaveFrequency(const int midiNoteNumber)
 {
-    auto frequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
-    frequency *= (1.0f + detune);
-    setFrequency(frequency + fmMod + lfoMod);
+    auto noteFrequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
+    noteFrequency *= (1.0f + detune);
+    setFrequency(static_cast<float> (noteFrequency) + fmMod + lfoMod);
     lastMidiNote = midiNoteNumber;
 }
 
@@ -58,16 +58,19 @@ void OscData::getNextAudioBlock(juce::dsp::AudioBlock<float>& block)
     processFmOsc(block);
 
     // Applica la modulazione dell'LFO in modo continuo
-    for (int s = 0; s < block.getNumSamples(); ++s)
+    const auto numSamples = static_cast<int> (block.getNumSamples());
+    const auto numChannels = static_cast<int> (block.getNumChannels());
+
+    for (int s = 0; s < numSamples; ++s)
     {
         lfoMod = lfo.processSample(0.0f) * 5.0f;
 
         auto currentFreq = juce::MidiMessage::getMidiNoteInHertz(lastMidiNote);
         if (detuneActive)
             currentFreq *= (1.0f - detune);
-        setFrequency(currentFreq + fmMod + lfoMod);
+        setFrequency(static_cast<float> (currentFreq) + fmMod + lfoMod);
 
-        for (int ch = 0; ch < block.getNumChannels(); ++ch)
+        for (int ch = 0; ch < numChannels; ++ch)
         {
             block.setSample(ch, s, processSample(block.getSample(ch, s)));
         }
@@ -77,9 +80,12 @@ void OscData::getNextAudioBlock(juce::dsp::AudioBlock<float>& block)
 // PROCESS FM OSC
 void OscData::processFmOsc (juce::dsp::AudioBlock<float>& block)
 {
-    for (int ch = 0; ch < block.getNumChannels(); ++ch)
+    const auto numChannels = static_cast<int> (block.getNumChannels());
+    const auto numSamples = static_cast<int> (block.getNumSamples());
+
+    for (int ch = 0; ch < numChannels; ++ch)
     {
-        for (int s = 0; s < block.getNumSamples(); ++s)
+        for (int s = 0; s < numSamples; ++s)
         {
             fmMod = fmOsc.processSample (block.getSample (ch, s)) * fmDepth;
         }
@@ -91,6 +97,6 @@ void OscData::updateFm (const float freq, const float depth)
 {
     fmOsc.setFrequency (freq);
     fmDepth = depth;
-    auto currentFreq = juce::MidiMessage::getMidiNoteInHertz(lastMidiNote) + fmMod;
+    auto currentFreq = static_cast<float> (juce::MidiMessage::getMidiNoteInHertz(lastMidiNote)) + fmMod;
     setFrequency (currentFreq >= 0 ? currentFreq : currentFreq * -1.0f);
 }

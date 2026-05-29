@@ -9,6 +9,7 @@
 
 #include <JuceHeader.h>
 #include "FilterComponent.h"
+#include <BinaryData.h>
 
 //==============================================================================
 
@@ -42,7 +43,7 @@ FilterComponent::FilterComponent(juce::AudioProcessorValueTreeState& apvts)
     volumeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, "VOLUME", volumeSlider);
 
     // LABELS
-    juce::Font labelFont = juce::Font(juce::Typeface::createSystemTypefaceFor(BinaryData::timegoing_ttf, BinaryData::timegoing_ttfSize));
+    juce::Font labelFont { juce::FontOptions (juce::Typeface::createSystemTypefaceFor(BinaryData::timegoing_ttf, BinaryData::timegoing_ttfSize)) };
     labelFont.setHeight(48.0f);
 
     // CUTOFF SLIDER
@@ -71,6 +72,7 @@ FilterComponent::~FilterComponent()
 // PAINT
 void FilterComponent::paint (juce::Graphics& g)
 {
+    juce::ignoreUnused (g);
 }
 
 
@@ -81,8 +83,6 @@ void FilterComponent::resized()
     const int sliderWidth = 75;
     const int sliderHeight = 75;
     const int labelHeight = 40;
-    const int selectorWidth = 100;
-    const int selectorHeight = 30;
     const int initialX = 0;
     const int yPosition = getHeight() - sliderHeight - 12;
     const int labelYPosition = yPosition - labelHeight;

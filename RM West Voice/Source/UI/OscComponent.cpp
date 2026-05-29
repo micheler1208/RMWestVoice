@@ -74,6 +74,7 @@ OscComponent::~OscComponent()
 // PAINT
 void OscComponent::paint (juce::Graphics& g)
 {
+    juce::ignoreUnused (g);
 }
 
 // RESIZED

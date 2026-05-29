@@ -10,6 +10,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <BinaryData.h>
 
 // CONSTRUCTOR
 RMWestVoiceAudioProcessorEditor::RMWestVoiceAudioProcessorEditor (RMWestVoiceAudioProcessor& p)
@@ -54,7 +55,7 @@ void RMWestVoiceAudioProcessorEditor::paint (juce::Graphics& g)
     }
 
     // Title Text
-    juce::Font titleFont = juce::Font(juce::Typeface::createSystemTypefaceFor(BinaryData::wholecar_ttf, BinaryData::wholecar_ttfSize));
+    juce::Font titleFont { juce::FontOptions (juce::Typeface::createSystemTypefaceFor(BinaryData::wholecar_ttf, BinaryData::wholecar_ttfSize)) };
     titleFont.setHeight(72.0f);
     g.setFont(titleFont);
     g.setColour(juce::Colour::fromRGB(255, 228, 163));
@@ -64,15 +65,11 @@ void RMWestVoiceAudioProcessorEditor::paint (juce::Graphics& g)
 // GUI - RESIZE - POSITIONING
 void RMWestVoiceAudioProcessorEditor::resized()
 {
-    const int margin = 25;
-    const int sliderWidth = 75;
     const int sliderHeight = 75;
     const int labelHeight = 40; 
-    const int selectorWidth = 100;
-    const int selectorHeight = 30;
     const int initialX = 25;
     const int yPosition = getHeight() - sliderHeight - 12;
-    const int labelYPosition = yPosition - labelHeight;
+    juce::ignoreUnused (labelHeight);
 
     adsr.setBounds(initialX, yPosition - 40, getWidth() / 2, getHeight());
 
