@@ -10,6 +10,10 @@
   <MAINGROUP id="mmZiVZ" name="RMWestVoice">
     <GROUP id="{B67CD096-824F-2D43-6B6F-77CD449E3681}" name="Source">
       <GROUP id="{2F0B15D3-58D4-4A43-A8FA-2C3622B03F0D}" name="Engine">
+        <FILE id="chsC01" name="CharacterState.cpp" compile="1" resource="0"
+              file="Source/Engine/CharacterState.cpp"/>
+        <FILE id="chsH01" name="CharacterState.h" compile="0" resource="0"
+              file="Source/Engine/CharacterState.h"/>
         <FILE id="fmsC01" name="FilterModulationState.cpp" compile="1" resource="0"
               file="Source/Engine/FilterModulationState.cpp"/>
         <FILE id="fmsH01" name="FilterModulationState.h" compile="0" resource="0"

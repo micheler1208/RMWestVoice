@@ -1,3 +1,4 @@
+#include "Engine/CharacterState.h"
 #include "Engine/GlideState.h"
 #include "Engine/FilterModulationState.h"
 #include "Engine/MonoNoteStack.h"
@@ -285,6 +286,26 @@ void testFilterCutoffIsClampedBelowNyquist()
 
     expectNear(filterModulation.getCutoffHz(1.0f), 450.0f, 0.01f, "filter cutoff is clamped to a safe fraction of sample rate");
 }
+
+void testCharacterModesMapToExpectedSettings()
+{
+    const auto analog = RMWestVoice::CharacterState::getSettingsForMode(RMWestVoice::CharacterMode::analog);
+    const auto worm = RMWestVoice::CharacterState::getSettingsForMode(RMWestVoice::CharacterMode::worm);
+    const auto hybrid = RMWestVoice::CharacterState::getSettingsForMode(RMWestVoice::CharacterMode::hybrid);
+
+    expect(analog.hybridBlend == 0.0f, "analog character keeps hybrid layer silent");
+    expect(worm.filterResonanceOffset > analog.filterResonanceOffset, "worm character raises resonant vocal emphasis");
+    expect(hybrid.hybridBlend > analog.hybridBlend, "hybrid character enables auxiliary digital layer");
+    expect(hybrid.filterDriveMultiplier < analog.filterDriveMultiplier, "hybrid character keeps drive more contained");
+}
+
+void testCharacterIndexFallback()
+{
+    expect(RMWestVoice::CharacterState::modeFromIndex(0) == RMWestVoice::CharacterMode::analog, "character index zero is analog");
+    expect(RMWestVoice::CharacterState::modeFromIndex(1) == RMWestVoice::CharacterMode::worm, "character index one is worm");
+    expect(RMWestVoice::CharacterState::modeFromIndex(2) == RMWestVoice::CharacterMode::hybrid, "character index two is hybrid");
+    expect(RMWestVoice::CharacterState::modeFromIndex(99) == RMWestVoice::CharacterMode::analog, "invalid character index falls back to analog");
+}
 } // namespace
 
 int main()
@@ -304,6 +325,8 @@ int main()
     testFilterKeyTrackingRaisesCutoffByOctave();
     testFilterEnvelopeAmountAddsOctaves();
     testFilterCutoffIsClampedBelowNyquist();
+    testCharacterModesMapToExpectedSettings();
+    testCharacterIndexFallback();
 
     if (failures != 0)
         return 1;

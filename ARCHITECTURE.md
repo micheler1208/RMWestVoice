@@ -17,6 +17,7 @@ MIDI input
   -> MonoLeadEngine
   -> MonoNoteStack
   -> OscData
+  -> Character source shaping / optional hybrid layer
   -> LP24 lead filter + drive
   -> Gain
   -> ADSR
@@ -52,7 +53,7 @@ Important members:
 
 | Member | Purpose |
 | --- | --- |
-| `MonoLeadEngine monoLeadEngine` | Owns mono note handling, oscillator, LP24 lead filter, voice gain, and amp envelope. |
+| `MonoLeadEngine monoLeadEngine` | Owns mono note handling, oscillator, character macro, LP24 lead filter, voice gain, and amp envelope. |
 | `AudioProcessorValueTreeState apvts` | Owns parameters and serializable plugin state. |
 | `FilterData highPassFilter` | Post-synth high-pass cleanup filter object. |
 
@@ -93,6 +94,7 @@ Responsibilities:
 - Rendering audio between MIDI event sample positions.
 - Translating the selected active MIDI note into oscillator frequency.
 - Applying Off, Always, or Auto-Legato glide through `GlideState`.
+- Applying Analog, Worm, or Hybrid character settings through `CharacterState`.
 - Applying the LP24 lead filter, filter drive, key tracking, and filter-envelope cutoff movement.
 - Triggering ADSR note-on/note-off while preserving held-note fallback behavior.
 - Preparing oscillator, gain, ADSR, and temporary render buffers.
@@ -107,6 +109,7 @@ MIDI events
   -> active note decision
   -> GlideState
   -> PitchModulationState
+  -> CharacterState
   -> OscData::getNextAudioBlock
   -> LeadFilterData
   -> engine gain
@@ -115,6 +118,25 @@ MIDI events
 ```
 
 The gain inside the engine is currently fixed at `0.3f`. The user-facing `OUTPUT_GAIN` parameter is applied later in the processor as master gain.
+
+### `CharacterState`
+
+Files:
+
+```text
+RM West Voice/Source/Engine/CharacterState.h
+RM West Voice/Source/Engine/CharacterState.cpp
+```
+
+`CharacterState` is a pure C++ helper that maps the `CHARACTER` macro into small source and filter behavior changes.
+
+Current modes:
+
+| Mode | Behavior |
+| --- | --- |
+| `Analog` | Subtle oscillator drift, mild source softening, and neutral LP24 macro behavior. |
+| `Worm` | No hybrid layer; slightly stronger source drive, resonant emphasis, and filter-envelope emphasis for a more vocal legacy branch. |
+| `Hybrid` | Enables the auxiliary synthesized digital layer, keeps drive more contained, and reduces filter-envelope emphasis. |
 
 ### Legacy `SynthVoice` / `SynthSound`
 
@@ -225,10 +247,12 @@ RM West Voice/Source/Data/OscData.cpp
 
 - The primary oscillator function.
 - A secondary oscillator function.
+- Auxiliary hybrid carrier and shimmer oscillator functions.
 - Secondary oscillator mix state.
 - Detune state.
 - Glide state.
 - Pitch modulation state.
+- Character source settings.
 - Last played MIDI note.
 
 Current oscillator mode behavior:
@@ -244,14 +268,16 @@ The processor currently calls `setWaveType` from the `WAVE` choice parameter.
 
 Current modulation notes:
 
+- `CHARACTER` selects Analog, Worm, or Hybrid macro behavior.
 - `OSC_MIX` blends the secondary oscillator into the primary oscillator.
 - `DETUNE_CENTS` detunes only the secondary oscillator.
 - `BEND_RANGE` applies smoothed pitch wheel bend to both oscillators.
 - `VIB_DEPTH`, `VIB_RATE`, `VIB_FADE`, and `VIB_AFTERTOUCH` apply performer-controlled vibrato to both oscillators.
+- `Hybrid` character mixes in a low-level original phase-shaped digital source; it is not a sampled or branded emulation layer.
 - The previous always-on fixed LFO behavior has been removed.
 - Dormant FM helper code has been removed from the current audio path.
 
-This design is intentionally documented as transitional. Richer oscillator character should be added through later roadmap tasks rather than casual one-off modulation.
+This design is intentionally documented as transitional. More detailed band-limiting or oversampling should be evaluated around the nonlinear source and filter stages later rather than added casually.
 
 ### `AdsrData`
 
@@ -384,6 +410,7 @@ The current parameter set is:
 
 | ID | Type | Default | Notes |
 | --- | --- | --- | --- |
+| `CHARACTER` | Choice | `Analog` | Macro behavior: Analog, Worm, or Hybrid. |
 | `WAVE` | Choice | `Saw+Tri` | Curated oscillator color: Saw, Tri, Saw+Tri, or Saw+Pulse. |
 | `OSC_MIX` | Float | `0.35` | Secondary oscillator blend amount. |
 | `DETUNE_CENTS` | Float | `0.0` | Secondary oscillator detune in cents. |
@@ -425,7 +452,7 @@ During `processBlock`:
 
 1. Unused output channels are cleared.
 2. Current APVTS values are read into `MonoLeadEngine::Parameters`.
-3. The mono lead engine updates oscillator, glide, pitch modulation, LP24 filter, and ADSR settings.
+3. The mono lead engine updates character, oscillator, glide, pitch modulation, LP24 filter, and ADSR settings.
 4. MIDI note-on/note-off events are routed through `MonoNoteStack`; pitch wheel, mod wheel, and aftertouch update `PitchModulationState`.
 5. The mono lead engine renders MIDI-triggered audio into the output buffer.
 6. The output high-pass cleanup filter processes the buffer.
@@ -514,7 +541,7 @@ The previous internal fixed 5 Hz LFO has been removed from `OscData`. The curren
 
 ### UI Coverage
 
-The APVTS contains expressive modulation, filter resonance, drive, key tracking, filter envelope amount, and output high-pass cleanup parameters that the compact current UI does not yet expose. This mismatch should be resolved during the UI/parameter design pass.
+The APVTS contains character, expressive modulation, filter resonance, drive, key tracking, filter envelope amount, and output high-pass cleanup parameters that the compact current UI does not yet expose. This mismatch should be resolved during the UI/parameter design pass.
 
 ### Presets
 
@@ -526,8 +553,7 @@ The following decisions are intentionally out of scope for this cleanup stage:
 
 - Advanced legato/retrigger behavior beyond the current glide support.
 - Advanced pitch and modulation response beyond the current pitch wheel, mod wheel, and optional aftertouch behavior.
-- Further oscillator modeling, band-limiting, and character shaping.
-- Additional saturation/nonlinear color beyond the current LP24 drive stage.
+- Further oscillator modeling, band-limiting, oversampling, and character refinement.
 - Effects such as chorus, delay, or reverb.
 - Preset vocabulary and default patch design.
 - Detailed matching to any historically relevant synth lead sources.

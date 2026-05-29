@@ -12,16 +12,23 @@
 namespace
 {
 constexpr auto pi = juce::MathConstants<float>::pi;
+constexpr auto twoPi = juce::MathConstants<float>::twoPi;
 constexpr auto defaultWaveType = 2;
 }
 
 // PREPARE TO PLAY
 void OscData::prepareToPlay(juce::dsp::ProcessSpec& spec)
 {
+    sampleRate = spec.sampleRate > 0.0 ? spec.sampleRate : 44100.0;
+
     prepare(spec);
     secondaryOsc.prepare(spec);
+    hybridCarrierOsc.prepare(spec);
+    hybridShimmerOsc.prepare(spec);
     glideState.prepare(spec.sampleRate);
     pitchModulation.prepare(spec.sampleRate);
+    hybridCarrierOsc.initialise(hybridCarrierWave);
+    hybridShimmerOsc.initialise(hybridShimmerWave);
     setWaveType(defaultWaveType);
 }
 
@@ -29,8 +36,12 @@ void OscData::reset()
 {
     juce::dsp::Oscillator<float>::reset();
     secondaryOsc.reset();
+    hybridCarrierOsc.reset();
+    hybridShimmerOsc.reset();
     glideState.reset();
     pitchModulation.reset();
+    characterDriftPhaseA = 0.0f;
+    characterDriftPhaseB = 0.0f;
     lastMidiNote = 0;
 }
 
@@ -65,6 +76,12 @@ void OscData::setWaveType(const int waveType)
             secondaryOsc.initialise(sawWave);
             break;
     }
+}
+
+void OscData::setCharacterMode(int characterMode)
+{
+    characterSettings = RMWestVoice::CharacterState::getSettingsForMode(
+        RMWestVoice::CharacterState::modeFromIndex(characterMode));
 }
 
 void OscData::setOscMix(float mix)
@@ -160,12 +177,25 @@ void OscData::getNextAudioBlock(juce::dsp::AudioBlock<float>& block)
     for (int s = 0; s < numSamples; ++s)
     {
         const auto currentFreq = glideState.getNextFrequency() * pitchModulation.getNextPitchRatio();
-        setFrequency(currentFreq);
-        secondaryOsc.setFrequency(applyDetune(currentFreq, detuneCents));
+        const auto driftRatio = getCharacterDriftRatio();
+        const auto primaryFrequency = currentFreq * driftRatio;
+        const auto secondaryFrequency = applyDetune(currentFreq / driftRatio, detuneCents);
+
+        setFrequency(primaryFrequency);
+        secondaryOsc.setFrequency(secondaryFrequency);
+        hybridCarrierOsc.setFrequency(primaryFrequency);
+        hybridShimmerOsc.setFrequency(currentFreq * 2.01f);
 
         const auto primarySample = processSample(0.0f);
         const auto secondarySample = secondaryOsc.processSample(0.0f);
-        const auto outputSample = primarySample * (1.0f - oscMix) + secondarySample * oscMix;
+        const auto hybridSample = (hybridCarrierOsc.processSample(0.0f) * 0.72f)
+            + (hybridShimmerOsc.processSample(0.0f) * 0.28f);
+        const auto oscillatorSample = primarySample * (1.0f - oscMix) + secondarySample * oscMix;
+        const auto hybridBlend = characterSettings.hybridBlend;
+        const auto sourceSample = oscillatorSample * (1.0f - hybridBlend) + hybridSample * hybridBlend;
+        const auto outputSample = applyCharacterDrive(sourceSample, characterSettings);
+
+        advanceCharacterDrift();
 
         for (int ch = 0; ch < numChannels; ++ch)
         {
@@ -189,7 +219,45 @@ float OscData::pulseWave(float phase) noexcept
     return std::sin(phase) >= 0.0f ? 1.0f : -1.0f;
 }
 
+float OscData::hybridCarrierWave(float phase) noexcept
+{
+    return std::sin(phase + (0.28f * std::sin(phase * 2.0f)));
+}
+
+float OscData::hybridShimmerWave(float phase) noexcept
+{
+    return (std::sin(phase) * 0.70f) + (std::sin(phase * 2.0f) * 0.30f);
+}
+
 float OscData::applyDetune(float sourceFrequency, float cents) noexcept
 {
     return sourceFrequency * std::pow(2.0f, cents / 1200.0f);
+}
+
+float OscData::applyCharacterDrive(float sample, const RMWestVoice::CharacterSettings& settings) noexcept
+{
+    const auto drive = juce::jmax(1.0f, settings.sourceDrive);
+    const auto normalization = 1.0f / std::tanh(drive);
+
+    return std::tanh(sample * drive) * normalization * settings.sourceTrim;
+}
+
+float OscData::getCharacterDriftRatio() noexcept
+{
+    const auto driftCents = characterSettings.driftDepthCents
+        * ((0.65f * std::sin(characterDriftPhaseA)) + (0.35f * std::sin(characterDriftPhaseB)));
+
+    return std::pow(2.0f, driftCents / 1200.0f);
+}
+
+void OscData::advanceCharacterDrift() noexcept
+{
+    characterDriftPhaseA += static_cast<float>((twoPi * 0.17) / sampleRate);
+    characterDriftPhaseB += static_cast<float>((twoPi * 0.097) / sampleRate);
+
+    if (characterDriftPhaseA >= twoPi)
+        characterDriftPhaseA -= twoPi;
+
+    if (characterDriftPhaseB >= twoPi)
+        characterDriftPhaseB -= twoPi;
 }

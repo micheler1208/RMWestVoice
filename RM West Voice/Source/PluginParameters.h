@@ -15,6 +15,7 @@ namespace RMWestVoiceParameters
 {
 namespace ID
 {
+    inline constexpr auto character = "CHARACTER";
     inline constexpr auto wave = "WAVE";
     inline constexpr auto oscMix = "OSC_MIX";
     inline constexpr auto detuneCents = "DETUNE_CENTS";
@@ -50,6 +51,13 @@ namespace Wave
     inline constexpr int sawPulse = 3;
 }
 
+namespace Character
+{
+    inline constexpr int analog = 0;
+    inline constexpr int worm = 1;
+    inline constexpr int hybrid = 2;
+}
+
 namespace GlideMode
 {
     inline constexpr int off = 0;
@@ -67,6 +75,12 @@ namespace FilterType
 inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(
+        ID::character,
+        "Character",
+        juce::StringArray { "Analog", "Worm", "Hybrid" },
+        Character::analog));
 
     params.push_back(std::make_unique<juce::AudioParameterChoice>(
         ID::wave,

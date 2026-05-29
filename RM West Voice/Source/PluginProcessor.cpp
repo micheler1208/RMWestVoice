@@ -69,6 +69,7 @@ void RMWestVoiceAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
         buffer.clear (i, 0, buffer.getNumSamples());
 
     RMWestVoice::MonoLeadEngine::Parameters monoParameters;
+    monoParameters.characterMode = static_cast<int>(apvts.getRawParameterValue(RMWestVoiceParameters::ID::character)->load());
     monoParameters.waveType = static_cast<int>(apvts.getRawParameterValue(RMWestVoiceParameters::ID::wave)->load());
     monoParameters.oscMix = apvts.getRawParameterValue(RMWestVoiceParameters::ID::oscMix)->load();
     monoParameters.detuneCents = apvts.getRawParameterValue(RMWestVoiceParameters::ID::detuneCents)->load();

@@ -13,7 +13,7 @@ It does not produce MIDI output and it is not an audio effect. Audio is generate
 
 This repository has been stabilized around JUCE8 and a Visual Studio 2022 build flow. The project can be generated and built through CMake, while the original `.jucer` file is kept aligned as project metadata.
 
-The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine with basic rate-based glide, a two-oscillator core with curated Saw, Tri, Saw+Tri, and Saw+Pulse colors, smoothed pitch bend, performer-controlled vibrato, and an LP24 lead filter with drive. Larger musical changes such as extra character layers, effects, or historically informed G-funk lead modeling remain staged as separate tasks.
+The sound architecture is now moving through the post-research roadmap. The current runtime path uses a custom mono lead engine with basic rate-based glide, a two-oscillator core with curated Saw, Tri, Saw+Tri, and Saw+Pulse colors, smoothed pitch bend, performer-controlled vibrato, an LP24 lead filter with drive, and an Analog/Worm/Hybrid character macro. Larger musical changes such as post-voice effects or preset vocabulary remain staged as separate tasks.
 
 The post-research implementation sequence is tracked in [POST_RESEARCH_ROADMAP.md](POST_RESEARCH_ROADMAP.md).
 
@@ -53,6 +53,7 @@ RMWestVoice is not currently:
     |   |-- SynthVoice.*
     |   |-- SynthSound.h
     |   |-- Engine
+    |   |   |-- CharacterState.*
     |   |   |-- FilterModulationState.*
     |   |   |-- GlideState.*
     |   |   |-- MonoLeadEngine.*
@@ -181,6 +182,7 @@ The current APVTS parameter surface exposes a small number of parameters. These 
 
 | Parameter ID | Label | Current purpose |
 | --- | --- | --- |
+| `CHARACTER` | Character | Selects Analog, Worm, or Hybrid macro behavior. |
 | `WAVE` | Wave | Selects Saw, Tri, Saw+Tri, or Saw+Pulse oscillator color. |
 | `OSC_MIX` | Osc Mix | Blends the secondary oscillator into the primary oscillator. |
 | `DETUNE_CENTS` | Detune | Applies secondary oscillator detune in cents. |
@@ -249,7 +251,7 @@ The following items are intentionally not solved in this stabilization pass:
 - Further oscillator modeling, band-limiting, and lead voicing.
 - Advanced legato/retrigger behavior beyond the current glide support.
 - Advanced pitch/modulation curves beyond the current pitch wheel, mod wheel, and optional aftertouch behavior.
-- Additional nonlinear character beyond the current filter drive, plus chorus, delay, reverb, or other effects.
+- Chorus, delay, reverb, or other post-voice effects.
 - Preset management beyond DAW state recall.
 - Full UI redesign.
 - Licensing audit for bundled fonts and image assets.

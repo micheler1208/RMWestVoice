@@ -68,8 +68,11 @@ void MonoLeadEngine::reset()
 void MonoLeadEngine::updateParameters(const Parameters& newParameters)
 {
     parameters = newParameters;
+    characterState.setMode(CharacterState::modeFromIndex(parameters.characterMode));
+    const auto characterSettings = characterState.getSettings();
 
     osc.setWaveType(parameters.waveType);
+    osc.setCharacterMode(parameters.characterMode);
     osc.setOscMix(parameters.oscMix);
     osc.setDetuneCents(parameters.detuneCents);
     osc.setGlideMode(parameters.glideMode);
@@ -82,10 +85,10 @@ void MonoLeadEngine::updateParameters(const Parameters& newParameters)
 
     LeadFilterData::Parameters filterParameters;
     filterParameters.cutoffHz = parameters.filterCutoffHz;
-    filterParameters.resonance = parameters.filterResonance;
-    filterParameters.drive = parameters.filterDrive;
+    filterParameters.resonance = juce::jlimit(0.0f, 1.0f, parameters.filterResonance + characterSettings.filterResonanceOffset);
+    filterParameters.drive = juce::jmax(1.0f, parameters.filterDrive * characterSettings.filterDriveMultiplier);
     filterParameters.keyTracking = parameters.filterKeyTracking;
-    filterParameters.envelopeAmountOctaves = parameters.filterEnvelopeAmountOctaves;
+    filterParameters.envelopeAmountOctaves = parameters.filterEnvelopeAmountOctaves * characterSettings.filterEnvelopeMultiplier;
     filterParameters.envelopeAttack = parameters.ampAttack;
     filterParameters.envelopeDecay = parameters.ampDecay;
     filterParameters.envelopeSustain = parameters.ampSustain;

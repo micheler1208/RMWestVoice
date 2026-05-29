@@ -14,6 +14,7 @@
 #include "../Data/AdsrData.h"
 #include "../Data/LeadFilterData.h"
 #include "../Data/OscData.h"
+#include "CharacterState.h"
 #include "MonoNoteStack.h"
 
 namespace RMWestVoice
@@ -23,6 +24,7 @@ class MonoLeadEngine
 public:
     struct Parameters
     {
+        int characterMode { 0 };
         int waveType { 0 };
         float oscMix { 0.35f };
         float detuneCents { 0.0f };
@@ -70,6 +72,7 @@ private:
 
     MonoNoteStack noteStack;
     Parameters parameters;
+    CharacterState characterState;
 
     AdsrData adsr;
     OscData osc;
