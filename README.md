@@ -259,7 +259,7 @@ The current build entrypoint is CMake:
 RM West Voice/CMakeLists.txt
 ```
 
-The `.jucer` file remains useful as historical project metadata and has been updated to point at JUCE8 modules, but the stabilized build flow is the generated Visual Studio solution from CMake.
+The `.jucer` file remains useful as historical project metadata and has been updated to point at JUCE8 modules. Its Visual Studio exporter writes to `Builds/ProjucerVisualStudio2022` so it does not overwrite the CMake solution in `Builds/VisualStudio2022`; the stabilized build flow remains CMake.
 
 When changing the project:
 

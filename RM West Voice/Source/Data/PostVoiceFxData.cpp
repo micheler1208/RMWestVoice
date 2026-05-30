@@ -63,7 +63,7 @@ void PostVoiceFxData::updateParameters(const Parameters& newParameters)
     reverbParameters.roomSize = settings.reverbSize;
     reverbParameters.damping = settings.reverbDamping;
     reverbParameters.wetLevel = settings.reverbMix / 3.0f;
-    reverbParameters.dryLevel = (1.0f - settings.reverbMix) / 2.0f;
+    reverbParameters.dryLevel = 1.0f;
     reverbParameters.width = 1.0f;
     reverbParameters.freezeMode = 0.0f;
     reverb.setParameters(reverbParameters);

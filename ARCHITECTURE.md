@@ -537,7 +537,7 @@ Important build decisions:
 - `COPY_PLUGIN_AFTER_BUILD` is disabled.
 - `JUCE_VST3_CAN_REPLACE_VST2=0` is explicitly defined.
 
-The `.jucer` file remains in the repository and is aligned with the same metadata, but the current reliable build path is CMake.
+The `.jucer` file remains in the repository and is aligned with the same metadata, but the current reliable build path is CMake. Its VS2022 exporter targets `Builds/ProjucerVisualStudio2022` to avoid overwriting the CMake-generated solution in `Builds/VisualStudio2022`.
 
 ## Assets
 

@@ -9,6 +9,24 @@ Original PDF metadata:
 - Producer: `WeasyPrint 68.0`
 - Pages: 10
 
+## Implementation Alignment Note
+
+As of 2026-05-30, the current codebase implements the central engineering
+direction recommended by this research: a custom mono engine, rate-based
+Off/Always/Auto-Legato glide, selectable note priority, two-oscillator curated
+wave choices, wider pitch bend options, mod-wheel vibrato with fade-in,
+optional aftertouch contribution, LP24 lead filtering with drive/key
+tracking/filter envelope movement, Analog/Worm/Hybrid character behavior, a
+dry mono source followed by measured width/delay/reverb, and five original
+factory programs.
+
+This document remains a research source, so some recommendations below should
+be read as future or optional design guidance rather than implemented features.
+The current v1 code does not implement syncable delay, a delay high-cut filter,
+oversampling, MPE, an exposed glide-curve control, a hidden formant/resonator
+mode, a separate gain-compensation block for filter drive, or a custom preset
+browser/import-export format.
+
 RM West Voice, if it wants to be historically credible without becoming an illegitimate copy of a specific track, should not chase a single "mythical preset". It should instead target a family of sonic behaviors born from the intersection of at least three historical lines: the ARP Pro Soloist / "Funky Worm" branch of early synthesized funk, the Minimoog / P-Funk / Dr. Dre branch of the expressive monophonic lead with glide and bend, and the late-1980s hybrid workstation branch represented by instruments such as the Yamaha SY77. That last branch matters because Colin Wolfe later challenged the idea that the famous tone in "Nuthin' But a 'G' Thang" was performed with a Moog, indicating instead a Yamaha SY77. For a plugin dedicated to that vocabulary, then, the smartest choice is not "Minimoog only", but a mono-subtractive core plus optional hybrid digital coloration.
 
 ## Historical Frame and Sound Philology
